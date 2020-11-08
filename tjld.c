@@ -12,6 +12,8 @@ int shutdown();
 
 SDL_Window* Window;
 SDL_Surface* ScreenSurface;
+SDL_Renderer* Renderer;
+
 SDL_Rect CursorRect;
 
 float CursorXPosition;
@@ -72,7 +74,7 @@ int main(int argc, char* args[])
 
 int init()
 {
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
 	{
     fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
 
@@ -93,9 +95,9 @@ int init()
     
 		return 1;
   }
-	/*
-	SDL_Renderer* renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (renderer == NULL)
+	
+	Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED);// | SDL_RENDERER_PRESENTVSYNC);
+	if (Renderer == NULL)
 	{
 		SDL_DestroyWindow(Window);
 
@@ -104,9 +106,7 @@ int init()
 		return 1;
 	}
 
-	SDL_RenderClear(renderer);
-	*/
-  ScreenSurface = SDL_GetWindowSurface(Window);
+	ScreenSurface = SDL_GetWindowSurface(Window);
 
 	return 0;
 }
@@ -122,17 +122,20 @@ int process()
 
 void draw()
 {
-	SDL_FillRect(ScreenSurface, NULL, SDL_MapRGB(ScreenSurface->format, 0x00, 0x00, 0x00));
+	SDL_SetRenderDrawColor(Renderer, 0x00, 0x00, 0x00, 0xff);
+	SDL_RenderClear(Renderer);
 
-	SDL_FillRect(ScreenSurface, &CursorRect, SDL_MapRGB(ScreenSurface->format, 0xff, 0xff, 0xff));
+	SDL_SetRenderDrawColor(Renderer, 0xff, 0xff, 0xff, 0xff);
+	SDL_RenderFillRect(Renderer, &CursorRect);
 
-	SDL_UpdateWindowSurface(Window);
+	SDL_RenderPresent(Renderer);
 }
 
 int shutdown()
 {
 	SDL_DestroyWindow(Window);
-  SDL_Quit();
+	SDL_DestroyRenderer(Renderer);
+	SDL_Quit();
 
 	return 0;
 }

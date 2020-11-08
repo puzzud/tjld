@@ -8,10 +8,12 @@ const uint ScreenHeight = 200;
 const uint FramesPerSecond = 60;
 const uint FrameDelay = 1000 / FramesPerSecond;
 
-int init();
-int process();
-void draw();
-int shutdown();
+int Init();
+int Process();
+void Draw();
+int Shutdown();
+
+void DrawRectangle(uint x, uint y, uint width, uint height, SDL_Color* color);
 
 SDL_Window* Window;
 SDL_Surface* ScreenSurface;
@@ -20,22 +22,17 @@ SDL_Renderer* Renderer;
 uint frameStart;
 uint frameTime;
 
-SDL_Rect CursorRect;
-
 float CursorXPosition;
 
 int main(int argc, char* args[])
 {
-	int result = init();
+	int result = Init();
 	if (result != 0)
 	{
 		return result;
 	}
-	
-	CursorRect.x = CursorXPosition = 32;
-	CursorRect.y = 32;
-	CursorRect.w = 8;
-	CursorRect.h = 8;
+
+	CursorXPosition = 32.0;
   
 	int quit = 0;
 
@@ -72,9 +69,9 @@ int main(int argc, char* args[])
 			}
 		}
 
-		process();
+		Process();
 
-		draw();
+		Draw();
 
 		frameTime = SDL_GetTicks() - frameStart;
 
@@ -84,10 +81,10 @@ int main(int argc, char* args[])
 		}
 	}
 
-	return shutdown();
+	return Shutdown();
 }
 
-int init()
+int Init()
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
 	{
@@ -126,31 +123,44 @@ int init()
 	return 0;
 }
 
-int process()
+int Process()
 {
 	CursorXPosition += 0.5;
-
-	CursorRect.x = (int)CursorXPosition;
 
 	return 0;
 }
 
-void draw()
+void Draw()
 {
 	SDL_SetRenderDrawColor(Renderer, 0x00, 0x00, 0x00, 0xff);
 	SDL_RenderClear(Renderer);
 
-	SDL_SetRenderDrawColor(Renderer, 0xff, 0xff, 0xff, 0xff);
-	SDL_RenderFillRect(Renderer, &CursorRect);
+	SDL_Color color;
+	color.r = 0xff;
+	color.g = 0xff;
+	color.b = 0xff;
+	color.a = 0xff;
+	DrawRectangle((int)CursorXPosition, 32, 8, 8, &color);
 
 	SDL_RenderPresent(Renderer);
 }
 
-int shutdown()
+int Shutdown()
 {
 	SDL_DestroyWindow(Window);
 	SDL_DestroyRenderer(Renderer);
 	SDL_Quit();
 
 	return 0;
+}
+
+void DrawRectangle(uint x, uint y, uint width, uint height, SDL_Color* color)
+{
+	SDL_SetRenderDrawColor(Renderer, color->r, color->g, color->b, color->a);
+	SDL_Rect rect;
+	rect.x = x;
+	rect.y = y;
+	rect.w = width;
+	rect.h = height;
+	SDL_RenderFillRect(Renderer, &rect);
 }

@@ -19,8 +19,8 @@ SDL_Window* Window;
 SDL_Surface* ScreenSurface;
 SDL_Renderer* Renderer;
 
-uint frameStart;
-uint frameTime;
+uint FrameStart;
+uint FrameTime;
 
 float CursorXPosition;
 
@@ -38,7 +38,7 @@ int main(int argc, char* args[])
 
 	while (quit == 0)
 	{
-		frameStart = SDL_GetTicks();
+		FrameStart = SDL_GetTicks();
 
 		SDL_Event event;
 		while (SDL_PollEvent(&event) != 0)
@@ -73,11 +73,11 @@ int main(int argc, char* args[])
 
 		Draw();
 
-		frameTime = SDL_GetTicks() - frameStart;
+		FrameTime = SDL_GetTicks() - FrameStart;
 
-		if (FrameDelay > frameTime)
+		if (FrameDelay > FrameTime)
 		{
-			SDL_Delay(FrameDelay - frameTime);
+			SDL_Delay(FrameDelay - FrameTime);
 		}
 	}
 

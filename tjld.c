@@ -2,8 +2,11 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 
-const int SCREEN_WIDTH = 320;
-const int SCREEN_HEIGHT = 200;
+const uint ScreenWidth = 320;
+const uint ScreenHeight = 200;
+
+const uint FramesPerSecond = 60;
+const uint FrameDelay = 1000 / FramesPerSecond;
 
 int init();
 int process();
@@ -13,6 +16,9 @@ int shutdown();
 SDL_Window* Window;
 SDL_Surface* ScreenSurface;
 SDL_Renderer* Renderer;
+
+uint frameStart;
+uint frameTime;
 
 SDL_Rect CursorRect;
 
@@ -35,6 +41,8 @@ int main(int argc, char* args[])
 
 	while (quit == 0)
 	{
+		frameStart = SDL_GetTicks();
+
 		SDL_Event event;
 		while (SDL_PollEvent(&event) != 0)
 		{
@@ -67,6 +75,13 @@ int main(int argc, char* args[])
 		process();
 
 		draw();
+
+		frameTime = SDL_GetTicks() - frameStart;
+
+		if (FrameDelay > frameTime)
+		{
+			SDL_Delay(FrameDelay - frameTime);
+		}
 	}
 
 	return shutdown();
@@ -85,7 +100,7 @@ int init()
 		(
 			"tjld",
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-			SCREEN_WIDTH, SCREEN_HEIGHT,
+			ScreenWidth, ScreenHeight,
 			SDL_WINDOW_SHOWN
 		);
 	
@@ -113,7 +128,7 @@ int init()
 
 int process()
 {
-	CursorXPosition += 0.005;
+	CursorXPosition += 0.5;
 
 	CursorRect.x = (int)CursorXPosition;
 

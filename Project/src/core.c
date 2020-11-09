@@ -1,6 +1,11 @@
 #include "core.h"
 
 #include <SDL2/SDL.h>
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #include <stdio.h>
 
 #include "video.h"
@@ -18,6 +23,7 @@ uint FrameTime;
 int Init();
 int Process();
 int Shutdown();
+void MainLoop();
 
 int main(int argc, char* args[])
 {
@@ -29,39 +35,18 @@ int main(int argc, char* args[])
   
 	Running = 1;
 
-	while (Running != 0)
-	{
-		FrameStart = SDL_GetTicks();
-
-		SDL_Event event;
-		while (SDL_PollEvent(&event) != 0)
-		{
-			if (event.type == SDL_QUIT)
-			{
-				Running = 0;
-			}
-
-			OnInputEvent(&event);
-		}
-
-		Process();
-
-		Draw();
-
-		FrameTime = SDL_GetTicks() - FrameStart;
-
-		if (FrameDelay > FrameTime)
-		{
-			SDL_Delay(FrameDelay - FrameTime);
-		}
-	}
-
+#ifdef __EMSCRIPTEN__
+	emscripten_set_main_loop(MainLoop, 0, 1);
+	return 0;
+#else
+	MainLoop();
 	return Shutdown();
+#endif
 }
 
 int Init()
 {
-	if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
+	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
     fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
 
@@ -82,4 +67,43 @@ int Shutdown()
 	SDL_Quit();
 
 	return 0;
+}
+
+void MainLoop()
+{
+	while (Running != 0)
+	{
+		FrameStart = SDL_GetTicks();
+
+		SDL_Event event;
+		while (SDL_PollEvent(&event) != 0)
+		{
+			switch (event.type)
+			{
+				case SDL_QUIT:
+				{
+					Running = 0;
+
+					break;
+				}
+
+				case SDL_KEYDOWN:
+				case SDL_KEYUP:
+				{
+					OnInputEvent(&event);
+
+					break;
+				}
+			}
+		}
+
+		Process();
+		Draw();
+
+		FrameTime = SDL_GetTicks() - FrameStart;
+		if (FrameDelay > FrameTime)
+		{
+			SDL_Delay(FrameDelay - FrameTime);
+		}
+	}
 }

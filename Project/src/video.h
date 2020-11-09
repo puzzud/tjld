@@ -5,8 +5,7 @@
 
 extern uint BackgroundColorCode;
 
-extern uint TileMapWidth;
-extern uint TileMapHeight;
+extern SDL_Point TileMapDimensions;
 
 int InitializeVideo();
 void InitializeTilemap();

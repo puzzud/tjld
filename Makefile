@@ -6,8 +6,8 @@
 .PHONY: all
 all: tjld
 
-tjld: tjld.c core.c video.c color.c input.c
-	g++ -o tjld tjld.c core.c video.c color.c input.c `sdl2-config --cflags --libs`
+tjld: src/tjld.c src/core.c src/video.c src/color.c src/input.c
+	g++ -o tjld src/tjld.c src/core.c src/video.c src/color.c src/input.c `sdl2-config --cflags --libs`
 
 .PHONY: clean
 clean:

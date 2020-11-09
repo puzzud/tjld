@@ -2,4 +2,6 @@
 .directory
 *~
 
+.vscode/
+
 tjld

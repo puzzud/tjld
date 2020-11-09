@@ -52,11 +52,15 @@ void SetColorValuesFromWord(SDL_Color* color, uint word);
 void DrawRectangle(uint x, uint y, uint width, uint height, SDL_Color* color);
 void DrawTileMap();
 
+char GetTileMapShapeCode(int x, int y);
+char GetTileMapColorCode(int x, int y);
 void SetTileMapCell(int x, int y, char shapeCode, char colorCode);
 
 SDL_Window* Window;
 SDL_Surface* ScreenSurface;
 SDL_Renderer* Renderer;
+
+uint Quit;
 
 uint FrameStart;
 uint FrameTime;
@@ -67,13 +71,14 @@ uint TileMapHeight;
 #define NUMBER_OF_COLORS 16
 SDL_Color Colors[NUMBER_OF_COLORS];
 
-int CursorXPosition;
-int CursorYPosition;
-
 char* TileMapShapeCodes;
 char* TileMapColorCodes;
 
 uint KeyScanCodeStates[SDL_NUM_SCANCODES];
+
+int CursorXPosition;
+int CursorYPosition;
+int Score;
 
 int main(int argc, char* args[])
 {
@@ -83,9 +88,9 @@ int main(int argc, char* args[])
 		return result;
 	}
   
-	int quit = 0;
+	Quit = 0;
 
-	while (quit == 0)
+	while (Quit == 0)
 	{
 		FrameStart = SDL_GetTicks();
 
@@ -96,7 +101,7 @@ int main(int argc, char* args[])
 			{
 				case SDL_QUIT:
 				{
-					quit = 1;
+					Quit = 1;
 
 					break;
 				}
@@ -111,7 +116,7 @@ int main(int argc, char* args[])
 						{
 							case SDL_SCANCODE_ESCAPE:
 							{
-								quit = 1;
+								Quit = 1;
 
 								break;
 							}
@@ -194,29 +199,30 @@ int Init()
 
 int Process()
 {
-	if (KeyScanCodeStates[SDL_SCANCODE_LEFT] == 1)
-	{
-		SetTileMapCell(CursorXPosition, CursorYPosition, 0, COLOR_BLACK);
-		CursorXPosition -= 1;
-		SetTileMapCell(CursorXPosition, CursorYPosition, 1, COLOR_LIGHT_BLUE);
-	}
-	else if (KeyScanCodeStates[SDL_SCANCODE_RIGHT] == 1)
-	{
-		SetTileMapCell(CursorXPosition, CursorYPosition, 0, COLOR_BLACK);
-		CursorXPosition += 1;
-		SetTileMapCell(CursorXPosition, CursorYPosition, 1, COLOR_LIGHT_BLUE);
-	}
+	int cursorXDelta = KeyScanCodeStates[SDL_SCANCODE_RIGHT] - KeyScanCodeStates[SDL_SCANCODE_LEFT];
+	int cursorYDelta = KeyScanCodeStates[SDL_SCANCODE_DOWN] - KeyScanCodeStates[SDL_SCANCODE_UP];
 
-	if (KeyScanCodeStates[SDL_SCANCODE_UP] == 1)
+	if (cursorXDelta != 0 || cursorYDelta != 0)
 	{
 		SetTileMapCell(CursorXPosition, CursorYPosition, 0, COLOR_BLACK);
-		CursorYPosition -= 1;
-		SetTileMapCell(CursorXPosition, CursorYPosition, 1, COLOR_LIGHT_BLUE);
-	}
-	else if (KeyScanCodeStates[SDL_SCANCODE_DOWN] == 1)
-	{
-		SetTileMapCell(CursorXPosition, CursorYPosition, 0, COLOR_BLACK);
-		CursorYPosition += 1;
+		CursorXPosition += cursorXDelta;
+		CursorYPosition += cursorYDelta;
+
+		if (GetTileMapShapeCode(CursorXPosition, CursorYPosition) != 0)
+		{
+			if (GetTileMapColorCode(CursorXPosition, CursorYPosition) == COLOR_YELLOW)
+			{
+				Score += 1;
+				if (Score == 1)
+				{
+					Quit = 1;
+				}
+
+				printf("Score: %d", Score);
+				printf("\n");
+			}
+		}
+
 		SetTileMapCell(CursorXPosition, CursorYPosition, 1, COLOR_LIGHT_BLUE);
 	}
 
@@ -283,10 +289,12 @@ void InitializeTilemap()
 void InitializeNodeTree()
 {
 	// TODO: Call out custom logic?
-	int CursorXPosition = 0;
-	int CursorYPosition = 0;
+	Score = 0;
+
+	CursorXPosition = 0;
+	CursorYPosition = 0;
 	SetTileMapCell(CursorXPosition, CursorYPosition, 1, COLOR_LIGHT_BLUE);
-	
+
 	SetTileMapCell(TileMapWidth / 2, TileMapHeight / 2, 1, COLOR_YELLOW);
 }
 
@@ -350,9 +358,19 @@ void DrawTileMap()
 	}
 }
 
+char GetTileMapShapeCode(int x, int y)
+{
+	return TileMapShapeCodes[(y * TileMapWidth) + x];
+}
+
+char GetTileMapColorCode(int x, int y)
+{
+	return TileMapColorCodes[(y * TileMapWidth) + x];
+}
+
 void SetTileMapCell(int x, int y, char shapeCode, char colorCode)
 {
-	uint tileMapOffset = (y * TileMapWidth) + x;
+	const uint tileMapOffset = (y * TileMapWidth) + x;
 
 	TileMapShapeCodes[tileMapOffset] = shapeCode;
 	TileMapColorCodes[tileMapOffset] = colorCode;

@@ -2,6 +2,7 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include <malloc.h>
+#include <string.h>
 
 const uint ScreenWidth = 320;
 const uint ScreenHeight = 200;
@@ -42,6 +43,8 @@ void InitializeTilemap();
 
 void InitializeNodeTree();
 
+void InitializeInput();
+
 void FreeTilemap();
 
 void SetColorValuesFromWord(SDL_Color* color, uint word);
@@ -64,10 +67,13 @@ uint TileMapHeight;
 #define NUMBER_OF_COLORS 16
 SDL_Color Colors[NUMBER_OF_COLORS];
 
-float CursorXPosition;
+int CursorXPosition;
+int CursorYPosition;
 
 char* TileMapShapeCodes;
 char* TileMapColorCodes;
+
+uint KeyScanCodeStates[SDL_NUM_SCANCODES];
 
 int main(int argc, char* args[])
 {
@@ -97,14 +103,29 @@ int main(int argc, char* args[])
 
 				case SDL_KEYDOWN:
 				{
-					switch (event.key.keysym.sym)
+					if (event.key.repeat == 0)
 					{
-						case SDLK_ESCAPE:
-						{
-							quit = 1;
+						KeyScanCodeStates[event.key.keysym.scancode] = 1;
 
-							break;
+						switch (event.key.keysym.scancode)
+						{
+							case SDL_SCANCODE_ESCAPE:
+							{
+								quit = 1;
+
+								break;
+							}
 						}
+					}
+
+					break;
+				}
+
+				case SDL_KEYUP:
+				{
+					if (event.key.repeat == 0)
+					{
+						KeyScanCodeStates[event.key.keysym.scancode] = 0;
 					}
 
 					break;
@@ -173,7 +194,31 @@ int Init()
 
 int Process()
 {
-	CursorXPosition += 0.5;
+	if (KeyScanCodeStates[SDL_SCANCODE_LEFT] == 1)
+	{
+		SetTileMapCell(CursorXPosition, CursorYPosition, 0, COLOR_BLACK);
+		CursorXPosition -= 1;
+		SetTileMapCell(CursorXPosition, CursorYPosition, 1, COLOR_LIGHT_BLUE);
+	}
+	else if (KeyScanCodeStates[SDL_SCANCODE_RIGHT] == 1)
+	{
+		SetTileMapCell(CursorXPosition, CursorYPosition, 0, COLOR_BLACK);
+		CursorXPosition += 1;
+		SetTileMapCell(CursorXPosition, CursorYPosition, 1, COLOR_LIGHT_BLUE);
+	}
+
+	if (KeyScanCodeStates[SDL_SCANCODE_UP] == 1)
+	{
+		SetTileMapCell(CursorXPosition, CursorYPosition, 0, COLOR_BLACK);
+		CursorYPosition -= 1;
+		SetTileMapCell(CursorXPosition, CursorYPosition, 1, COLOR_LIGHT_BLUE);
+	}
+	else if (KeyScanCodeStates[SDL_SCANCODE_DOWN] == 1)
+	{
+		SetTileMapCell(CursorXPosition, CursorYPosition, 0, COLOR_BLACK);
+		CursorYPosition += 1;
+		SetTileMapCell(CursorXPosition, CursorYPosition, 1, COLOR_LIGHT_BLUE);
+	}
 
 	return 0;
 }
@@ -238,8 +283,16 @@ void InitializeTilemap()
 void InitializeNodeTree()
 {
 	// TODO: Call out custom logic?
-	CursorXPosition = 32.0;
-	SetTileMapCell(0, 0, 1, COLOR_YELLOW);
+	int CursorXPosition = 0;
+	int CursorYPosition = 0;
+	SetTileMapCell(CursorXPosition, CursorYPosition, 1, COLOR_LIGHT_BLUE);
+	
+	SetTileMapCell(TileMapWidth / 2, TileMapHeight / 2, 1, COLOR_YELLOW);
+}
+
+void InitializeInput()
+{
+	memset(KeyScanCodeStates, 0, SDL_NUM_SCANCODES * sizeof(uint));
 }
 
 void FreeTilemap()

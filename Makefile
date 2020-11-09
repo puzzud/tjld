@@ -7,7 +7,7 @@
 all: tjld
 
 tjld: tjld.c
-	g++ -o tjld tjld.c -lSDL2main -lSDL2
+	g++ -o tjld tjld.c `sdl2-config --cflags --libs`
 
 .PHONY: clean
 clean:

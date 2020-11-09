@@ -40,6 +40,8 @@ int Shutdown();
 void InitializeColors();
 void InitializeTilemap();
 
+void InitializeNodeTree();
+
 void FreeTilemap();
 
 void SetColorValuesFromWord(SDL_Color* color, uint word);
@@ -74,9 +76,6 @@ int main(int argc, char* args[])
 	{
 		return result;
 	}
-	
-	CursorXPosition = 32.0;
-	SetTileMapCell(0, 0, 1, COLOR_YELLOW);
   
 	int quit = 0;
 
@@ -167,6 +166,8 @@ int Init()
 	InitializeColors();
 	InitializeTilemap();
 
+	InitializeNodeTree();
+
 	return 0;
 }
 
@@ -232,6 +233,13 @@ void InitializeTilemap()
 
 	TileMapShapeCodes = (char*)calloc(TileMapWidth * TileMapHeight, sizeof(char));
 	TileMapColorCodes = (char*)calloc(TileMapWidth * TileMapHeight, sizeof(char));
+}
+
+void InitializeNodeTree()
+{
+	// TODO: Call out custom logic?
+	CursorXPosition = 32.0;
+	SetTileMapCell(0, 0, 1, COLOR_YELLOW);
 }
 
 void FreeTilemap()

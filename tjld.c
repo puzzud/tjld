@@ -65,6 +65,8 @@ uint Quit;
 uint FrameStart;
 uint FrameTime;
 
+SDL_Point RenderScale;
+
 uint TileMapWidth;
 uint TileMapHeight;
 
@@ -162,11 +164,14 @@ int Init()
     return 1;
   }
 
-  Window = SDL_CreateWindow
+	RenderScale.x = 3;
+	RenderScale.y = 3;
+
+	Window = SDL_CreateWindow
 		(
 			"tjld",
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-			ScreenWidth, ScreenHeight,
+			ScreenWidth * RenderScale.x, ScreenHeight * RenderScale.y,
 			SDL_WINDOW_SHOWN
 		);
 	
@@ -186,6 +191,8 @@ int Init()
 
 		return 1;
 	}
+
+	SDL_RenderSetScale(Renderer, (float)RenderScale.x, (float)RenderScale.y);
 
 	ScreenSurface = SDL_GetWindowSurface(Window);
 

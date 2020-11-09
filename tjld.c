@@ -6,6 +6,7 @@
 
 #include "video.h"
 #include "color.h"
+#include "input.h"
 
 const uint FramesPerSecond = 60;
 const uint FrameDelay = 1000 / FramesPerSecond;
@@ -18,11 +19,8 @@ int Process();
 int Shutdown();
 
 void InitializeNodeTree();
-void InitializeInput();
 
 uint Quit;
-
-uint KeyScanCodeStates[SDL_NUM_SCANCODES];
 
 int CursorXPosition;
 int CursorYPosition;
@@ -45,45 +43,12 @@ int main(int argc, char* args[])
 		SDL_Event event;
 		while (SDL_PollEvent(&event) != 0)
 		{
-			switch (event.type)
+			if (event.type == SDL_QUIT)
 			{
-				case SDL_QUIT:
-				{
-					Quit = 1;
-
-					break;
-				}
-
-				case SDL_KEYDOWN:
-				{
-					if (event.key.repeat == 0)
-					{
-						KeyScanCodeStates[event.key.keysym.scancode] = 1;
-
-						switch (event.key.keysym.scancode)
-						{
-							case SDL_SCANCODE_ESCAPE:
-							{
-								Quit = 1;
-
-								break;
-							}
-						}
-					}
-
-					break;
-				}
-
-				case SDL_KEYUP:
-				{
-					if (event.key.repeat == 0)
-					{
-						KeyScanCodeStates[event.key.keysym.scancode] = 0;
-					}
-
-					break;
-				}
+				Quit = 1;
 			}
+
+			OnInputEvent(&event);
 		}
 
 		Process();
@@ -168,9 +133,4 @@ void InitializeNodeTree()
 	SetTileMapCell(CursorXPosition, CursorYPosition, 1, COLOR_LIGHT_BLUE);
 
 	SetTileMapCell(TileMapWidth / 2, TileMapHeight / 2, 1, COLOR_YELLOW);
-}
-
-void InitializeInput()
-{
-	memset(KeyScanCodeStates, 0, SDL_NUM_SCANCODES * sizeof(uint));
 }

@@ -7,10 +7,6 @@
 #include "color.h"
 #include "input.h"
 
-int Process();
-
-void InitializeNodeTree();
-
 int CursorXPosition;
 int CursorYPosition;
 int Score;

@@ -1,5 +1,4 @@
 // TJLD
-#include <SDL2/SDL.h>
 #include <stdio.h>
 
 #include "core.h"
@@ -7,14 +6,14 @@
 #include "color.h"
 #include "input.h"
 
-SDL_Point CursorPosition;
+Point CursorPosition;
 int Score;
 
 int Process()
 {
-	SDL_Point cursorDelta;
-	cursorDelta.x = KeyScanCodeStates[SDL_SCANCODE_RIGHT] - KeyScanCodeStates[SDL_SCANCODE_LEFT];
-	cursorDelta.y = KeyScanCodeStates[SDL_SCANCODE_DOWN] - KeyScanCodeStates[SDL_SCANCODE_UP];
+	Point cursorDelta;
+	cursorDelta.x = KeyCodeStates[KEY_CODE_RIGHT] - KeyCodeStates[KEY_CODE_LEFT];
+	cursorDelta.y = KeyCodeStates[KEY_CODE_DOWN] - KeyCodeStates[KEY_CODE_UP];
 
 	if (cursorDelta.x != 0 || cursorDelta.y != 0)
 	{

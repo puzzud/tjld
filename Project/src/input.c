@@ -3,11 +3,11 @@
 #include <SDL2/SDL.h>
 #include <string.h>
 
-uint KeyScanCodeStates[SDL_NUM_SCANCODES];
+unsigned int KeyCodeStates[NUM_OF_KEY_CODES];
 
 void InitializeInput()
 {
-	memset(KeyScanCodeStates, 0, SDL_NUM_SCANCODES * sizeof(uint));
+	memset(KeyCodeStates, 0, NUM_OF_KEY_CODES * sizeof(unsigned int));
 }
 
 void OnInputEvent(SDL_Event* event)
@@ -18,7 +18,7 @@ void OnInputEvent(SDL_Event* event)
 		{
 			if (event->key.repeat == 0)
 			{
-				KeyScanCodeStates[event->key.keysym.scancode] = 1;
+				KeyCodeStates[event->key.keysym.scancode] = 1;
 			}
 
 			break;
@@ -28,7 +28,7 @@ void OnInputEvent(SDL_Event* event)
 		{
 			if (event->key.repeat == 0)
 			{
-				KeyScanCodeStates[event->key.keysym.scancode] = 0;
+				KeyCodeStates[event->key.keysym.scancode] = 0;
 			}
 
 			break;

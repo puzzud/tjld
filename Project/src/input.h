@@ -3,7 +3,17 @@
 
 #include <SDL2/SDL.h>
 
-extern uint KeyScanCodeStates[SDL_NUM_SCANCODES];
+#define NUM_OF_KEY_CODES SDL_NUM_SCANCODES
+
+typedef enum
+{
+	KEY_CODE_LEFT = SDL_SCANCODE_LEFT,
+	KEY_CODE_RIGHT = SDL_SCANCODE_RIGHT,
+	KEY_CODE_UP = SDL_SCANCODE_UP,
+	KEY_CODE_DOWN = SDL_SCANCODE_DOWN
+} KeyCode;
+
+extern uint KeyCodeStates[NUM_OF_KEY_CODES];
 
 void InitializeInput();
 

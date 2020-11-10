@@ -3,7 +3,9 @@
 
 #include <SDL2/SDL.h>
 
-extern uint Running;
+typedef SDL_Point Point;
+
+extern unsigned int Running;
 
 void InitializeNodeTree();
 

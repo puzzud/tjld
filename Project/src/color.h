@@ -20,10 +20,11 @@ typedef enum
 	COLOR_GREY_2,
 	COLOR_LIGHT_GREEN,
 	COLOR_LIGHT_BLUE,
-	COLOR_GREY_3
+	COLOR_GREY_3,
+
+	NUMBER_OF_COLORS
 } ColorCode;
 
-#define NUMBER_OF_COLORS 16
 extern SDL_Color Colors[NUMBER_OF_COLORS];
 
 void InitializeColors();

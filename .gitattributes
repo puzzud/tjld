@@ -44,6 +44,7 @@
 *.ico binary
 *.ttf binary
 *.ase binary
+*.xcf binary
 
 *.dae binary
 *.fbx binary
@@ -55,5 +56,6 @@
 *.wav binary
 *.ogg binary
 *.mp3 binary
+*.sunvox binary
 
 *.stex binary

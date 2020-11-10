@@ -15,7 +15,9 @@
 uint Running;
 
 const uint FramesPerSecond = 60;
+#ifndef __EMSCRIPTEN__
 const uint FrameDelay = 1000 / FramesPerSecond;
+#endif
 
 uint FrameStart;
 uint FrameTime;
@@ -24,6 +26,7 @@ int Init();
 int Process();
 int Shutdown();
 void MainLoop();
+void MainLoopIteration();
 
 int main(int argc, char* args[])
 {
@@ -36,7 +39,7 @@ int main(int argc, char* args[])
 	Running = 1;
 
 #ifdef __EMSCRIPTEN__
-	emscripten_set_main_loop(MainLoop, 0, 1);
+	emscripten_set_main_loop(MainLoopIteration, 0, 1);
 	return 0;
 #else
 	MainLoop();
@@ -73,37 +76,46 @@ void MainLoop()
 {
 	while (Running != 0)
 	{
-		FrameStart = SDL_GetTicks();
+		MainLoopIteration();
+	}
+}
 
-		SDL_Event event;
-		while (SDL_PollEvent(&event) != 0)
+inline void MainLoopIteration()
+{
+#ifndef __EMSCRIPTEN__
+	FrameStart = SDL_GetTicks();
+#endif
+
+	SDL_Event event;
+	while (SDL_PollEvent(&event) != 0)
+	{
+		switch (event.type)
 		{
-			switch (event.type)
+			case SDL_QUIT:
 			{
-				case SDL_QUIT:
-				{
-					Running = 0;
+				Running = 0;
 
-					break;
-				}
+				break;
+			}
 
-				case SDL_KEYDOWN:
-				case SDL_KEYUP:
-				{
-					OnInputEvent(&event);
+			case SDL_KEYDOWN:
+			case SDL_KEYUP:
+			{
+				OnInputEvent(&event);
 
-					break;
-				}
+				break;
 			}
 		}
-
-		Process();
-		Draw();
-
-		FrameTime = SDL_GetTicks() - FrameStart;
-		if (FrameDelay > FrameTime)
-		{
-			SDL_Delay(FrameDelay - FrameTime);
-		}
 	}
+
+	Process();
+	Draw();
+
+#ifndef __EMSCRIPTEN__
+	FrameTime = SDL_GetTicks() - FrameStart;
+	if (FrameDelay > FrameTime)
+	{
+		SDL_Delay(FrameDelay - FrameTime);
+	}
+#endif
 }

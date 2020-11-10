@@ -28,6 +28,6 @@ extern SDL_Color Colors[NUMBER_OF_COLORS];
 
 void InitializeColors();
 
-void SetColorValuesFromWord(SDL_Color* color, uint word);
+void SetColorValuesFromWord(SDL_Color* color, unsigned int word);
 
 #endif

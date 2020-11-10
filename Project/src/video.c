@@ -12,7 +12,7 @@ SDL_Renderer* Renderer;
 
 SDL_Point RenderScale;
 
-uint BackgroundColorCode;
+char BackgroundColorCode;
 
 SDL_Point TileDimensions;
 
@@ -102,13 +102,6 @@ void Draw()
 
 	DrawTileMap();
 
-	//SDL_Color color;
-	//color.r = 0xff;
-	//color.g = 0xff;
-	//color.b = 0xff;
-	//color.a = 0xff;
-	//DrawRectangle((int)CursorXPosition, 32, 8, 8, &color);
-
 	SDL_RenderPresent(Renderer);
 }
 
@@ -120,13 +113,15 @@ void ClearScreen()
 	SDL_RenderClear(Renderer);
 }
 
-void DrawRectangle(uint x, uint y, uint width, uint height, SDL_Color* color)
+void DrawRectangle(unsigned int x, unsigned int y, unsigned int width, unsigned int height, char colorCode)
 {
 	SDL_Rect rect;
 	rect.x = x;
 	rect.y = y;
 	rect.w = width;
 	rect.h = height;
+
+	SDL_Color* color = &Colors[colorCode];
 
 	SDL_SetRenderDrawColor(Renderer, color->r, color->g, color->b, color->a);
 	
@@ -138,8 +133,8 @@ void DrawTileMap()
 	char shapeCode;
 	char colorCode;
 
-	uint columnIndex;
-	uint rowIndex;
+	unsigned int columnIndex;
+	unsigned int rowIndex;
 
 	for (rowIndex = 0; rowIndex < TileMapDimensions.y; ++rowIndex)
 	{
@@ -153,24 +148,24 @@ void DrawTileMap()
 				colorCode = TileMapColorCodes[(rowIndex * TileMapDimensions.x) + columnIndex];
 			}
 			
-			DrawRectangle(columnIndex * TileDimensions.x, rowIndex * TileDimensions.y, TileDimensions.x, TileDimensions.y, &Colors[(uint)colorCode]);
+			DrawRectangle(columnIndex * TileDimensions.x, rowIndex * TileDimensions.y, TileDimensions.x, TileDimensions.y, colorCode);
 		}
 	}
 }
 
-char GetTileMapShapeCode(int x, int y)
+char GetTileMapShapeCode(unsigned int x, unsigned int y)
 {
 	return TileMapShapeCodes[(y * TileMapDimensions.x) + x];
 }
 
-char GetTileMapColorCode(int x, int y)
+char GetTileMapColorCode(unsigned int x, unsigned int y)
 {
 	return TileMapColorCodes[(y * TileMapDimensions.x) + x];
 }
 
-void SetTileMapCell(int x, int y, char shapeCode, char colorCode)
+void SetTileMapCell(unsigned int x, unsigned int y, char shapeCode, char colorCode)
 {
-	const uint tileMapOffset = (y * TileMapDimensions.x) + x;
+	const unsigned int tileMapOffset = (y * TileMapDimensions.x) + x;
 
 	TileMapShapeCodes[tileMapOffset] = shapeCode;
 	TileMapColorCodes[tileMapOffset] = colorCode;

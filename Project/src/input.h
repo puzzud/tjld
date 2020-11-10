@@ -13,7 +13,7 @@ typedef enum
 	KEY_CODE_DOWN = SDL_SCANCODE_DOWN
 } KeyCode;
 
-extern uint KeyCodeStates[NUM_OF_KEY_CODES];
+extern unsigned int KeyCodeStates[NUM_OF_KEY_CODES];
 
 void InitializeInput();
 

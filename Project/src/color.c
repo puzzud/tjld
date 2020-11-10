@@ -24,7 +24,7 @@ void InitializeColors()
 	SetColorValuesFromWord(&Colors[COLOR_GREY_3], 0xbbbbbb);
 }
 
-void SetColorValuesFromWord(SDL_Color* color, uint word)
+void SetColorValuesFromWord(SDL_Color* color, unsigned int word)
 {
 	color->r = (word >> 16) & 0xff;
 	color->g = (word >> 8) & 0xff;

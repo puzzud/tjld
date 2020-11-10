@@ -12,17 +12,17 @@
 #include "color.h"
 #include "input.h"
 
-uint Running;
+unsigned int Running;
 
-const uint FramesPerSecond = 60;
+const unsigned int FramesPerSecond = 60;
 #ifndef __EMSCRIPTEN__
-const uint FrameDelay = 1000 / FramesPerSecond;
+const unsigned int FrameDelay = 1000 / FramesPerSecond;
 #endif
 
-uint FrameStart;
-uint FrameTime;
+unsigned int FrameStart;
+unsigned int FrameTime;
 
-int Init();
+int Initialize();
 int Process();
 int Shutdown();
 void MainLoop();
@@ -30,7 +30,7 @@ void MainLoopIteration();
 
 int main(int argc, char* args[])
 {
-	int result = Init();
+	int result = Initialize();
 	if (result != 0)
 	{
 		return result;
@@ -47,7 +47,7 @@ int main(int argc, char* args[])
 #endif
 }
 
-int Init()
+int Initialize()
 {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{

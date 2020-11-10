@@ -1,10 +1,7 @@
 // TJLD
 #include <stdio.h>
 
-#include "core.h"
-#include "video.h"
-#include "color.h"
-#include "input.h"
+#include <puzl.h>
 
 Point CursorPosition;
 int Score;

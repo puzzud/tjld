@@ -1,29 +1,41 @@
 #
-BIN     := ./bin/web
-OBJ     := $(BIN)
-SRC     := ./src
-SRCS    := $(wildcard $(SRC)/*.c)
-OBJS    := $(patsubst $(SRC)/%.c,$(OBJ)/%.o,$(SRCS))
-HTML    := tjld.html
-EXE     := $(BIN)/$(HTML)
+PROJECT_NAME := tjld
+
+TARGET := web
+
+SDIR := ./src
+PUZLDIR := $(SDIR)/puzl
+BDIR := ./bin/$(TARGET)
+
+SRC := $(wildcard $(SDIR)/*.c)
+SRC += $(wildcard $(PUZLDIR)/sdl/*.c)
+
+OBJ := $(wildcard $(BDIR)/*.o)
+OBJS := $(patsubst $(SRC)/%.c,$(BDIR)/%.o,$(SRC))
+
+CFLAGS := -s USE_SDL=2 -I $(PUZLDIR)
+LFLAGS := 
+
+HTML := $(PROJECT_NAME).html
+EXE := $(BDIR)/$(HTML)
 ########################################
 
 .SUFFIXES:
 .PHONY: all
 all: $(EXE)
 
-$(EXE): $(OBJS) | $(BIN)
-	emcc $^ -o $@ -s USE_SDL=2
+$(EXE): $(OBJS) | $(BDIR)
+	emcc $^ -o $@ $(CFLAGS) $(LFLAGS)
 
-$(OBJ)/%.o: $(SRC)/%.c | $(OBJ)
-	emcc -c $< -o $@ -s USE_SDL=2
+$(BDIR)/%.o: $(SDIR)/%.c $(SDIR)/$(PUZLDIR)/%.c | $(BDIR)
+	emcc -c $< -o $@ $(CFLAGS) $(LFLAGS)
 
-$(BIN) $(OBJ):
+$(BDIR):
   $(MKDIR) $@
 
 .PHONY: clean
 clean:
-	@rm -rf $(BIN)/*
+	@rm -rf $(BDIR)/*
 
-# NOTE: $(BIN) path must exist prior to running this script.
-# TODO: Create $(BIN) if it does not exist.
+# NOTE: $(BDIR) path must exist prior to running this script.
+# TODO: Create $(BDIR) if it does not exist.

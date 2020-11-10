@@ -1,0 +1,29 @@
+#
+BIN     := ./bin/web
+OBJ     := $(BIN)
+SRC     := ./src
+SRCS    := $(wildcard $(SRC)/*.c)
+OBJS    := $(patsubst $(SRC)/%.c,$(OBJ)/%.o,$(SRCS))
+HTML    := tjld.html
+EXE     := $(BIN)/$(HTML)
+########################################
+
+.SUFFIXES:
+.PHONY: all
+all: $(EXE)
+
+$(EXE): $(OBJS) | $(BIN)
+	emcc $^ -o $@ -s USE_SDL=2
+
+$(OBJ)/%.o: $(SRC)/%.c | $(OBJ)
+	emcc -c $< -o $@ -s USE_SDL=2
+
+$(BIN) $(OBJ):
+  $(MKDIR) $@
+
+.PHONY: clean
+clean:
+	@rm -rf $(BIN)/*
+
+# NOTE: $(BIN) path must exist prior to running this script.
+# TODO: Create $(BIN) if it does not exist.

@@ -25,7 +25,7 @@ CC := g++
 
 PLATFORM := sdl
 
-CFLAGS := `sdl2-config --cflags` $(CFLAGS)
+CFLAGS := `sdl2-config --cflags` -g $(CFLAGS)
 LFLAGS := `sdl2-config --libs`
 
 EXECUTABLE := ./$(PROJECT_NAME)

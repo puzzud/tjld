@@ -1,5 +1,11 @@
-#
+########################################
+# Project
+########################################
 PROJECT_NAME := tjld
+
+########################################
+# General
+########################################
 
 TARGET ?= lin
 
@@ -19,7 +25,8 @@ BTPDIR := $(BTDIR)/$(PUZL)
 CFLAGS := -I $(PUZLDIR)
 
 ########################################
-
+# Target Specifics
+########################################
 ifeq ($(TARGET),lin)
 CC := g++
 
@@ -44,15 +51,18 @@ EXECUTABLE := $(BTDIR)/$(HTML)
 endif
 
 ########################################
-
+# Platform Dependent Settings
+########################################
 SRCS += $(wildcard $(PUZLDIR)/$(PLATFORM)/*.c)
+
 BTPPDIR := $(BTPDIR)/$(PLATFORM)
 
 OBJS := $(patsubst %.c,%.o,$(SRCS))
 OBJS := $(subst $(SDIR),$(BTDIR),$(OBJS))
 
 ########################################
-
+# Rules
+########################################
 .SUFFIXES:
 .PHONY: all
 all: $(EXECUTABLE)

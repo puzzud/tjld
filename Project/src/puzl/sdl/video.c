@@ -2,6 +2,8 @@
 
 #include <SDL2/SDL.h>
 
+#include <stdio.h>
+
 #include "color.h"
 
 SDL_Point ScreenDimensions;

@@ -38,6 +38,23 @@ LFLAGS := `sdl2-config --libs`
 EXECUTABLE := ./$(PROJECT_NAME)
 endif
 
+ifeq ($(TARGET),win)
+CC := x86_64-w64-mingw32-g++
+
+PLATFORM := sdl
+
+#WIN_SDL_DEV_HOME # Environment variable should be set to root directory that contains include, lib, etc..
+#MINGW_INCLUDE # Environment variable should be set to directory that contains include (eg /usr/share/mingw-w64/include).
+
+WIN_SDL_INCLUDE := $(WIN_SDL_DEV_HOME)/include
+WIN_SDL_LIB := $(WIN_SDL_DEV_HOME)/lib
+
+CFLAGS := -I $(WIN_SDL_INCLUDE) -I $(MINGW_INCLUDE) $(CFLAGS)
+LFLAGS := -L $(WIN_SDL_LIB) -mwindows -lmingw32 -lSDL2main -lSDL2
+
+EXECUTABLE := $(BTDIR)/$(PROJECT_NAME).exe
+endif
+
 ifeq ($(TARGET),web)
 CC := emcc
 

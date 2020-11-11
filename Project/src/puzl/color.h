@@ -1,8 +1,6 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#include <SDL2/SDL.h>
-
 typedef enum
 {
 	COLOR_BLACK,
@@ -24,11 +22,5 @@ typedef enum
 
 	NUMBER_OF_COLORS
 } ColorCode;
-
-extern SDL_Color Colors[NUMBER_OF_COLORS];
-
-void InitializeColors();
-
-void SetColorValuesFromWord(SDL_Color* color, unsigned int word);
 
 #endif

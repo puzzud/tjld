@@ -1,4 +1,4 @@
-#include <core.h>
+#include <sdl/core.h>
 
 #include <SDL2/SDL.h>
 

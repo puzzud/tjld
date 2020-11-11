@@ -1,24 +1,11 @@
 #ifndef VIDEO_H
 #define VIDEO_H
 
-#include <SDL2/SDL.h>
+#include <puzl.h>
 
 extern char BackgroundColorCode;
 
-extern SDL_Point TileMapDimensions;
-
-int InitializeVideo();
-void InitializeTilemap();
-
-void ShutdownVideo();
-
-void FreeTilemap();
-
-void Draw();
-
-void ClearScreen();
-void DrawRectangle(unsigned int x, unsigned int y, unsigned int width, unsigned int height, char colorCode);
-void DrawTileMap();
+extern Point TileMapDimensions;
 
 char GetTileMapShapeCode(unsigned int x, unsigned int y);
 char GetTileMapColorCode(unsigned int x, unsigned int y);

@@ -1,4 +1,4 @@
-#include <input.h>
+#include <sdl/input.h>
 
 #include <SDL2/SDL.h>
 #include <string.h>

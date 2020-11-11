@@ -1,24 +1,24 @@
-#include <video.h>
+#include <sdl/video.h>
 
 #include <SDL2/SDL.h>
 
 #include <stdio.h>
 
-#include "color.h"
+#include <sdl/color.h>
 
-SDL_Point ScreenDimensions;
+Point ScreenDimensions;
 
 SDL_Window* Window;
 SDL_Surface* ScreenSurface;
 SDL_Renderer* Renderer;
 
-SDL_Point RenderScale;
+Point RenderScale;
 
 char BackgroundColorCode;
 
-SDL_Point TileDimensions;
+Point TileDimensions;
 
-SDL_Point TileMapDimensions;
+Point TileMapDimensions;
 
 char* TileMapShapeCodes;
 char* TileMapColorCodes;

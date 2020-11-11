@@ -1,4 +1,4 @@
-#include <color.h>
+#include <sdl/color.h>
 
 #include <SDL2/SDL.h>
 

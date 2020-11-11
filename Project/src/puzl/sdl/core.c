@@ -8,9 +8,9 @@
 
 #include <stdio.h>
 
-#include "video.h"
-#include "color.h"
-#include "input.h"
+#include <sdl/video.h>
+#include <sdl/color.h>
+#include <sdl/input.h>
 
 unsigned int Running;
 

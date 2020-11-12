@@ -123,9 +123,9 @@ DefaultInterrupt:
   pha
   
   ;lda _MusicStatus
-  beq @endProcessMusic
+  ;beq @endProcessMusic
   ;jsr _ProcessMusic
-@endProcessMusic:
+;@endProcessMusic:
 
   lda #$ff
   sta VIC_IRR

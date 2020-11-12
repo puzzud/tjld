@@ -8,17 +8,16 @@ int Score;
 
 int Process()
 {
-	/*
 	Point cursorDelta;
 	cursorDelta.x = KeyCodeStates[KEY_CODE_RIGHT] - KeyCodeStates[KEY_CODE_LEFT];
 	cursorDelta.y = KeyCodeStates[KEY_CODE_DOWN] - KeyCodeStates[KEY_CODE_UP];
-
+	
 	if (cursorDelta.x != 0 || cursorDelta.y != 0)
 	{
 		SetTileMapCell(CursorPosition.x, CursorPosition.y, 0, COLOR_BLACK);
 		CursorPosition.x += cursorDelta.x;
 		CursorPosition.y += cursorDelta.y;
-
+		
 		if (GetTileMapShapeCode(CursorPosition.x, CursorPosition.y) != 0)
 		{
 			if (GetTileMapColorCode(CursorPosition.x, CursorPosition.y) == COLOR_YELLOW)
@@ -29,20 +28,22 @@ int Process()
 					Running = 0;
 				}
 
+				#ifndef __CC65__
+				// TODO: Figure this out.
 				printf("Score: %d", Score);
 				printf("\n");
+				#endif
 			}
 		}
-
+		
 		SetTileMapCell(CursorPosition.x, CursorPosition.y, 1, COLOR_LIGHT_BLUE);
 	}
-	*/
+	
 	return 0;
 }
 
 void InitializeNodeTree(void)
 {
-	/*
 	// TODO: Call out custom logic?
 	Score = 0;
 
@@ -51,5 +52,4 @@ void InitializeNodeTree(void)
 	SetTileMapCell(CursorPosition.x, CursorPosition.y, 1, COLOR_LIGHT_BLUE);
 
 	SetTileMapCell(TileMapDimensions.x / 2, TileMapDimensions.y / 2, 1, COLOR_YELLOW);
-	*/
 }

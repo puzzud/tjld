@@ -12,7 +12,13 @@ typedef struct
 #include <sdl/video.h>
 #include <sdl/color.h>
 #include <sdl/input.h>
+#endif
 
+#ifdef __CC65__
+#include <c64/core.h>
+#include <c64/video.h>
+#include <color.h>
+#include <c64/input.h>
 #endif
 
 #endif

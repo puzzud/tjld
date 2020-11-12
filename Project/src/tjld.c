@@ -8,6 +8,7 @@ int Score;
 
 int Process()
 {
+	/*
 	Point cursorDelta;
 	cursorDelta.x = KeyCodeStates[KEY_CODE_RIGHT] - KeyCodeStates[KEY_CODE_LEFT];
 	cursorDelta.y = KeyCodeStates[KEY_CODE_DOWN] - KeyCodeStates[KEY_CODE_UP];
@@ -35,12 +36,13 @@ int Process()
 
 		SetTileMapCell(CursorPosition.x, CursorPosition.y, 1, COLOR_LIGHT_BLUE);
 	}
-
+	*/
 	return 0;
 }
 
-void InitializeNodeTree()
+void InitializeNodeTree(void)
 {
+	/*
 	// TODO: Call out custom logic?
 	Score = 0;
 
@@ -49,4 +51,5 @@ void InitializeNodeTree()
 	SetTileMapCell(CursorPosition.x, CursorPosition.y, 1, COLOR_LIGHT_BLUE);
 
 	SetTileMapCell(TileMapDimensions.x / 2, TileMapDimensions.y / 2, 1, COLOR_YELLOW);
+	*/
 }

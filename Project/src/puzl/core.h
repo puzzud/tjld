@@ -3,6 +3,6 @@
 
 extern unsigned int Running;
 
-void InitializeNodeTree();
+void InitializeNodeTree(void);
 
 #endif

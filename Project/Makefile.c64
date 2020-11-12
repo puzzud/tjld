@@ -106,5 +106,5 @@ clean:
 	@rm -rf $(BTDIR)
 
 .PHONY: play
-play:
+play: | all
 	$(EXECUTE)

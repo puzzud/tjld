@@ -36,6 +36,8 @@ CFLAGS := `sdl2-config --cflags` -g $(CFLAGS)
 LFLAGS := `sdl2-config --libs`
 
 EXECUTABLE := ./$(PROJECT_NAME)
+
+EXECUTE := $(EXECUTABLE)
 endif
 
 ifeq ($(TARGET),win)
@@ -53,6 +55,8 @@ CFLAGS := -I $(WIN_SDL_INCLUDE) -I $(MINGW_INCLUDE) $(CFLAGS)
 LFLAGS := -L $(WIN_SDL_LIB) -mwindows -lmingw32 -lSDL2main -lSDL2
 
 EXECUTABLE := $(BTDIR)/$(PROJECT_NAME).exe
+
+EXECUTE := wine $(EXECUTABLE)
 endif
 
 ifeq ($(TARGET),web)
@@ -65,6 +69,8 @@ LFLAGS :=
 
 HTML := $(PROJECT_NAME).html
 EXECUTABLE := $(BTDIR)/$(HTML)
+
+EXECUTE := @echo Serve this follow to test: $(EXECUTABLE)
 endif
 
 ########################################
@@ -108,5 +114,5 @@ clean:
 	@rm -rf $(BTDIR)
 
 .PHONY: play
-play:
-	$(EXECUTABLE)
+play: | all
+	$(EXECUTE)

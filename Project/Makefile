@@ -30,6 +30,7 @@ CFLAGS := -I $(PUZLDIR)
 ########################################
 ifeq ($(TARGET),lin)
 CC := g++
+CC_FAMILY := $(CC)
 
 PLATFORM := sdl
 
@@ -43,6 +44,7 @@ endif
 
 ifeq ($(TARGET),win)
 CC := x86_64-w64-mingw32-g++
+CC_FAMILY := g++
 
 PLATFORM := sdl
 
@@ -62,6 +64,7 @@ endif
 
 ifeq ($(TARGET),web)
 CC := emcc
+CC_FAMILY := g++
 
 PLATFORM := sdl
 
@@ -78,6 +81,8 @@ ifeq ($(TARGET),c64)
 CC := cc65
 AS := ca65
 LD := ld65
+
+CC_FAMILY := $(CC)
 
 PLATFORM := c64
 
@@ -122,14 +127,14 @@ OBJS := $(subst $(SDIR),$(BTDIR),$(OBJS))
 .PHONY: all
 all: $(EXECUTABLE)
 
-ifeq ($(CC),g++)
+ifeq ($(CC_FAMILY),g++)
 $(EXECUTABLE): $(OBJS)
 	$(CC) -o $@ $^ $(CFLAGS) $(LFLAGS)
 
 $(BDIR)/$(TARGET)/%.o: $(SDIR)/%.c | $(BTPPDIR)
 	$(CC) -o $@ -c $< $(CFLAGS) $(LFLAGS)
 
-else ifeq ($(CC),cc65)
+else ifeq ($(CC_FAMILY),cc65)
 $(EXECUTABLE): $(OBJS)
 	$(LD) -o $@ $^ $(LFLAGS)
 

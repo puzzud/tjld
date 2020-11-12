@@ -15,6 +15,7 @@ SRC := src
 SDIR := ./$(SRC)
 PUZLDIR := $(SDIR)/$(PUZL)
 
+ASMS := $(wildcard $(SDIR)/*.asm)
 SRCS := $(wildcard $(SDIR)/*.c)
 
 BIN := bin
@@ -73,14 +74,45 @@ EXECUTABLE := $(BTDIR)/$(HTML)
 EXECUTE := @echo Serve this follow to test: $(EXECUTABLE)
 endif
 
+ifeq ($(TARGET),c64)
+CC := cc65
+AS := ca65
+LD := ld65
+
+PLATFORM := c64
+
+CPU := 6502
+LDCONFIG := c64.cfg
+BIN_EXT := prg
+C64_EMU ?= x64
+EMU := $(C64_EMU)
+PROGRAM := $(PROJECT_NAME).$(BIN_EXT)
+#EXECUTABLE := $(BDIR)/$(PROJECT_NAME).d64
+
+#CA65_LIB # Environment variable should be set to directory that contains c64.lib.
+
+CFLAGS := --cpu $(CPU) -O -I $(SDIR) $(CFLAGS)
+AFLAGS := --cpu $(CPU) -I $(SDIR) -I $(SDIR)/$(PLATFORM)
+LFLAGS := -C $(PUZLDIR)/$(PLATFORM)/$(LDCONFIG) $(CA65_LIB)/$(PLATFORM).lib
+
+EXECUTABLE := $(BTDIR)/$(PROJECT_NAME).$(BIN_EXT)
+
+EXECUTE := $(EMU) $(EXECUTABLE)
+endif
+
 ########################################
 # Platform Dependent Settings
 ########################################
+ASMS += $(wildcard $(PUZLDIR)/$(PLATFORM)/*.asm)
 SRCS += $(wildcard $(PUZLDIR)/$(PLATFORM)/*.c)
 
 BTPPDIR := $(BTPDIR)/$(PLATFORM)
 
-OBJS := $(patsubst %.c,%.o,$(SRCS))
+CASMS := $(patsubst %.c,%_c.asm,$(SRCS))
+CASMS := $(subst $(SDIR),$(BTDIR),$(CASMS))
+
+OBJS := $(patsubst %.asm,%.o,$(ASMS))
+OBJS += $(patsubst %.c,%.o,$(SRCS))
 OBJS := $(subst $(SDIR),$(BTDIR),$(OBJS))
 
 ########################################
@@ -90,11 +122,27 @@ OBJS := $(subst $(SDIR),$(BTDIR),$(OBJS))
 .PHONY: all
 all: $(EXECUTABLE)
 
+ifeq ($(CC),g++)
 $(EXECUTABLE): $(OBJS)
 	$(CC) -o $@ $^ $(CFLAGS) $(LFLAGS)
 
 $(BDIR)/$(TARGET)/%.o: $(SDIR)/%.c | $(BTPPDIR)
 	$(CC) -o $@ -c $< $(CFLAGS) $(LFLAGS)
+
+else ifeq ($(CC),cc65)
+$(EXECUTABLE): $(OBJS)
+	$(LD) -o $@ $^ $(LFLAGS)
+
+$(BTDIR)/%.o: $(SDIR)/%.asm | $(BTPPDIR)
+	$(AS) -o $@ $< $(AFLAGS)
+
+$(BTDIR)/%.o: $(BTDIR)/%_c.asm | $(BTPPDIR)
+	$(AS) -o $@ $< $(AFLAGS)
+
+$(BTDIR)/%_c.asm: $(SDIR)/%.c | $(BTPPDIR)
+	$(CC) -o $@ $< $(CFLAGS)
+
+endif
 
 $(BTPPDIR): | $(BTPDIR)
 	mkdir $(BTPPDIR)

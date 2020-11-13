@@ -1,7 +1,5 @@
-#ifndef PUZL_SDL_VIDEO_H
-#define PUZL_SDL_VIDEO_H
-
-//#include <SDL2/SDL.h>
+#ifndef PUZL_C64_VIDEO_H
+#define PUZL_C64_VIDEO_H
 
 #include <video.h>
 

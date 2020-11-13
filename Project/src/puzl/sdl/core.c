@@ -22,11 +22,11 @@ const unsigned int FrameDelay = 1000 / FramesPerSecond;
 unsigned int FrameStart;
 unsigned int FrameTime;
 
-int Initialize();
-int Process();
-int Shutdown();
-void MainLoop();
-void MainLoopIteration();
+int Initialize(void);
+void Process(void);
+void Shutdown(void);
+void MainLoop(void);
+void MainLoopIteration(void);
 
 int main(int argc, char* args[])
 {
@@ -43,17 +43,20 @@ int main(int argc, char* args[])
 	return 0;
 #else
 	MainLoop();
-	return Shutdown();
+
+	Shutdown();
+	
+	return 0;
 #endif
 }
 
-int Initialize()
+int Initialize(void)
 {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0)
 	{
     fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
 
-    return 1;
+		return 1;
   }
 
 	InitializeVideo();
@@ -63,16 +66,14 @@ int Initialize()
 	return 0;
 }
 
-int Shutdown()
+void Shutdown(void)
 {
 	ShutdownVideo();
 
 	SDL_Quit();
-
-	return 0;
 }
 
-void MainLoop()
+void MainLoop(void)
 {
 	while (Running != 0)
 	{
@@ -80,7 +81,7 @@ void MainLoop()
 	}
 }
 
-inline void MainLoopIteration()
+inline void MainLoopIteration(void)
 {
 #ifndef __EMSCRIPTEN__
 	FrameStart = SDL_GetTicks();

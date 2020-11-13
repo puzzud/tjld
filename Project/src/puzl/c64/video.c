@@ -23,7 +23,7 @@ Point TileMapDimensions;
 char* TileMapShapeCodes;
 char* TileMapColorCodes;
 
-int InitializeVideo()
+int InitializeVideo(void)
 {
 	// TODO: Expose this.
 	BackgroundColorCode = COLOR_BLACK;

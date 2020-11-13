@@ -4,7 +4,7 @@
 
 SDL_Color Colors[NUMBER_OF_COLORS];
 
-void InitializeColors()
+void InitializeColors(void)
 {
 	SetColorValuesFromWord(&Colors[COLOR_BLACK], 0x000000);
 	SetColorValuesFromWord(&Colors[COLOR_WHITE], 0xffffff);

@@ -23,7 +23,7 @@ Point TileMapDimensions;
 char* TileMapShapeCodes;
 char* TileMapColorCodes;
 
-int InitializeVideo()
+int InitializeVideo(void)
 {
 	// TODO: Expose this.
 	BackgroundColorCode = COLOR_BLACK;
@@ -72,7 +72,7 @@ int InitializeVideo()
 	return 0;
 }
 
-void InitializeTilemap()
+void InitializeTilemap(void)
 {
 	TileMapDimensions.x = ScreenDimensions.x / TileDimensions.x;
 	TileMapDimensions.y = ScreenDimensions.y / TileDimensions.y;
@@ -81,7 +81,7 @@ void InitializeTilemap()
 	TileMapColorCodes = (char*)calloc(TileMapDimensions.x * TileMapDimensions.y, sizeof(char));
 }
 
-void ShutdownVideo()
+void ShutdownVideo(void)
 {
 	FreeTilemap();
 
@@ -89,7 +89,7 @@ void ShutdownVideo()
 	SDL_DestroyRenderer(Renderer);
 }
 
-void FreeTilemap()
+void FreeTilemap(void)
 {
 	free(TileMapShapeCodes);
 	TileMapShapeCodes = NULL;
@@ -98,7 +98,7 @@ void FreeTilemap()
 	TileMapColorCodes = NULL;
 }
 
-void Draw()
+void Draw(void)
 {
 	ClearScreen();
 

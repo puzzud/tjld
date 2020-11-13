@@ -15,7 +15,7 @@ typedef enum
 	KEY_CODE_DOWN = SDL_SCANCODE_DOWN
 } KeyCode;
 
-void InitializeInput();
+void InitializeInput(void);
 
 void OnInputEvent(SDL_Event* event);
 

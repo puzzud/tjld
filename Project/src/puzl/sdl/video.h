@@ -5,17 +5,17 @@
 
 #include <video.h>
 
-int InitializeVideo();
-void InitializeTilemap();
+int InitializeVideo(void);
+void InitializeTilemap(void);
 
-void ShutdownVideo();
+void ShutdownVideo(void);
 
-void FreeTilemap();
+void FreeTilemap(void);
 
-void Draw();
+void Draw(void);
 
-void ClearScreen();
+void ClearScreen(void);
 void DrawRectangle(unsigned int x, unsigned int y, unsigned int width, unsigned int height, char colorCode);
-void DrawTileMap();
+void DrawTileMap(void);
 
 #endif

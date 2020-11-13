@@ -6,7 +6,7 @@
 Point CursorPosition;
 int Score;
 
-int Process()
+void Process(void)
 {
 	Point cursorDelta;
 	cursorDelta.x = KeyCodeStates[KEY_CODE_RIGHT] - KeyCodeStates[KEY_CODE_LEFT];
@@ -38,8 +38,6 @@ int Process()
 		
 		SetTileMapCell(CursorPosition.x, CursorPosition.y, 1, COLOR_LIGHT_BLUE);
 	}
-	
-	return 0;
 }
 
 void InitializeNodeTree(void)

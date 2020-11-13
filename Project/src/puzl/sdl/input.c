@@ -5,7 +5,7 @@
 
 unsigned int KeyCodeStates[NUM_OF_KEY_CODES];
 
-void InitializeInput()
+void InitializeInput(void)
 {
 	memset(KeyCodeStates, 0, NUM_OF_KEY_CODES * sizeof(unsigned int));
 }

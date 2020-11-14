@@ -1,5 +1,7 @@
 #include <c64/video.h>
 
+#include <puzl.h>
+
 #include <c64/c64.h>
 #include <stdio.h>
 
@@ -23,7 +25,7 @@ void ShutdownVideo(void)
 	
 }
 
-void __fastcall__ SetBackgroundColor(byte color)
+void FASTCALL SetBackgroundColor(byte color)
 {
 	SET_MEMORY_BYTE(VIC_BG_COLOR0, color)
 	SET_MEMORY_BYTE(VIC_BORDERCOLOR, color)

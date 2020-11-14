@@ -1,6 +1,14 @@
 #ifndef PUZL_H
 #define PUZL_H
 
+// NOTE: Bad hack to get VS Code to shut up about cc65
+// keywords that are not ISO.
+#ifdef __CC65__
+#define FASTCALL __fastcall__
+#else
+#define FASTCALL extern
+#endif
+
 typedef unsigned char byte;
 typedef unsigned short word;
 

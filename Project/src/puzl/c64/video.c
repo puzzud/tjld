@@ -4,10 +4,10 @@
 
 #include <color.h>
 
-char BackgroundColorCode;
+byte BackgroundColorCode;
 
-char* TileMapShapeCodes;
-char* TileMapColorCodes;
+byte* TileMapShapeCodes;
+byte* TileMapColorCodes;
 
 int InitializeVideo(void)
 {
@@ -32,17 +32,17 @@ void ClearScreen(void)
 	
 }
 
-char GetTileMapShapeCode(unsigned int x, unsigned int y)
+byte GetTileMapShapeCode(byte x, byte y)
 {
 	return TileMapShapeCodes[(y * TILEMAP_WIDTH) + x];
 }
 
-char GetTileMapColorCode(unsigned int x, unsigned int y)
+byte GetTileMapColorCode(byte x, byte y)
 {
 	return TileMapColorCodes[(y * TILEMAP_WIDTH) + x];
 }
 
-void SetTileMapCell(unsigned int x, unsigned int y, char shapeCode, char colorCode)
+void SetTileMapCell(byte x, byte y, byte shapeCode, byte colorCode)
 {
 	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
 

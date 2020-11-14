@@ -1,19 +1,11 @@
 #include <c64/core.h>
 
-//#include <SDL2/SDL.h>
-
 //#include <stdio.h>
 
 #include <c64/video.h>
 #include <c64/input.h>
 
-unsigned int Running;
-
-const unsigned int FramesPerSecond = 60;
-const unsigned int FrameDelay = 1000 / 60;
-
-unsigned int FrameStart;
-unsigned int FrameTime;
+byte Running;
 
 int Initialize(void);
 int Process(void);

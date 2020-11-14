@@ -1,6 +1,5 @@
 #include <c64/input.h>
 
-//#include <SDL2/SDL.h>
 //#include <string.h>
 
 unsigned int KeyCodeStates[NUM_OF_KEY_CODES];

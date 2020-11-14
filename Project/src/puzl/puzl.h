@@ -1,6 +1,9 @@
 #ifndef PUZL_H
 #define PUZL_H
 
+typedef unsigned char byte;
+typedef unsigned short word;
+
 typedef struct
 {
 	int x;

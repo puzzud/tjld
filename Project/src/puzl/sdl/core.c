@@ -8,11 +8,13 @@
 
 #include <stdio.h>
 
+#include <puzl.h>
+
 #include <sdl/video.h>
 #include <sdl/color.h>
 #include <sdl/input.h>
 
-unsigned int Running;
+byte Running;
 
 const unsigned int FramesPerSecond = 60;
 #ifndef __EMSCRIPTEN__

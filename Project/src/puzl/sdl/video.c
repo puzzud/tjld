@@ -13,10 +13,10 @@ SDL_Renderer* Renderer;
 
 Point RenderScale;
 
-char BackgroundColorCode;
+byte BackgroundColorCode;
 
-char* TileMapShapeCodes;
-char* TileMapColorCodes;
+byte* TileMapShapeCodes;
+byte* TileMapColorCodes;
 
 int InitializeVideo(void)
 {
@@ -63,8 +63,8 @@ int InitializeVideo(void)
 
 void InitializeTilemap(void)
 {
-	TileMapShapeCodes = (char*)calloc(TILEMAP_WIDTH * TILEMAP_HEIGHT, sizeof(char));
-	TileMapColorCodes = (char*)calloc(TILEMAP_WIDTH * TILEMAP_HEIGHT, sizeof(char));
+	TileMapShapeCodes = (byte*)calloc(TILEMAP_WIDTH * TILEMAP_HEIGHT, sizeof(byte));
+	TileMapColorCodes = (byte*)calloc(TILEMAP_WIDTH * TILEMAP_HEIGHT, sizeof(byte));
 }
 
 void ShutdownVideo(void)
@@ -101,7 +101,7 @@ void ClearScreen()
 	SDL_RenderClear(Renderer);
 }
 
-void DrawRectangle(unsigned int x, unsigned int y, unsigned int width, unsigned int height, char colorCode)
+void DrawRectangle(unsigned int x, unsigned int y, unsigned int width, unsigned int height, byte colorCode)
 {
 	SDL_Rect rect;
 	rect.x = x;
@@ -118,8 +118,8 @@ void DrawRectangle(unsigned int x, unsigned int y, unsigned int width, unsigned 
 
 void DrawTileMap()
 {
-	char shapeCode;
-	char colorCode;
+	byte shapeCode;
+	byte colorCode;
 
 	unsigned int columnIndex;
 	unsigned int rowIndex;
@@ -141,17 +141,17 @@ void DrawTileMap()
 	}
 }
 
-char GetTileMapShapeCode(unsigned int x, unsigned int y)
+byte GetTileMapShapeCode(byte x, byte y)
 {
 	return TileMapShapeCodes[(y * TILEMAP_WIDTH) + x];
 }
 
-char GetTileMapColorCode(unsigned int x, unsigned int y)
+byte GetTileMapColorCode(byte x, byte y)
 {
 	return TileMapColorCodes[(y * TILEMAP_WIDTH) + x];
 }
 
-void SetTileMapCell(unsigned int x, unsigned int y, char shapeCode, char colorCode)
+void SetTileMapCell(byte x, byte y, byte shapeCode, byte colorCode)
 {
 	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
 

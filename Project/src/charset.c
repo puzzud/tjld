@@ -1,6 +1,6 @@
 #include <puzl.h>
 
-#pragma rodataseg("RODATA")
+#pragma rodata-name ("RODATA")
 
 const byte CharacterSet[] =
 {

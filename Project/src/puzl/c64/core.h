@@ -3,4 +3,6 @@
 
 #include <core.h>
 
+#pragma zpsym ("Running");
+
 #endif

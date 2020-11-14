@@ -17,6 +17,7 @@
 
 .export Reset
 
+.exportzp _Running
 .exportzp _InitScreen
 .exportzp _CurrentScreenInit
 .exportzp _CurrentScreenUpdate
@@ -24,6 +25,9 @@
 .include "c64.asm"
 
 .segment "ZEROPAGE"
+
+_Running:
+  .res 1
 
 _InitScreen:
   .res 1

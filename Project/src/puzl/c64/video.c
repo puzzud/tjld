@@ -7,24 +7,6 @@
 
 #include <color.h>
 
-byte* TileMapShapeCodes;
-byte* TileMapColorCodes;
-/*
-void FASTCALL InitializeVideo(void)
-{
-	TileMapShapeCodes = &
-}
-*/
-void InitializeTilemap(void)
-{
-
-}
-
-void ShutdownVideo(void)
-{
-	
-}
-
 void FASTCALL SetBackgroundColor(byte color)
 {
 	SET_MEMORY_BYTE(VIC_BG_COLOR0, color)
@@ -33,27 +15,28 @@ void FASTCALL SetBackgroundColor(byte color)
 
 byte GetTileMapShapeCode(byte x, byte y)
 {
-	return TileMapShapeCodes[(y * TILEMAP_WIDTH) + x];
+	const word cellMemoryAddress = (word)(SCREEN_CHAR + (y * TILEMAP_WIDTH) + x);
+
+	return GET_MEMORY_BYTE(cellMemoryAddress);
 }
 
 byte GetTileMapColorCode(byte x, byte y)
 {
-	return TileMapColorCodes[(y * TILEMAP_WIDTH) + x];
+	const word cellMemoryAddress = (word)(SCREEN_COLOR + (y * TILEMAP_WIDTH) + x);
+
+	return GET_MEMORY_BYTE(cellMemoryAddress);
 }
 
 void SetTileMapCellShape(byte x, byte y, byte shapeCode)
 {
-	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
+	const word cellMemoryAddress = (word)(SCREEN_CHAR + (y * TILEMAP_WIDTH) + x);
 
-	//SET_MEMORY_BYTE(_CharacterSet + tileMapOffset, shapeCode)
-
-	//TileMapShapeCodes[tileMapOffset] = shapeCode;
-	//CharacterSet[tileMapOffset] = shapeCode;
+	SET_MEMORY_BYTE(cellMemoryAddress, shapeCode)
 }
 
 void SetTileMapCellColor(byte x, byte y, byte colorCode)
 {
-	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
+	const word cellMemoryAddress = (word)(SCREEN_COLOR + (y * TILEMAP_WIDTH) + x);
 
-	//TileMapColorCodes[tileMapOffset] = colorCode;
+	SET_MEMORY_BYTE(cellMemoryAddress, colorCode);
 }

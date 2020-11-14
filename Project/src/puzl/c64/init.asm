@@ -4,6 +4,7 @@
 ;.import _InitializeVideo
 
 .import _InitializeNodeTree
+.import _Process
 
 .autoimport on
   
@@ -93,6 +94,7 @@ Reset:
   ;lda #<(@endUpdate-1)
   ;pha
   ;jmp (_CurrentScreenUpdate)
+  jsr _Process
 @endUpdate:
   
   ; Wait for the raster to reach line $f8 (248)

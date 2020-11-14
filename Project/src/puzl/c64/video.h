@@ -17,4 +17,6 @@ void InitializeTilemap(void);
 
 void ShutdownVideo(void);
 
+//extern void __fastcall__ SetBackgroundColor(byte color);
+
 #endif

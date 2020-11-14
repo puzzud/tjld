@@ -6,6 +6,20 @@
 Point CursorPosition;
 int Score;
 
+void InitializeNodeTree(void)
+{
+	// TODO: Call out custom logic?
+	Score = 0;
+	
+	CursorPosition.x = 0;
+	CursorPosition.y = 0;
+	SetTileMapCell(CursorPosition.x, CursorPosition.y, 1, COLOR_LIGHT_BLUE);
+	
+	SetTileMapCell(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT / 2, 1, COLOR_YELLOW);
+	
+	SetBackgroundColor(COLOR_GREY_1);
+}
+
 void Process(void)
 {
 	Point cursorDelta;
@@ -38,16 +52,4 @@ void Process(void)
 		
 		SetTileMapCell(CursorPosition.x, CursorPosition.y, 1, COLOR_LIGHT_BLUE);
 	}
-}
-
-void InitializeNodeTree(void)
-{
-	// TODO: Call out custom logic?
-	Score = 0;
-
-	CursorPosition.x = 0;
-	CursorPosition.y = 0;
-	SetTileMapCell(CursorPosition.x, CursorPosition.y, 1, COLOR_LIGHT_BLUE);
-
-	SetTileMapCell(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT / 2, 1, COLOR_YELLOW);
 }

@@ -3,6 +3,8 @@
 ;.import _UpdateInput
 ;.import _InitializeVideo
 
+.import _InitializeNodeTree
+
 .autoimport on
   
 .importzp sp, sreg, regsave, regbank
@@ -81,6 +83,7 @@ Reset:
   cli
 
   ;jsr _Init
+  jsr _InitializeNodeTree
   
 @mainLoop:
   ;jsr _UpdateInput

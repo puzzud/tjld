@@ -11,7 +11,7 @@ SDL_Window* Window;
 SDL_Surface* ScreenSurface;
 SDL_Renderer* Renderer;
 
-Point RenderScale;
+SDL_Point RenderScale;
 
 byte BackgroundColorCode;
 
@@ -21,8 +21,6 @@ byte* TileMapColorCodes;
 int InitializeVideo(void)
 {
 	// TODO: Expose this.
-	BackgroundColorCode = COLOR_BLACK;
-
 	RenderScale.x = 3;
 	RenderScale.y = 3;
 
@@ -93,7 +91,12 @@ void Draw(void)
 	SDL_RenderPresent(Renderer);
 }
 
-void ClearScreen()
+void SetBackgroundColor(byte colorCode)
+{
+	BackgroundColorCode = colorCode;
+}
+
+void ClearScreen(void)
 {
 	SDL_Color* backgroundColor = &Colors[BackgroundColorCode];
 
@@ -103,13 +106,13 @@ void ClearScreen()
 
 void DrawRectangle(unsigned int x, unsigned int y, unsigned int width, unsigned int height, byte colorCode)
 {
+	SDL_Color* color = &Colors[colorCode];
+
 	SDL_Rect rect;
 	rect.x = x;
 	rect.y = y;
 	rect.w = width;
 	rect.h = height;
-
-	SDL_Color* color = &Colors[colorCode];
 
 	SDL_SetRenderDrawColor(Renderer, color->r, color->g, color->b, color->a);
 	
@@ -129,14 +132,11 @@ void DrawTileMap()
 		for (columnIndex = 0; columnIndex < TILEMAP_WIDTH; ++columnIndex)
 		{
 			shapeCode = TileMapShapeCodes[(rowIndex * TILEMAP_WIDTH) + columnIndex];
-			colorCode = 0;
-
 			if (shapeCode != 0)
 			{
 				colorCode = TileMapColorCodes[(rowIndex * TILEMAP_WIDTH) + columnIndex];
+				DrawRectangle(columnIndex * TILE_WIDTH, rowIndex * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT, colorCode);
 			}
-			
-			DrawRectangle(columnIndex * TILE_WIDTH, rowIndex * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT, colorCode);
 		}
 	}
 }

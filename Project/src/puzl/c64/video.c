@@ -1,19 +1,15 @@
 #include <c64/video.h>
 
+#include <c64/c64.h>
 #include <stdio.h>
 
 #include <color.h>
-
-byte BackgroundColorCode;
 
 byte* TileMapShapeCodes;
 byte* TileMapColorCodes;
 
 int InitializeVideo(void)
 {
-	// TODO: Expose this.
-	BackgroundColorCode = COLOR_BLACK;
-
 	return 0;
 }
 
@@ -27,9 +23,10 @@ void ShutdownVideo(void)
 	
 }
 
-void ClearScreen(void)
+void __fastcall__ SetBackgroundColor(byte color)
 {
-	
+	SET_MEMORY_BYTE(VIC_BG_COLOR0, color)
+	SET_MEMORY_BYTE(VIC_BORDERCOLOR, color)
 }
 
 byte GetTileMapShapeCode(byte x, byte y)
@@ -46,6 +43,6 @@ void SetTileMapCell(byte x, byte y, byte shapeCode, byte colorCode)
 {
 	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
 
-	TileMapShapeCodes[tileMapOffset] = shapeCode;
-	TileMapColorCodes[tileMapOffset] = colorCode;
+	//TileMapShapeCodes[tileMapOffset] = shapeCode;
+	//TileMapColorCodes[tileMapOffset] = colorCode;
 }

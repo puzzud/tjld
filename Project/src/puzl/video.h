@@ -3,7 +3,7 @@
 
 #include <puzl.h>
 
-extern byte BackgroundColorCode;
+extern void SetBackgroundColor(byte colorCode);
 
 byte GetTileMapShapeCode(byte x, byte y);
 byte GetTileMapColorCode(byte x, byte y);

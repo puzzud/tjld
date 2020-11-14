@@ -5,7 +5,9 @@
 #ifndef C64_H
 #define C64_H
 
-#define BYTE_FROM_ADDRESS(A) ((unsigned char*)A)
+#define BYTE_FROM_ADDRESS(A)		((unsigned char*)A)
+#define GET_MEMORY_BYTE(A)			*BYTE_FROM_ADDRESS(A)
+#define SET_MEMORY_BYTE(A, V)		*BYTE_FROM_ADDRESS(A) = V;
 
 // ---------------------------------------------------------------------------
 // Screen size

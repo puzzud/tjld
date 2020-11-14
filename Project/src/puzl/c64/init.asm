@@ -1,7 +1,7 @@
 ;.import _Init
 
 ;.import _UpdateInput
-;.import _InitializeVideo
+.import _InitializeVideo
 
 .import _InitializeNodeTree
 .import _Process
@@ -78,7 +78,7 @@ Reset:
   lda #%00110101
   sta LORAM
 
-  ;jsr _InitializeVideo
+  jsr _InitializeVideo
   ;jsr _InitializeAudio
 
   cli

@@ -164,3 +164,24 @@ void SetTileMapCellColor(byte x, byte y, byte colorCode)
 
 	TileMapColorCodes[tileMapOffset] = colorCode;
 }
+
+void PrintText(const char* text, byte x, byte y)
+{
+	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
+	
+	byte characterCode;
+	int charIndex = 0;
+
+	while (1)
+	{
+		characterCode = text[charIndex];
+		if (characterCode == 0)
+		{
+			break;
+		}
+
+		TileMapShapeCodes[tileMapOffset + charIndex] = characterCode;
+
+		++charIndex;
+	}
+}

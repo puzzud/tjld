@@ -9,12 +9,12 @@
 
 byte* TileMapShapeCodes;
 byte* TileMapColorCodes;
-
-int InitializeVideo(void)
+/*
+void FASTCALL InitializeVideo(void)
 {
-	return 0;
+	TileMapShapeCodes = &
 }
-
+*/
 void InitializeTilemap(void)
 {
 
@@ -45,7 +45,10 @@ void SetTileMapCellShape(byte x, byte y, byte shapeCode)
 {
 	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
 
+	//SET_MEMORY_BYTE(_CharacterSet + tileMapOffset, shapeCode)
+
 	//TileMapShapeCodes[tileMapOffset] = shapeCode;
+	//CharacterSet[tileMapOffset] = shapeCode;
 }
 
 void SetTileMapCellColor(byte x, byte y, byte colorCode)

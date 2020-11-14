@@ -13,13 +13,15 @@ void InitializeNodeTree(void)
 	
 	CursorPosition.x = 0;
 	CursorPosition.y = 0;
-	SetTileMapCellShape(CursorPosition.x, CursorPosition.y, 1);
+	SetTileMapCellShape(CursorPosition.x, CursorPosition.y, '0');
 	SetTileMapCellColor(CursorPosition.x, CursorPosition.y, COLOR_LIGHT_BLUE);
 	
-	SetTileMapCellShape(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT / 2, 1);
+	SetTileMapCellShape(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT / 2, 'A');
 	SetTileMapCellColor(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT / 2, COLOR_YELLOW);
 	
 	SetBackgroundColor(COLOR_GREY_1);
+
+	PrintText("ANDREW", TILEMAP_WIDTH - sizeof("ANDREW") + 1, 0);
 }
 
 void Process(void)

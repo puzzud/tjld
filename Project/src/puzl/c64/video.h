@@ -3,6 +3,8 @@
 
 #include <video.h>
 
+#include <puzl.h>
+
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 200
 
@@ -12,7 +14,7 @@
 #define TILEMAP_WIDTH (SCREEN_WIDTH / TILE_WIDTH)
 #define TILEMAP_HEIGHT (SCREEN_HEIGHT / TILE_HEIGHT)
 
-int InitializeVideo(void);
+void FASTCALL InitializeVideo(void);
 void InitializeTilemap(void);
 
 void ShutdownVideo(void);

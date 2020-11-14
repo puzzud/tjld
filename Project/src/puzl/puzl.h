@@ -6,7 +6,7 @@
 #ifdef __CC65__
 #define FASTCALL __fastcall__
 #else
-#define FASTCALL extern
+#define FASTCALL
 #endif
 
 typedef unsigned char byte;

@@ -4,9 +4,8 @@
 
 #include <stdio.h>
 
+#include <puzl.h>
 #include <sdl/color.h>
-
-Point ScreenDimensions;
 
 SDL_Window* Window;
 SDL_Surface* ScreenSurface;
@@ -16,10 +15,6 @@ Point RenderScale;
 
 char BackgroundColorCode;
 
-Point TileDimensions;
-
-Point TileMapDimensions;
-
 char* TileMapShapeCodes;
 char* TileMapColorCodes;
 
@@ -28,12 +23,6 @@ int InitializeVideo(void)
 	// TODO: Expose this.
 	BackgroundColorCode = COLOR_BLACK;
 
-	ScreenDimensions.x = 320;
-	ScreenDimensions.y = 200;
-
-	TileDimensions.x = 8;
-	TileDimensions.y = 8;
-
 	RenderScale.x = 3;
 	RenderScale.y = 3;
 
@@ -41,7 +30,7 @@ int InitializeVideo(void)
 		(
 			"tjld", // TODO: Expose this.
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-			ScreenDimensions.x * RenderScale.x, ScreenDimensions.y * RenderScale.y,
+			SCREEN_WIDTH * RenderScale.x, SCREEN_HEIGHT * RenderScale.y,
 			SDL_WINDOW_SHOWN
 		);
 	
@@ -74,11 +63,8 @@ int InitializeVideo(void)
 
 void InitializeTilemap(void)
 {
-	TileMapDimensions.x = ScreenDimensions.x / TileDimensions.x;
-	TileMapDimensions.y = ScreenDimensions.y / TileDimensions.y;
-
-	TileMapShapeCodes = (char*)calloc(TileMapDimensions.x * TileMapDimensions.y, sizeof(char));
-	TileMapColorCodes = (char*)calloc(TileMapDimensions.x * TileMapDimensions.y, sizeof(char));
+	TileMapShapeCodes = (char*)calloc(TILEMAP_WIDTH * TILEMAP_HEIGHT, sizeof(char));
+	TileMapColorCodes = (char*)calloc(TILEMAP_WIDTH * TILEMAP_HEIGHT, sizeof(char));
 }
 
 void ShutdownVideo(void)
@@ -138,36 +124,36 @@ void DrawTileMap()
 	unsigned int columnIndex;
 	unsigned int rowIndex;
 
-	for (rowIndex = 0; rowIndex < TileMapDimensions.y; ++rowIndex)
+	for (rowIndex = 0; rowIndex < TILEMAP_HEIGHT; ++rowIndex)
 	{
-		for (columnIndex = 0; columnIndex < TileMapDimensions.x; ++columnIndex)
+		for (columnIndex = 0; columnIndex < TILEMAP_WIDTH; ++columnIndex)
 		{
-			shapeCode = TileMapShapeCodes[(rowIndex * TileMapDimensions.x) + columnIndex];
+			shapeCode = TileMapShapeCodes[(rowIndex * TILEMAP_WIDTH) + columnIndex];
 			colorCode = 0;
 
 			if (shapeCode != 0)
 			{
-				colorCode = TileMapColorCodes[(rowIndex * TileMapDimensions.x) + columnIndex];
+				colorCode = TileMapColorCodes[(rowIndex * TILEMAP_WIDTH) + columnIndex];
 			}
 			
-			DrawRectangle(columnIndex * TileDimensions.x, rowIndex * TileDimensions.y, TileDimensions.x, TileDimensions.y, colorCode);
+			DrawRectangle(columnIndex * TILE_WIDTH, rowIndex * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT, colorCode);
 		}
 	}
 }
 
 char GetTileMapShapeCode(unsigned int x, unsigned int y)
 {
-	return TileMapShapeCodes[(y * TileMapDimensions.x) + x];
+	return TileMapShapeCodes[(y * TILEMAP_WIDTH) + x];
 }
 
 char GetTileMapColorCode(unsigned int x, unsigned int y)
 {
-	return TileMapColorCodes[(y * TileMapDimensions.x) + x];
+	return TileMapColorCodes[(y * TILEMAP_WIDTH) + x];
 }
 
 void SetTileMapCell(unsigned int x, unsigned int y, char shapeCode, char colorCode)
 {
-	const unsigned int tileMapOffset = (y * TileMapDimensions.x) + x;
+	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
 
 	TileMapShapeCodes[tileMapOffset] = shapeCode;
 	TileMapColorCodes[tileMapOffset] = colorCode;

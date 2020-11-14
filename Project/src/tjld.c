@@ -49,5 +49,5 @@ void InitializeNodeTree(void)
 	CursorPosition.y = 0;
 	SetTileMapCell(CursorPosition.x, CursorPosition.y, 1, COLOR_LIGHT_BLUE);
 
-	SetTileMapCell(TileMapDimensions.x / 2, TileMapDimensions.y / 2, 1, COLOR_YELLOW);
+	SetTileMapCell(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT / 2, 1, COLOR_YELLOW);
 }

@@ -7,6 +7,7 @@ extern void SetBackgroundColor(byte colorCode);
 
 byte GetTileMapShapeCode(byte x, byte y);
 byte GetTileMapColorCode(byte x, byte y);
-void SetTileMapCell(byte x, byte y, byte shapeCode, byte colorCode);
+void SetTileMapCellShape(byte x, byte y, byte shapeCode);
+void SetTileMapCellColor(byte x, byte y, byte colorCode);
 
 #endif

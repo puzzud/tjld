@@ -13,9 +13,11 @@ void InitializeNodeTree(void)
 	
 	CursorPosition.x = 0;
 	CursorPosition.y = 0;
-	SetTileMapCell(CursorPosition.x, CursorPosition.y, 1, COLOR_LIGHT_BLUE);
+	SetTileMapCellShape(CursorPosition.x, CursorPosition.y, 1);
+	SetTileMapCellColor(CursorPosition.x, CursorPosition.y, COLOR_LIGHT_BLUE);
 	
-	SetTileMapCell(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT / 2, 1, COLOR_YELLOW);
+	SetTileMapCellShape(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT / 2, 1);
+	SetTileMapCellColor(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT / 2, COLOR_YELLOW);
 	
 	SetBackgroundColor(COLOR_GREY_1);
 }
@@ -28,7 +30,7 @@ void Process(void)
 	
 	if (cursorDelta.x != 0 || cursorDelta.y != 0)
 	{
-		SetTileMapCell(CursorPosition.x, CursorPosition.y, 0, COLOR_BLACK);
+		SetTileMapCellShape(CursorPosition.x, CursorPosition.y, 0);
 		CursorPosition.x += cursorDelta.x;
 		CursorPosition.y += cursorDelta.y;
 		
@@ -50,6 +52,7 @@ void Process(void)
 			}
 		}
 		
-		SetTileMapCell(CursorPosition.x, CursorPosition.y, 1, COLOR_LIGHT_BLUE);
+		SetTileMapCellShape(CursorPosition.x, CursorPosition.y, 1);
+		SetTileMapCellColor(CursorPosition.x, CursorPosition.y, COLOR_LIGHT_BLUE);
 	}
 }

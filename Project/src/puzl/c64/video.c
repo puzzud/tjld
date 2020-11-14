@@ -41,10 +41,16 @@ byte GetTileMapColorCode(byte x, byte y)
 	return TileMapColorCodes[(y * TILEMAP_WIDTH) + x];
 }
 
-void SetTileMapCell(byte x, byte y, byte shapeCode, byte colorCode)
+void SetTileMapCellShape(byte x, byte y, byte shapeCode)
 {
 	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
 
 	//TileMapShapeCodes[tileMapOffset] = shapeCode;
+}
+
+void SetTileMapCellColor(byte x, byte y, byte colorCode)
+{
+	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
+
 	//TileMapColorCodes[tileMapOffset] = colorCode;
 }

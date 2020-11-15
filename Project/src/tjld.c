@@ -3,6 +3,8 @@
 
 #include <puzl.h>
 
+#define CHARACTER_BLOCK 219
+
 Point CursorPosition;
 int Score;
 
@@ -13,10 +15,10 @@ void InitializeNodeTree(void)
 	
 	CursorPosition.x = 0;
 	CursorPosition.y = 0;
-	SetTileMapCellShape(CursorPosition.x, CursorPosition.y, 'O');
+	SetTileMapCellShape(CursorPosition.x, CursorPosition.y, CHARACTER_BLOCK);
 	SetTileMapCellColor(CursorPosition.x, CursorPosition.y, COLOR_BLUE);
 	
-	SetTileMapCellShape(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT / 2, '*');
+	SetTileMapCellShape(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT / 2, CHARACTER_BLOCK);
 	SetTileMapCellColor(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT / 2, COLOR_YELLOW);
 	
 	SetBackgroundColor(COLOR_GREY_1);
@@ -54,7 +56,7 @@ void Process(void)
 			}
 		}
 		
-		SetTileMapCellShape(CursorPosition.x, CursorPosition.y, 'O');
+		SetTileMapCellShape(CursorPosition.x, CursorPosition.y, CHARACTER_BLOCK);
 		SetTileMapCellColor(CursorPosition.x, CursorPosition.y, COLOR_BLUE);
 	}
 }

@@ -18,6 +18,12 @@ byte BackgroundColorCode;
 byte* TileMapShapeCodes;
 byte* TileMapColorCodes;
 
+SDL_Texture* CharacterSetTexture;
+
+void InitializeCharacterSet(void);
+
+SDL_Surface* CreateSurface(unsigned int width, unsigned int height);
+
 int InitializeVideo(void)
 {
 	// TODO: Expose this.
@@ -55,6 +61,7 @@ int InitializeVideo(void)
 
 	InitializeColors();
 	InitializeTilemap();
+	InitializeCharacterSet();
 
 	return 0;
 }
@@ -65,10 +72,123 @@ void InitializeTilemap(void)
 	TileMapColorCodes = (byte*)calloc(TILEMAP_WIDTH * TILEMAP_HEIGHT, sizeof(byte));
 }
 
+SDL_Surface* CreateSurface(unsigned int width, unsigned int height)
+{
+	Uint32 rmask, gmask, bmask, amask;
+
+	// SDL interprets each pixel as a 32-bit number,
+	// so our masks must depend on the endianness (byte order) of the machine.
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	rmask = 0xff000000;
+	gmask = 0x00ff0000;
+	bmask = 0x0000ff00;
+	amask = 0x000000ff;
+#else
+	rmask = 0x000000ff;
+	gmask = 0x0000ff00;
+	bmask = 0x00ff0000;
+	amask = 0xff000000;
+#endif
+
+	return SDL_CreateRGBSurface
+		(
+			0,
+			width, height,
+			32,
+			rmask, gmask, bmask, amask
+		);
+}
+
+void InitializeCharacterSet(void)
+{
+	unsigned int x, y, byteIndex, bitIndex;
+	byte characterByte;
+	byte* pixels;
+
+	SDL_Rect characterDestinationRect;
+	
+	SDL_Surface* characterSurface = NULL;
+
+	// TODO: Generalize these numbers:
+	// 16 is square root of 256.
+	// 256 is TILE_WIDTH * number of characters.
+	SDL_Surface* characterSetSurface = CreateSurface(16 * TILE_WIDTH, 16 * TILE_HEIGHT);
+	if (characterSetSurface == NULL)
+	{
+		// TODO: Generate error.
+		return;
+	}
+
+	// Populate surface with data based on Charset contents.
+	characterSurface = CreateSurface(TILE_WIDTH, TILE_HEIGHT);
+	if (characterSurface == NULL)
+	{
+		// TODO: Generate error.
+		return;
+	}
+
+	characterDestinationRect.w = TILE_WIDTH;
+	characterDestinationRect.h = TILE_HEIGHT;
+
+	for (y = 0; y < 16; ++y)
+	{
+		for (x = 0; x < 16; ++x)
+		{
+			// Determine destination location for this character graphic.
+			characterDestinationRect.x = x * TILE_WIDTH;
+			characterDestinationRect.y = y * TILE_HEIGHT;
+
+			// Populate character pixel data from character set data.
+			if (SDL_MUSTLOCK(characterSurface))
+			{
+				SDL_LockSurface(characterSurface);
+			}
+
+			for (byteIndex = 0; byteIndex < 8; ++byteIndex)
+			{
+				characterByte = CharacterSet[(y * 16) + x][byteIndex];
+
+				for (bitIndex = 0; bitIndex < 8; ++bitIndex)
+				{
+					pixels = (byte*)characterSurface->pixels;
+					pixels += (byteIndex * characterSurface->pitch) + (bitIndex * sizeof(unsigned int));
+
+					*((unsigned int*)pixels) = ((characterByte >> (7 - bitIndex)) & 1) != 0 ?
+						SDL_MapRGBA(characterSurface->format, 255, 255, 255, 255) :
+						SDL_MapRGBA(characterSurface->format, 0, 0, 0, 0);
+				}
+			}
+
+			if (SDL_MUSTLOCK(characterSurface))
+			{
+				SDL_UnlockSurface(characterSurface);
+			}
+
+			// Copy it over.
+			SDL_BlitSurface
+				(
+					characterSurface,
+					NULL,
+					characterSetSurface,
+					&characterDestinationRect
+				);
+		}
+	}
+
+	CharacterSetTexture = SDL_CreateTextureFromSurface(Renderer, characterSetSurface);
+
+	SDL_FreeSurface(characterSetSurface);
+	characterSetSurface = NULL;
+
+	SDL_FreeSurface(characterSurface);
+	characterSurface = NULL;
+}
+
 void ShutdownVideo(void)
 {
 	FreeTilemap();
 
+	SDL_DestroyTexture(CharacterSetTexture);
 	SDL_DestroyWindow(Window);
 	SDL_DestroyRenderer(Renderer);
 }
@@ -119,6 +239,27 @@ void DrawRectangle(unsigned int x, unsigned int y, unsigned int width, unsigned 
 	SDL_RenderFillRect(Renderer, &rect);
 }
 
+void DrawCharacter(unsigned int x, unsigned int y, unsigned int width, unsigned int height, byte shapeCode, byte colorCode)
+{
+	SDL_Color* color = &Colors[colorCode];
+
+	SDL_Rect sourceRect;
+	SDL_Rect destinationRect;
+
+	sourceRect.x = (shapeCode % 16) * TILE_WIDTH;
+	sourceRect.y = (shapeCode / 16) * TILE_HEIGHT;
+	sourceRect.w = TILE_WIDTH;
+	sourceRect.h = TILE_HEIGHT;
+
+	destinationRect.x = x;
+	destinationRect.y = y;
+	destinationRect.w = width;
+	destinationRect.h = height;
+
+	SDL_SetTextureColorMod(CharacterSetTexture, color->r, color->g, color->b);
+	SDL_RenderCopy(Renderer, CharacterSetTexture, &sourceRect, &destinationRect);
+}
+
 void DrawTileMap()
 {
 	byte shapeCode;
@@ -135,7 +276,7 @@ void DrawTileMap()
 			if (shapeCode != 0)
 			{
 				colorCode = TileMapColorCodes[(rowIndex * TILEMAP_WIDTH) + columnIndex];
-				DrawRectangle(columnIndex * TILE_WIDTH, rowIndex * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT, colorCode);
+				DrawCharacter(columnIndex * TILE_WIDTH, rowIndex * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT, shapeCode, colorCode);
 			}
 		}
 	}

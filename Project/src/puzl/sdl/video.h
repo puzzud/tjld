@@ -21,8 +21,6 @@ void InitializeTilemap(void);
 
 void ShutdownVideo(void);
 
-void FreeTilemap(void);
-
 void Draw(void);
 
 void ClearScreen(void);

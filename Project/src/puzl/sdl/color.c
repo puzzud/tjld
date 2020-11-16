@@ -4,6 +4,8 @@
 
 SDL_Color Colors[NUMBER_OF_COLORS];
 
+void SetColorValuesFromInt(SDL_Color* color, unsigned int value);
+
 void InitializeColors(void)
 {
 	SetColorValuesFromInt(&Colors[COLOR_BLACK], 0x000000);

@@ -24,6 +24,8 @@ void InitializeCharacterSet(void);
 
 SDL_Surface* CreateSurface(unsigned int width, unsigned int height);
 
+void FreeTilemap(void);
+
 int InitializeVideo(void)
 {
 	// TODO: Expose this.

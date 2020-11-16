@@ -29,8 +29,8 @@ void InitializeNodeTree(void)
 void Process(void)
 {
 	Point cursorDelta;
-	cursorDelta.x = 0;//KeyCodeStates[KEY_CODE_RIGHT] - KeyCodeStates[KEY_CODE_LEFT];
-	cursorDelta.y = 0;//KeyCodeStates[KEY_CODE_DOWN] - KeyCodeStates[KEY_CODE_UP];
+	cursorDelta.x = KeyCodeStates[KEY_CODE_RIGHT] - KeyCodeStates[KEY_CODE_LEFT];
+	cursorDelta.y = KeyCodeStates[KEY_CODE_DOWN] - KeyCodeStates[KEY_CODE_UP];
 	
 	if (cursorDelta.x != 0 || cursorDelta.y != 0)
 	{

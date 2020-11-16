@@ -2,6 +2,9 @@
 
 ;.import _UpdateInput
 .import _InitializeVideo
+.import _InitializeInput
+
+.import _UpdateKeyCodeStates
 
 .import _InitializeNodeTree
 .import _Process
@@ -83,15 +86,16 @@ Reset:
   sta LORAM
 
   jsr _InitializeVideo
+  jsr _InitializeInput
   ;jsr _InitializeAudio
 
   cli
-
-  ;jsr _Init
+  
   jsr _InitializeNodeTree
   
 @mainLoop:
   ;jsr _UpdateInput
+  jsr _UpdateKeyCodeStates
   
   ;lda #>(@endUpdate-1)
   ;pha

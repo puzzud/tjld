@@ -3,11 +3,13 @@
 #include <SDL2/SDL.h>
 #include <string.h>
 
-unsigned int KeyCodeStates[NUM_OF_KEY_CODES];
+#include <puzl.h>
+
+byte KeyCodeStates[NUMBER_OF_KEY_CODES];
 
 void InitializeInput(void)
 {
-	memset(KeyCodeStates, 0, NUM_OF_KEY_CODES * sizeof(unsigned int));
+	memset(KeyCodeStates, 0, NUMBER_OF_KEY_CODES * sizeof(byte));
 }
 
 void OnInputEvent(SDL_Event* event)

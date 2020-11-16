@@ -1,7 +1,13 @@
 ;.import _Init
 
 ;.import _UpdateInput
-;.import _InitializeVideo
+.import _InitializeVideo
+.import _InitializeInput
+
+.import _UpdateKeyCodeStates
+
+.import _InitializeNodeTree
+.import _Process
 
 .autoimport on
   
@@ -14,6 +20,7 @@
 
 .export Reset
 
+.exportzp _Running
 .exportzp _InitScreen
 .exportzp _CurrentScreenInit
 .exportzp _CurrentScreenUpdate
@@ -21,6 +28,9 @@
 .include "c64.asm"
 
 .segment "ZEROPAGE"
+
+_Running:
+  .res 1
 
 _InitScreen:
   .res 1
@@ -75,21 +85,24 @@ Reset:
   lda #%00110101
   sta LORAM
 
-  ;jsr _InitializeVideo
+  jsr _InitializeVideo
+  jsr _InitializeInput
   ;jsr _InitializeAudio
 
   cli
-
-  ;jsr _Init
+  
+  jsr _InitializeNodeTree
   
 @mainLoop:
   ;jsr _UpdateInput
+  jsr _UpdateKeyCodeStates
   
   ;lda #>(@endUpdate-1)
   ;pha
   ;lda #<(@endUpdate-1)
   ;pha
   ;jmp (_CurrentScreenUpdate)
+  jsr _Process
 @endUpdate:
   
   ; Wait for the raster to reach line $f8 (248)

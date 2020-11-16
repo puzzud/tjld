@@ -1,38 +1,51 @@
 #include <c64/input.h>
 
-//#include <SDL2/SDL.h>
-//#include <string.h>
+#include <string.h>
 
-unsigned int KeyCodeStates[NUM_OF_KEY_CODES];
-/*
+#include <puzl.h>
+#include <c64/c64.h>
+
+byte KeyCodeStates[NUMBER_OF_KEY_CODES];
+
 void InitializeInput()
 {
-	memset(KeyCodeStates, 0, NUM_OF_KEY_CODES * sizeof(unsigned int));
+	memset(KeyCodeStates, 0, NUMBER_OF_KEY_CODES * sizeof(byte));
 }
 
-void OnInputEvent(SDL_Event* event)
+void FASTCALL UpdateKeyCodeStates(void)
 {
-	switch (event->type)
+	byte rowSelection, columnSelection;
+	byte columnInfo;
+	byte* keyCodeStates = &KeyCodeStates[0];
+
+	// CIA#1 Port set to output.
+	SET_MEMORY_BYTE(CIA1_DDRA, 0xff);
+
+	// CIA#1 Port B set to input.
+	SET_MEMORY_BYTE(CIA1_DDRB, 0x00);
+
+	// Start row selection with 11111110 (will be inverted when fed into CIA1_PRA).
+	rowSelection = 0x01;
+	do
 	{
-		case SDL_KEYDOWN:
+		// Set row.
+		SET_MEMORY_BYTE(CIA1_PRA, ~rowSelection);
+
+		// Start column selection with 00000001.
+		columnSelection = 0x01;
+		do
 		{
-			if (event->key.repeat == 0)
-			{
-				KeyCodeStates[event->key.keysym.scancode] = 1;
-			}
+			// Read column.
+			columnInfo = GET_MEMORY_BYTE(CIA1_PRB) & columnSelection;
+			*keyCodeStates = (columnInfo == 0) ? 1 : 0;
 
-			break;
+			++keyCodeStates;
+
+			columnSelection <<= 1;
 		}
+		while (columnSelection != 0);
 
-		case SDL_KEYUP:
-		{
-			if (event->key.repeat == 0)
-			{
-				KeyCodeStates[event->key.keysym.scancode] = 0;
-			}
-
-			break;
-		}
+		rowSelection <<= 1;
 	}
+	while (rowSelection != 0x00);
 }
-*/

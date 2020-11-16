@@ -85,6 +85,7 @@ LD := ld65
 CC_FAMILY := $(CC)
 
 PLATFORM := c64
+PLATFORM_UC := $(shell echo '$(PLATFORM)' | tr '[:lower:]' '[:upper:]')
 
 CPU := 6502
 LDCONFIG := c64.cfg
@@ -96,7 +97,7 @@ PROGRAM := $(PROJECT_NAME).$(BIN_EXT)
 
 #CA65_LIB # Environment variable should be set to directory that contains c64.lib.
 
-CFLAGS := --cpu $(CPU) -O -I $(SDIR) $(CFLAGS)
+CFLAGS := --cpu $(CPU) -O -I $(SDIR) $(CFLAGS) -D__$(PLATFORM_UC)__
 AFLAGS := --cpu $(CPU) -I $(SDIR) -I $(SDIR)/$(PLATFORM)
 LFLAGS := -C $(PUZLDIR)/$(PLATFORM)/$(LDCONFIG) $(CA65_LIB)/$(PLATFORM).lib
 

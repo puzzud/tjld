@@ -1,7 +1,9 @@
 #ifndef CORE_H
 #define CORE_H
 
-extern unsigned int Running;
+#include <puzl.h>
+
+extern byte Running;
 
 void InitializeNodeTree(void);
 

@@ -10,7 +10,7 @@
 void FASTCALL SetBackgroundColor(byte color)
 {
 	SET_MEMORY_BYTE(VIC_BG_COLOR0, color)
-	SET_MEMORY_BYTE(VIC_BORDERCOLOR, color)
+	SET_MEMORY_BYTE(VIC_BORDERCOLOR, 0) // TODO: Temporary border black.
 }
 
 byte GetTileMapShapeCode(byte x, byte y)

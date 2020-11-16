@@ -29,9 +29,24 @@ void InitializeNodeTree(void)
 void Process(void)
 {
 	Point cursorDelta;
+	cursorDelta.x = cursorDelta.y = 0;
+
+	#ifdef __C64__
+	if ((KeyCodeStates[KEY_CODE_SHIFT_LEFT] | KeyCodeStates[KEY_CODE_SHIFT_RIGHT]) != 0)
+	{
+		cursorDelta.x = 0 - KeyCodeStates[KEY_CODE_RIGHT];
+		cursorDelta.y = 0 - KeyCodeStates[KEY_CODE_DOWN];
+	}
+	else
+	{
+		cursorDelta.x = KeyCodeStates[KEY_CODE_RIGHT];
+		cursorDelta.y = KeyCodeStates[KEY_CODE_DOWN];
+	}
+	#else
 	cursorDelta.x = KeyCodeStates[KEY_CODE_RIGHT] - KeyCodeStates[KEY_CODE_LEFT];
 	cursorDelta.y = KeyCodeStates[KEY_CODE_DOWN] - KeyCodeStates[KEY_CODE_UP];
-	
+	#endif
+
 	if (cursorDelta.x != 0 || cursorDelta.y != 0)
 	{
 		SetTileMapCellShape(CursorPosition.x, CursorPosition.y, 0);

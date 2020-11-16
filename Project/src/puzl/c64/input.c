@@ -48,15 +48,4 @@ void FASTCALL UpdateKeyCodeStates(void)
 		rowSelection <<= 1;
 	}
 	while (rowSelection != 0x00);
-	/*
-	if ((KeyCodeStates[KEY_CODE_SHIFT_LEFT] | KeyCodeStates[KEY_CODE_SHIFT_RIGHT]) != 0)
-	{
-		// KEY_CODE_LEFT
-		*keyCodeStates = KeyCodeStates[KEY_CODE_RIGHT];
-		++keyCodeStates;
-
-		// KEY_CODE_UP
-		*keyCodeStates = KeyCodeStates[KEY_CODE_DOWN];
-		//++keyCodeStates;
-	}*/
 }

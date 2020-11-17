@@ -148,6 +148,14 @@ $(BTDIR)/%.o: $(BTDIR)/%_c.asm | $(BTPPDIR)
 $(BTDIR)/%_c.asm: $(SDIR)/%.c | $(BTPPDIR)
 	$(CC) -o $@ $< $(CFLAGS)
 
+.PHONY: transfer
+transfer: | $(EXECUTABLE)
+	../Resources/Tools/TransferToUltimate.sh $(EXECUTABLE)
+
+.PHONY: transfer_play
+transfer_play: | transfer
+	../Resources/Tools/TransferToUltimate.sh $(EXECUTABLE)
+
 endif
 
 $(BTPPDIR): | $(BTPDIR)

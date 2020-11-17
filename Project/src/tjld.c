@@ -6,6 +6,7 @@
 #define CHARACTER_BLOCK 219
 
 Point CursorPosition;
+Point PreviousCursorPosition;
 int Score;
 
 void InitializeNodeTree(void)
@@ -49,7 +50,9 @@ void Process(void)
 
 	if (cursorDelta.x != 0 || cursorDelta.y != 0)
 	{
-		SetTileMapCellShape(CursorPosition.x, CursorPosition.y, 0);
+		PreviousCursorPosition.x = CursorPosition.x;
+		PreviousCursorPosition.y = CursorPosition.y;
+
 		CursorPosition.x += cursorDelta.x;
 		CursorPosition.y += cursorDelta.y;
 		
@@ -71,7 +74,8 @@ void Process(void)
 			}
 		}
 		
-		SetTileMapCellShape(CursorPosition.x, CursorPosition.y, CHARACTER_BLOCK);
 		SetTileMapCellColor(CursorPosition.x, CursorPosition.y, COLOR_BLUE);
+		SetTileMapCellShape(CursorPosition.x, CursorPosition.y, CHARACTER_BLOCK);
+		SetTileMapCellShape(PreviousCursorPosition.x, PreviousCursorPosition.y, 0);
 	}
 }

@@ -7,12 +7,12 @@ extern byte PrintX;
 extern byte PrintY;
 extern byte PrintColor;
 
-extern void SetBackgroundColor(byte colorCode);
+void FASTCALL SetBackgroundColor(byte colorCode);
 
-byte GetTileMapShapeCode(byte x, byte y);
-byte GetTileMapColorCode(byte x, byte y);
-void SetTileMapCellShape(byte x, byte y, byte shapeCode);
-void SetTileMapCellColor(byte x, byte y, byte colorCode);
+byte FASTCALL GetTileMapShapeCode(byte x, byte y);
+byte FASTCALL GetTileMapColorCode(byte x, byte y);
+void FASTCALL SetTileMapCellShape(byte x, byte y, byte shapeCode);
+void FASTCALL SetTileMapCellColor(byte x, byte y, byte colorCode);
 
 extern void FASTCALL PrintText(const char* text, byte x, byte y);
 

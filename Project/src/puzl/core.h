@@ -5,6 +5,6 @@
 
 extern byte Running;
 
-void InitializeNodeTree(void);
+void FASTCALL InitializeNodeTree(void);
 
 #endif

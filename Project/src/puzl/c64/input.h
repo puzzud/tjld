@@ -80,8 +80,8 @@ typedef enum
 
 #include <input.h>
 
-void InitializeInput(void);
+void FASTCALL InitializeInput(void);
 
-void UpdateKeyCodeStates(void);
+void FASTCALL UpdateKeyCodeStates(void);
 
 #endif

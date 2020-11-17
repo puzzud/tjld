@@ -7,12 +7,12 @@
 
 byte KeyCodeStates[NUMBER_OF_KEY_CODES];
 
-void InitializeInput()
+void InitializeInput(void)
 {
 	memset(KeyCodeStates, 0, NUMBER_OF_KEY_CODES * sizeof(byte));
 }
 
-void FASTCALL UpdateKeyCodeStates(void)
+void UpdateKeyCodeStates(void)
 {
 	byte rowSelection, columnSelection;
 	byte columnInfo;

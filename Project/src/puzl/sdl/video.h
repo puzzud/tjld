@@ -17,14 +17,9 @@
 extern const byte CharacterSet[256][8];
 
 int InitializeVideo(void);
-void InitializeTilemap(void);
 
 void ShutdownVideo(void);
 
 void Draw(void);
-
-void ClearScreen(void);
-void DrawRectangle(unsigned int x, unsigned int y, unsigned int width, unsigned int height, char colorCode);
-void DrawTileMap(void);
 
 #endif

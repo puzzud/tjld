@@ -20,11 +20,16 @@ byte* TileMapColorCodes;
 
 SDL_Texture* CharacterSetTexture;
 
+void InitializeTilemap(void);
 void InitializeCharacterSet(void);
 
 SDL_Surface* CreateSurface(unsigned int width, unsigned int height);
 
 void FreeTilemap(void);
+
+void ClearScreen(void);
+void DrawRectangle(unsigned int x, unsigned int y, unsigned int width, unsigned int height, byte colorCode);
+void DrawTileMap(void);
 
 int InitializeVideo(void)
 {

@@ -63,6 +63,8 @@ int Initialize(void)
 
 	InitializeVideo();
 
+	InitalizeSpeed();
+
 	InitializeNodeTree();
 
 	return 0;
@@ -112,6 +114,8 @@ inline void MainLoopIteration(void)
 	}
 
 	Process();
+	CycleSpeedBit();
+
 	Draw();
 
 #ifndef __EMSCRIPTEN__

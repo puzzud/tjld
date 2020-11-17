@@ -5,6 +5,7 @@
 
 #define CHARACTER_BLOCK 219
 
+byte CursorSpeedPatternIndex;
 Point CursorPosition;
 Point PreviousCursorPosition;
 int Score;
@@ -19,6 +20,8 @@ void InitializeNodeTree(void)
 	SetTileMapCellShape(CursorPosition.x, CursorPosition.y, CHARACTER_BLOCK);
 	SetTileMapCellColor(CursorPosition.x, CursorPosition.y, COLOR_BLUE);
 	
+	CursorSpeedPatternIndex = 2;
+
 	SetTileMapCellShape(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT / 2, CHARACTER_BLOCK);
 	SetTileMapCellColor(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT / 2, COLOR_YELLOW);
 	
@@ -50,32 +53,35 @@ void Process(void)
 
 	if (cursorDelta.x != 0 || cursorDelta.y != 0)
 	{
-		PreviousCursorPosition.x = CursorPosition.x;
-		PreviousCursorPosition.y = CursorPosition.y;
-
-		CursorPosition.x += cursorDelta.x;
-		CursorPosition.y += cursorDelta.y;
-		
-		if (GetTileMapShapeCode(CursorPosition.x, CursorPosition.y) != 0)
+		if (IsMoving(CursorSpeedPatternIndex) != 0)
 		{
-			if (GetTileMapColorCode(CursorPosition.x, CursorPosition.y) == COLOR_YELLOW)
-			{
-				Score += 1;
-				if (Score == 1)
-				{
-					Running = 0;
-				}
+			PreviousCursorPosition.x = CursorPosition.x;
+			PreviousCursorPosition.y = CursorPosition.y;
 
-				#ifndef __CC65__
-				// TODO: Figure this out.
-				printf("Score: %d", Score);
-				printf("\n");
-				#endif
+			CursorPosition.x += cursorDelta.x;
+			CursorPosition.y += cursorDelta.y;
+			
+			if (GetTileMapShapeCode(CursorPosition.x, CursorPosition.y) != 0)
+			{
+				if (GetTileMapColorCode(CursorPosition.x, CursorPosition.y) == COLOR_YELLOW)
+				{
+					Score += 1;
+					if (Score == 1)
+					{
+						Running = 0;
+					}
+
+					#ifndef __CC65__
+					// TODO: Figure this out.
+					printf("Score: %d", Score);
+					printf("\n");
+					#endif
+				}
 			}
+			
+			SetTileMapCellColor(CursorPosition.x, CursorPosition.y, COLOR_BLUE);
+			SetTileMapCellShape(CursorPosition.x, CursorPosition.y, CHARACTER_BLOCK);
+			SetTileMapCellShape(PreviousCursorPosition.x, PreviousCursorPosition.y, 0);
 		}
-		
-		SetTileMapCellColor(CursorPosition.x, CursorPosition.y, COLOR_BLUE);
-		SetTileMapCellShape(CursorPosition.x, CursorPosition.y, CHARACTER_BLOCK);
-		SetTileMapCellShape(PreviousCursorPosition.x, PreviousCursorPosition.y, 0);
 	}
 }

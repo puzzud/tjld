@@ -5,4 +5,10 @@
 
 #pragma zpsym ("Running");
 
+extern byte SpeedBitPatternByteTimer;
+extern byte SpeedBitFlag;
+
+#pragma zpsym ("SpeedBitPatternByteTimer");
+#pragma zpsym ("SpeedBitFlag");
+
 #endif

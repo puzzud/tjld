@@ -6,8 +6,10 @@
 
 .import _UpdateKeyCodeStates
 
+.import _InitalizeSpeed
 .import _InitializeNodeTree
 .import _Process
+.import _CycleSpeedBit
 
 .autoimport on
   
@@ -91,6 +93,7 @@ Reset:
 
   cli
   
+  jsr _InitalizeSpeed
   jsr _InitializeNodeTree
   
 @mainLoop:
@@ -103,6 +106,7 @@ Reset:
   ;pha
   ;jmp (_CurrentScreenUpdate)
   jsr _Process
+  jsr _CycleSpeedBit
 @endUpdate:
   
   ; Wait for the raster to reach line $f8 (248)

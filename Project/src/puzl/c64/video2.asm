@@ -241,8 +241,10 @@ _PrintText:
 @printTextLoop:
   iny
   lda (ptr1),y ; (ptr2+1,ptr2)=a=text[++y]
+  beq @endPrintTextLoop
   sta (ptr2),y
   bne @printTextLoop
+@endPrintTextLoop:
 
   ; Switch ptr2 to point to color RAM.
   clc

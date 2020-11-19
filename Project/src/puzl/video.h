@@ -3,6 +3,12 @@
 
 #include <puzl.h>
 
+typedef struct
+{
+	byte x;
+	byte y;
+} TilePoint;
+
 extern byte PrintX;
 extern byte PrintY;
 extern byte PrintColor;

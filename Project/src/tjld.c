@@ -6,33 +6,41 @@
 #define CHARACTER_BLOCK 219
 
 byte CursorSpeedPatternIndex;
-Point CursorPosition;
-Point PreviousCursorPosition;
+TilePoint CursorPosition;
+TilePoint PreviousCursorPosition;
 int Score;
+
+void FASTCALL GenerateHWall(byte x, byte y, byte width);
+void FASTCALL GenerateVWall(byte x, byte y, byte height);
 
 void InitializeNodeTree(void)
 {
 	// TODO: Call out custom logic?
-	Score = 0;
-	
-	CursorPosition.x = 0;
-	CursorPosition.y = 0;
-	SetTileMapCellShape(CursorPosition.x, CursorPosition.y, CHARACTER_BLOCK);
-	SetTileMapCellColor(CursorPosition.x, CursorPosition.y, COLOR_BLUE);
-	
-	CursorSpeedPatternIndex = 2;
+	SetBackgroundColor(COLOR_GREY_1);
+
+	GenerateHWall(0, 1, TILEMAP_WIDTH);
+	GenerateVWall(0, 2, TILEMAP_HEIGHT - 2);
+	GenerateVWall(TILEMAP_WIDTH - 1, 2, TILEMAP_HEIGHT - 2);
+	GenerateHWall(0, TILEMAP_HEIGHT - 1, TILEMAP_WIDTH);
 
 	SetTileMapCellShape(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT / 2, CHARACTER_BLOCK);
 	SetTileMapCellColor(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT / 2, COLOR_YELLOW);
 	
-	SetBackgroundColor(COLOR_GREY_1);
+	Score = 0;
+	
+	CursorPosition.x = 4;
+	CursorPosition.y = TILEMAP_HEIGHT / 2;
+	SetTileMapCellShape(CursorPosition.x, CursorPosition.y, CHARACTER_BLOCK);
+	SetTileMapCellColor(CursorPosition.x, CursorPosition.y, COLOR_BLUE);
+
+	CursorSpeedPatternIndex = 2;
 
 	PrintText("ANDREW", TILEMAP_WIDTH - sizeof("ANDREW") + 1, 0);
 }
 
 void Process(void)
 {
-	Point cursorDelta;
+	TilePoint cursorDelta;
 	cursorDelta.x = cursorDelta.y = 0;
 
 	#ifdef __C64__
@@ -63,25 +71,68 @@ void Process(void)
 			
 			if (GetTileMapShapeCode(CursorPosition.x, CursorPosition.y) != 0)
 			{
-				if (GetTileMapColorCode(CursorPosition.x, CursorPosition.y) == COLOR_YELLOW)
+				switch (GetTileMapColorCode(CursorPosition.x, CursorPosition.y))
 				{
-					Score += 1;
-					if (Score == 1)
+					case COLOR_YELLOW:
 					{
-						Running = 0;
+						Score += 1;
+						if (Score >= 3)
+						{
+							Running = 0;
+						}
+
+						#ifndef __CC65__
+						// TODO: Figure this out.
+						printf("Score: %d", Score);
+						printf("\n");
+						#endif
+
+						SetBackgroundColor(COLOR_RED);
+
+						break;
 					}
 
-					#ifndef __CC65__
-					// TODO: Figure this out.
-					printf("Score: %d", Score);
-					printf("\n");
-					#endif
+					case COLOR_WHITE:
+					{
+						// Obstacles prevent movement.
+						CursorPosition.x = PreviousCursorPosition.x;
+						CursorPosition.y = PreviousCursorPosition.y;
+
+						break;
+					}
 				}
 			}
 			
-			SetTileMapCellColor(CursorPosition.x, CursorPosition.y, COLOR_BLUE);
-			SetTileMapCellShape(CursorPosition.x, CursorPosition.y, CHARACTER_BLOCK);
-			SetTileMapCellShape(PreviousCursorPosition.x, PreviousCursorPosition.y, 0);
+			if (CursorPosition.x != PreviousCursorPosition.x || CursorPosition.y != PreviousCursorPosition.y)
+			{
+				SetTileMapCellColor(CursorPosition.x, CursorPosition.y, COLOR_BLUE);
+				SetTileMapCellShape(CursorPosition.x, CursorPosition.y, CHARACTER_BLOCK);
+				SetTileMapCellShape(PreviousCursorPosition.x, PreviousCursorPosition.y, 0);
+			}
 		}
 	}
+}
+
+void GenerateHWall(byte x, byte y, byte width)
+{
+	do
+	{
+		SetTileMapCellColor(x, y, COLOR_WHITE);
+		SetTileMapCellShape(x, y, CHARACTER_BLOCK);
+
+		++x;
+	}
+	while (--width > 0);
+}
+
+void GenerateVWall(byte x, byte y, byte height)
+{
+	do
+	{
+		SetTileMapCellColor(x, y, COLOR_WHITE);
+		SetTileMapCellShape(x, y, CHARACTER_BLOCK);
+
+		++y;
+	}
+	while (--height > 0);
 }

@@ -1,5 +1,6 @@
 #include <puzl.h>
 
+// TODO: Hide this pragma from common code.
 #pragma rodata-name ("RODATA")
 
 const byte CharacterSet[256][8] =

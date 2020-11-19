@@ -3,12 +3,9 @@
 
 #include <core.h>
 
-#pragma zpsym ("Running");
+#pragma zpsym ("Running"); // TODO: Will cause compilation warning if used in C.
 
 extern byte SpeedBitPatternByteTimer;
 extern byte SpeedBitFlag;
-
-#pragma zpsym ("SpeedBitPatternByteTimer");
-#pragma zpsym ("SpeedBitFlag");
 
 #endif

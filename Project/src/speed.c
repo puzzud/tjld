@@ -1,7 +1,13 @@
 #include <puzl.h>
 
+// TODO: Hide this pragma from common code.
+#pragma bss-name (push,"ZEROPAGE")
+
 byte SpeedBitPatternByteTimer;
 byte SpeedBitFlag;
+
+#pragma zpsym ("SpeedBitPatternByteTimer");
+#pragma zpsym ("SpeedBitFlag");
 
 #pragma rodata-name ("RODATA")
 

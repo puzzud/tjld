@@ -28,6 +28,10 @@ CFLAGS := -I $(PUZLDIR)
 ########################################
 # Target Specifics
 ########################################
+
+#---------------------------------------
+# Linux
+#---------------------------------------
 ifeq ($(TARGET),lin)
 CC := g++
 CC_FAMILY := $(CC)
@@ -42,6 +46,9 @@ EXECUTABLE := ./$(PROJECT_NAME)
 EXECUTE := $(EXECUTABLE)
 endif
 
+#---------------------------------------
+# Windows
+#---------------------------------------
 ifeq ($(TARGET),win)
 CC := x86_64-w64-mingw32-g++
 CC_FAMILY := g++
@@ -62,6 +69,9 @@ EXECUTABLE := $(BTDIR)/$(PROJECT_NAME).exe
 EXECUTE := wine $(EXECUTABLE)
 endif
 
+#---------------------------------------
+# Web
+#---------------------------------------
 ifeq ($(TARGET),web)
 CC := emcc
 CC_FAMILY := g++
@@ -77,6 +87,9 @@ EXECUTABLE := $(BTDIR)/$(HTML)
 EXECUTE := @echo Serve this follow to test: $(EXECUTABLE)
 endif
 
+#---------------------------------------
+# Commodore 64
+#---------------------------------------
 ifeq ($(TARGET),c64)
 CC := cc65
 AS := ca65

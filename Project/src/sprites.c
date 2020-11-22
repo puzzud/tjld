@@ -1,9 +1,10 @@
 #include <puzl.h>
+#include <video.h>
 
 // TODO: Hide this pragma from common code.
 #pragma rodata-name ("RODATA")
 
-const byte SpriteSet[][16][16] =
+const byte SpriteSet[][SPRITE_WIDTH][SPRITE_HEIGHT] =
 {
 	{
 		{0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0},	// |.......33.......|

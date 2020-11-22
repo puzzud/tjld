@@ -15,6 +15,7 @@
 #define TILEMAP_HEIGHT (SCREEN_HEIGHT / TILE_HEIGHT)
 
 extern const byte CharacterSet[256][8];
+extern const byte SpriteSet[][16][16];
 
 int InitializeVideo(void);
 

@@ -22,6 +22,7 @@ SDL_Texture* CharacterSetTexture;
 
 void InitializeTilemap(void);
 void InitializeCharacterSet(void);
+void InitializeSprites(void);
 
 SDL_Surface* CreateSurface(unsigned int width, unsigned int height);
 
@@ -69,6 +70,7 @@ int InitializeVideo(void)
 	InitializeColors();
 	InitializeTilemap();
 	InitializeCharacterSet();
+	InitializeSprites();
 
 	return 0;
 }
@@ -189,6 +191,11 @@ void InitializeCharacterSet(void)
 
 	SDL_FreeSurface(characterSurface);
 	characterSurface = NULL;
+}
+
+void InitializeSprites(void)
+{
+	
 }
 
 void ShutdownVideo(void)

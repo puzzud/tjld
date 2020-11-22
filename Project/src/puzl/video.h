@@ -3,6 +3,9 @@
 
 #include <puzl.h>
 
+#define SPRITE_WIDTH 16
+#define SPRITE_HEIGHT 16
+
 typedef struct
 {
 	byte x;

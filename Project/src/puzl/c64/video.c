@@ -40,3 +40,18 @@ void FASTCALL SetTileMapCellColor(byte x, byte y, byte colorCode)
 
 	SET_MEMORY_BYTE(cellMemoryAddress, colorCode);
 }
+
+void EnableSprite(byte spriteIndex, byte enable)
+{
+
+}
+
+void SetSpritePosition(byte spriteIndex, unsigned short x, unsigned short y)
+{
+
+}
+
+void SetSpriteFrameIndex(byte spriteIndex, byte frameIndex)
+{
+	
+}

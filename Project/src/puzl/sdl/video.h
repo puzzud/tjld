@@ -14,8 +14,17 @@
 #define TILEMAP_WIDTH (SCREEN_WIDTH / TILE_WIDTH)
 #define TILEMAP_HEIGHT (SCREEN_HEIGHT / TILE_HEIGHT)
 
+typedef struct
+{
+	byte enabled;
+	signed short x;
+	signed short y;
+	byte frameIndex;
+	//byte colorCode;
+} Sprite;
+
 extern const byte CharacterSet[NUMBER_OF_CHARACTERS][CHARACTER_HEIGHT];
-extern const byte SpriteSet[NUMBER_OF_SPRITES][SPRITE_WIDTH][SPRITE_WIDTH];
+extern const byte SpriteSet[NUMBER_OF_SPRITE_FRAMES][SPRITE_WIDTH][SPRITE_WIDTH];
 
 int InitializeVideo(void);
 

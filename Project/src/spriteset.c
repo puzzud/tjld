@@ -1,10 +1,9 @@
 #include <puzl.h>
 #include <video.h>
 
-// TODO: Hide this pragma from common code.
-#pragma rodata-name ("RODATA")
+#if defined(__linux__) || defined(_WIN32) | defined(__EMSCRIPTEN__)
 
-const byte SpriteSet[NUMBER_OF_SPRITES][SPRITE_WIDTH][SPRITE_HEIGHT] =
+const byte SpriteSet[NUMBER_OF_SPRITE_FRAMES][SPRITE_WIDTH][SPRITE_HEIGHT] =
 {
 	{
 		{0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0},	// |.......33.......|
@@ -889,3 +888,13 @@ const byte SpriteSet[NUMBER_OF_SPRITES][SPRITE_WIDTH][SPRITE_HEIGHT] =
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}	// |................|
 	}
 };
+
+#endif
+
+#ifdef __C64__
+// TODO: Hide this pragma from common code.
+#pragma rodata-name ("RODATA")
+
+
+
+#endif

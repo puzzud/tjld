@@ -21,6 +21,8 @@ byte* TileMapColorCodes;
 SDL_Texture* CharacterSetTexture;
 SDL_Texture* SpriteSetTexture;
 
+Sprite Sprites[NUMBER_OF_SPRITES]; 
+
 void InitializeTilemap(void);
 void InitializeCharacterSet(void);
 void InitializeSprites(void);
@@ -31,7 +33,7 @@ void PopulateCharacterSetSurfaceFromCharacterSet(SDL_Surface* characterSetSurfac
 void PopulateCharacterSurfaceFromCharacter(SDL_Surface* characterSurface, unsigned int characterIndex);
 
 void PopulateSpriteSetSurfaceFromSpriteSet(SDL_Surface* spriteSetSurface);
-void PopulateSpriteSurfaceFromSprite(SDL_Surface* spriteSurface, unsigned int spriteIndex);
+void PopulateSpriteSurfaceFromSprite(SDL_Surface* spriteSurface, unsigned int spriteFrameIndex);
 
 void FreeTilemap(void);
 
@@ -40,6 +42,7 @@ void DrawRectangle(unsigned int x, unsigned int y, unsigned int width, unsigned 
 void DrawTileMap(void);
 
 void DrawSprites(void);
+void DrawSpriteFrame(int x, int y, unsigned int spriteFrameIndex);
 
 int InitializeVideo(void)
 {
@@ -211,7 +214,7 @@ void PopulateCharacterSurfaceFromCharacter(SDL_Surface* characterSurface, unsign
 
 void InitializeSprites(void)
 {
-	SDL_Surface* spriteSetSurface = CreateSurface(SPRITE_WIDTH, SPRITE_HEIGHT * NUMBER_OF_SPRITES);
+	SDL_Surface* spriteSetSurface = CreateSurface(SPRITE_WIDTH, SPRITE_HEIGHT * NUMBER_OF_SPRITE_FRAMES);
 	if (spriteSetSurface == NULL)
 	{
 		// TODO: Generate error.
@@ -224,11 +227,14 @@ void InitializeSprites(void)
 
 	SDL_FreeSurface(spriteSetSurface);
 	spriteSetSurface = NULL;
+
+	// Sprite controls.
+	memset(Sprites, 0, NUMBER_OF_SPRITES * sizeof(Sprite));
 }
 
 void PopulateSpriteSetSurfaceFromSpriteSet(SDL_Surface* spriteSetSurface)
 {
-	unsigned int spriteIndex;
+	unsigned int spriteFrameIndex;
 
 	SDL_Rect spriteDestinationRect;
 	
@@ -246,9 +252,9 @@ void PopulateSpriteSetSurfaceFromSpriteSet(SDL_Surface* spriteSetSurface)
 	spriteDestinationRect.x = 0;
 	spriteDestinationRect.y = 0;
 
-	for (spriteIndex = 0; spriteIndex < NUMBER_OF_SPRITES; ++spriteIndex)
+	for (spriteFrameIndex = 0; spriteFrameIndex < NUMBER_OF_SPRITE_FRAMES; ++spriteFrameIndex)
 	{
-		PopulateSpriteSurfaceFromSprite(spriteSurface, spriteIndex);
+		PopulateSpriteSurfaceFromSprite(spriteSurface, spriteFrameIndex);
 
 		// Copy it over.
 		SDL_BlitSurface
@@ -267,7 +273,7 @@ void PopulateSpriteSetSurfaceFromSpriteSet(SDL_Surface* spriteSetSurface)
 	spriteSurface = NULL;
 }
 
-void PopulateSpriteSurfaceFromSprite(SDL_Surface* spriteSurface, unsigned int spriteIndex)
+void PopulateSpriteSurfaceFromSprite(SDL_Surface* spriteSurface, unsigned int spriteFrameIndex)
 {
 	unsigned int x, y;
 	byte colorCode;
@@ -284,7 +290,7 @@ void PopulateSpriteSurfaceFromSprite(SDL_Surface* spriteSurface, unsigned int sp
 	{
 		for (x = 0; x < SPRITE_WIDTH; ++x)
 		{
-			colorCode = SpriteSet[spriteIndex][y][x];
+			colorCode = SpriteSet[spriteFrameIndex][y][x];
 
 			*((unsigned int*)pixels) = colorCode != 0 ?
 				SDL_MapRGBA(spriteSurface->format, 255 / colorCode, 255 / colorCode, 255 / colorCode, 255) :
@@ -377,24 +383,6 @@ void DrawCharacter(unsigned int x, unsigned int y, unsigned int width, unsigned 
 	SDL_RenderCopy(Renderer, CharacterSetTexture, &sourceRect, &destinationRect);
 }
 
-void DrawSpriteFrame(unsigned int x, unsigned int y, unsigned int spriteFrameIndex)
-{
-	SDL_Rect sourceRect;
-	SDL_Rect destinationRect;
-
-	sourceRect.x = 0;
-	sourceRect.y = spriteFrameIndex * SPRITE_HEIGHT;
-	sourceRect.w = SPRITE_WIDTH;
-	sourceRect.h = SPRITE_HEIGHT;
-
-	destinationRect.x = x;
-	destinationRect.y = y;
-	destinationRect.w = SPRITE_WIDTH;
-	destinationRect.h = SPRITE_HEIGHT;
-
-	SDL_RenderCopy(Renderer, SpriteSetTexture, &sourceRect, &destinationRect);
-}
-
 void DrawTileMap()
 {
 	byte shapeCode;
@@ -464,5 +452,52 @@ void PrintText(const char* text, byte x, byte y)
 
 void DrawSprites(void)
 {
-	DrawSpriteFrame(0, 0, 0);
+	Sprite* sprite;
+	int spriteIndex = NUMBER_OF_SPRITES - 1;
+
+	do
+	{
+		sprite = &Sprites[spriteIndex];
+
+		if (sprite->enabled != 0)
+		{
+			DrawSpriteFrame(sprite->x, sprite->y, sprite->frameIndex);
+		}
+	}
+	while (--spriteIndex > -1);
+}
+
+void DrawSpriteFrame(int x, int y, unsigned int spriteFrameIndex)
+{
+	SDL_Rect sourceRect;
+	SDL_Rect destinationRect;
+
+	sourceRect.x = 0;
+	sourceRect.y = spriteFrameIndex * SPRITE_HEIGHT;
+	sourceRect.w = SPRITE_WIDTH;
+	sourceRect.h = SPRITE_HEIGHT;
+
+	destinationRect.x = x;
+	destinationRect.y = y;
+	destinationRect.w = SPRITE_WIDTH;
+	destinationRect.h = SPRITE_HEIGHT;
+
+	SDL_RenderCopy(Renderer, SpriteSetTexture, &sourceRect, &destinationRect);
+}
+
+void EnableSprite(byte spriteIndex, byte enable)
+{
+	Sprites[spriteIndex].enabled = enable;
+}
+
+void SetSpritePosition(byte spriteIndex, unsigned short x, unsigned short y)
+{
+	Sprite* sprite = &Sprites[spriteIndex];
+	sprite->x = x;
+	sprite->y = y;
+}
+
+void SetSpriteFrameIndex(byte spriteIndex, byte frameIndex)
+{
+	Sprites[spriteIndex].frameIndex = frameIndex;
 }

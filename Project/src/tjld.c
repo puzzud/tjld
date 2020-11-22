@@ -36,6 +36,18 @@ void InitializeNodeTree(void)
 	CursorSpeedPatternIndex = 2;
 
 	PrintText("ANDREW", TILEMAP_WIDTH - sizeof("ANDREW") + 1, 0);
+
+	EnableSprite(0, 1);
+	SetSpritePosition(0, 8 + (SPRITE_WIDTH * 0), SPRITE_HEIGHT);
+	SetSpriteFrameIndex(0, 14);
+	
+	EnableSprite(1, 1);
+	SetSpritePosition(1, 8 + (SPRITE_WIDTH * 2), SPRITE_HEIGHT);
+	SetSpriteFrameIndex(1, 0);
+	
+	EnableSprite(2, 1);
+	SetSpritePosition(2, 8 + (SPRITE_WIDTH * 4), SPRITE_HEIGHT);
+	SetSpriteFrameIndex(2, 21);
 }
 
 void Process(void)

@@ -26,6 +26,9 @@ void InitializeSprites(void);
 
 SDL_Surface* CreateSurface(unsigned int width, unsigned int height);
 
+void PopulateCharacterSetSurfaceFromCharacterSet(SDL_Surface* characterSetSurface);
+void PopulateCharacterSurfaceFromCharacter(SDL_Surface* characterSurface, unsigned int characterIndex);
+
 void FreeTilemap(void);
 
 void ClearScreen(void);
@@ -110,26 +113,28 @@ SDL_Surface* CreateSurface(unsigned int width, unsigned int height)
 
 void InitializeCharacterSet(void)
 {
-	unsigned int x, y, byteIndex, bitIndex;
-	byte characterByte;
-	byte* pixels;
-
-	SDL_Rect characterDestinationRect;
-	
-	SDL_Surface* characterSurface = NULL;
-
-	// TODO: Generalize these numbers:
-	// 16 is square root of 256.
-	// 256 is TILE_WIDTH * number of characters.
-	SDL_Surface* characterSetSurface = CreateSurface(TILE_WIDTH, 256 * TILE_HEIGHT);
+	SDL_Surface* characterSetSurface = CreateSurface(TILE_WIDTH, NUMBER_OF_CHARACTERS * TILE_HEIGHT);
 	if (characterSetSurface == NULL)
 	{
 		// TODO: Generate error.
 		return;
 	}
 
-	// Populate surface with data based on Charset contents.
-	characterSurface = CreateSurface(TILE_WIDTH, TILE_HEIGHT);
+	PopulateCharacterSetSurfaceFromCharacterSet(characterSetSurface);
+
+	CharacterSetTexture = SDL_CreateTextureFromSurface(Renderer, characterSetSurface);
+
+	SDL_FreeSurface(characterSetSurface);
+	characterSetSurface = NULL;
+}
+
+void PopulateCharacterSetSurfaceFromCharacterSet(SDL_Surface* characterSetSurface)
+{
+	unsigned int characterIndex;
+
+	SDL_Rect characterDestinationRect;
+	
+	SDL_Surface* characterSurface = CreateSurface(TILE_WIDTH, TILE_HEIGHT);
 	if (characterSurface == NULL)
 	{
 		// TODO: Generate error.
@@ -143,57 +148,59 @@ void InitializeCharacterSet(void)
 	characterDestinationRect.x = 0;
 	characterDestinationRect.y = 0;
 
-	for (y = 0; y < 16; ++y)
+	for (characterIndex = 0; characterIndex < NUMBER_OF_CHARACTERS; ++characterIndex)
 	{
-		for (x = 0; x < 16; ++x)
-		{
-			// Populate character pixel data from character set data.
-			if (SDL_MUSTLOCK(characterSurface))
-			{
-				SDL_LockSurface(characterSurface);
-			}
+		PopulateCharacterSurfaceFromCharacter(characterSurface, characterIndex);
 
-			for (byteIndex = 0; byteIndex < 8; ++byteIndex)
-			{
-				characterByte = CharacterSet[(y * 16) + x][byteIndex];
-
-				for (bitIndex = 0; bitIndex < 8; ++bitIndex)
-				{
-					pixels = (byte*)characterSurface->pixels;
-					pixels += (byteIndex * characterSurface->pitch) + (bitIndex * sizeof(unsigned int));
-
-					*((unsigned int*)pixels) = ((characterByte >> (7 - bitIndex)) & 1) != 0 ?
-						SDL_MapRGBA(characterSurface->format, 255, 255, 255, 255) :
-						SDL_MapRGBA(characterSurface->format, 0, 0, 0, 0);
-				}
-			}
-
-			if (SDL_MUSTLOCK(characterSurface))
-			{
-				SDL_UnlockSurface(characterSurface);
-			}
-
-			// Copy it over.
-			SDL_BlitSurface
-				(
-					characterSurface,
-					NULL,
-					characterSetSurface,
-					&characterDestinationRect
-				);
-			
-			// Determine destination location for next character graphic.
-			characterDestinationRect.y += TILE_HEIGHT;
-		}
+		// Copy it over.
+		SDL_BlitSurface
+			(
+				characterSurface,
+				NULL,
+				characterSetSurface,
+				&characterDestinationRect
+			);
+		
+		// Determine destination location for next character graphic.
+		characterDestinationRect.y += TILE_HEIGHT;
 	}
-
-	CharacterSetTexture = SDL_CreateTextureFromSurface(Renderer, characterSetSurface);
-
-	SDL_FreeSurface(characterSetSurface);
-	characterSetSurface = NULL;
 
 	SDL_FreeSurface(characterSurface);
 	characterSurface = NULL;
+}
+
+void PopulateCharacterSurfaceFromCharacter(SDL_Surface* characterSurface, unsigned int characterIndex)
+{
+	const byte* characterBytes = &CharacterSet[characterIndex][0];
+	unsigned int byteIndex, bitIndex;
+	byte characterByte;
+	unsigned int* pixels;
+
+	if (SDL_MUSTLOCK(characterSurface))
+	{
+		SDL_LockSurface(characterSurface);
+	}
+
+	pixels = (unsigned int*)characterSurface->pixels;
+
+	for (byteIndex = 0; byteIndex < CHARACTER_HEIGHT; ++byteIndex)
+	{
+		characterByte = *(characterBytes + byteIndex);
+
+		for (bitIndex = 0; bitIndex < 8; ++bitIndex)
+		{
+			*((unsigned int*)pixels) = ((characterByte >> (7 - bitIndex)) & 1) != 0 ?
+				SDL_MapRGBA(characterSurface->format, 255, 255, 255, 255) :
+				SDL_MapRGBA(characterSurface->format, 0, 0, 0, 0);
+			
+			++pixels;
+		}
+	}
+
+	if (SDL_MUSTLOCK(characterSurface))
+	{
+		SDL_UnlockSurface(characterSurface);
+	}
 }
 
 void InitializeSprites(void)

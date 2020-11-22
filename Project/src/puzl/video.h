@@ -3,6 +3,9 @@
 
 #include <puzl.h>
 
+#define CHARACTER_HEIGHT 8
+#define NUMBER_OF_CHARACTERS 256
+
 #define SPRITE_WIDTH 16
 #define SPRITE_HEIGHT 16
 

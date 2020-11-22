@@ -4,7 +4,7 @@
 // TODO: Hide this pragma from common code.
 #pragma rodata-name ("RODATA")
 
-const byte SpriteSet[][SPRITE_WIDTH][SPRITE_HEIGHT] =
+const byte SpriteSet[NUMBER_OF_SPRITES][SPRITE_WIDTH][SPRITE_HEIGHT] =
 {
 	{
 		{0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 0, 0, 0, 0, 0},	// |.......33.......|

@@ -8,6 +8,7 @@
 
 #define SPRITE_WIDTH 16
 #define SPRITE_HEIGHT 16
+#define NUMBER_OF_SPRITES 7 * 7
 
 typedef struct
 {

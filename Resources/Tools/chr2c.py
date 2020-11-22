@@ -2,7 +2,16 @@
 
 import sys
 
-def PrintBytesArray(bytes):
+def PrintAllCharacters(inputFile):
+	bytes = inputFile.read(8)
+	while bytes:
+		PrintNextCharacter(bytes)
+
+		bytes = inputFile.read(8)
+		if bytes:
+			print(",")
+
+def PrintNextCharacter(bytes):
 	print "\t{"
 
 	numberOfBytes = len(bytes)
@@ -43,15 +52,7 @@ except IOError:
 
 if inputFile:
 	print "{"
-
-	bytes = inputFile.read(8)
-	while bytes:
-		PrintBytesArray(bytes)
-
-		bytes = inputFile.read(8)
-		if bytes:
-			print(",")
-
+	PrintAllCharacters(inputFile)
 	print "\n};"
 
 	inputFile.close()

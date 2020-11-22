@@ -121,7 +121,7 @@ void InitializeCharacterSet(void)
 	// TODO: Generalize these numbers:
 	// 16 is square root of 256.
 	// 256 is TILE_WIDTH * number of characters.
-	SDL_Surface* characterSetSurface = CreateSurface(16 * TILE_WIDTH, 16 * TILE_HEIGHT);
+	SDL_Surface* characterSetSurface = CreateSurface(TILE_WIDTH, 256 * TILE_HEIGHT);
 	if (characterSetSurface == NULL)
 	{
 		// TODO: Generate error.
@@ -139,14 +139,14 @@ void InitializeCharacterSet(void)
 	characterDestinationRect.w = TILE_WIDTH;
 	characterDestinationRect.h = TILE_HEIGHT;
 
+	// Initial destination location for the first character graphic.
+	characterDestinationRect.x = 0;
+	characterDestinationRect.y = 0;
+
 	for (y = 0; y < 16; ++y)
 	{
 		for (x = 0; x < 16; ++x)
 		{
-			// Determine destination location for this character graphic.
-			characterDestinationRect.x = x * TILE_WIDTH;
-			characterDestinationRect.y = y * TILE_HEIGHT;
-
 			// Populate character pixel data from character set data.
 			if (SDL_MUSTLOCK(characterSurface))
 			{
@@ -181,6 +181,9 @@ void InitializeCharacterSet(void)
 					characterSetSurface,
 					&characterDestinationRect
 				);
+			
+			// Determine destination location for next character graphic.
+			characterDestinationRect.y += TILE_HEIGHT;
 		}
 	}
 
@@ -260,8 +263,8 @@ void DrawCharacter(unsigned int x, unsigned int y, unsigned int width, unsigned 
 	SDL_Rect sourceRect;
 	SDL_Rect destinationRect;
 
-	sourceRect.x = (shapeCode % 16) * TILE_WIDTH;
-	sourceRect.y = (shapeCode / 16) * TILE_HEIGHT;
+	sourceRect.x = 0;
+	sourceRect.y = shapeCode * TILE_HEIGHT;
 	sourceRect.w = TILE_WIDTH;
 	sourceRect.h = TILE_HEIGHT;
 

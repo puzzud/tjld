@@ -147,8 +147,8 @@ def GetByteFromRowStringPairC64(rowStringPair, xpmPalette):
 	colorCodeToCrumb = {
 		0: 0x00,
 		1: 0x01,
-		2: 0x02,
-		3: 0x03
+		2: 0x03,
+		3: 0x02
 	}
 
 	colorSymbol = rowStringPair[0] # NOTE: Assuming first character is the same as the second.
@@ -178,7 +178,7 @@ def PrintNextSpriteFrame(spriteFrame, type):
 		PrintNextSpriteFrameC64(spriteFrame)
 
 def PrintNextSpriteFrameBase(spriteFrame):
-	print "\t{"
+	print("\t{")
 
 	numberOfRows = len(spriteFrame)
 
@@ -202,7 +202,7 @@ def PrintNextSpriteFrameBase(spriteFrame):
 def PrintNextSpriteFrameC64(spriteFrame):
 	minimumLineLength = 16
 	
-	print "\t{"
+	print("\t{")
 
 	numberOfRows = 21
 
@@ -247,7 +247,7 @@ def GetPreviewStringFromRowC64(row):
 ###################################################################
 
 if len(sys.argv) != 3:
-	print "xpm2c.py <input file> <type>"
+	print("xpm2c.py <input file> <type>")
 	sys.exit(1)
 
 inputFileName = str(sys.argv[1])
@@ -257,13 +257,13 @@ type = str(sys.argv[2])
 inputFile = None
 
 try:
-	inputFile = open(inputFileName, 'rb')
+	inputFile = open(inputFileName, 'r')
 except IOError:
-	print "Input file does not exist or cannot be opened."
+	print("Input file does not exist or cannot be opened.")
 	sys.exit(2)
 
 if inputFile:
-	print "{"
+	print("{")
 
 	xpmData = XpmData()
 	xpmData.headerData = ReadXpmHeaderData(inputFile)
@@ -271,6 +271,6 @@ if inputFile:
 
 	PrintAllSpriteFrames(xpmData, 16, 16, type)
 
-	print "\n};"
+	print("\n};")
 
 	inputFile.close()

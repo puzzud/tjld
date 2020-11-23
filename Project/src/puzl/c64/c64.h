@@ -18,130 +18,130 @@
 // ---------------------------------------------------------------------------
 // I/O: VIC
 
-#define VIC              BYTE_FROM_ADDRESS(0xd000)
-#define VIC_SPR0_X       BYTE_FROM_ADDRESS(0xd000)
-#define VIC_SPR0_Y       BYTE_FROM_ADDRESS(0xd001)
-#define VIC_SPR1_X       BYTE_FROM_ADDRESS(0xd002)
-#define VIC_SPR1_Y       BYTE_FROM_ADDRESS(0xd003)
-#define VIC_SPR2_X       BYTE_FROM_ADDRESS(0xd004)
-#define VIC_SPR2_Y       BYTE_FROM_ADDRESS(0xd005)
-#define VIC_SPR3_X       BYTE_FROM_ADDRESS(0xd006)
-#define VIC_SPR3_Y       BYTE_FROM_ADDRESS(0xd007)
-#define VIC_SPR4_X       BYTE_FROM_ADDRESS(0xd008)
-#define VIC_SPR4_Y       BYTE_FROM_ADDRESS(0xd009)
-#define VIC_SPR5_X       BYTE_FROM_ADDRESS(0xd00a)
-#define VIC_SPR5_Y       BYTE_FROM_ADDRESS(0xd00b)
-#define VIC_SPR6_X       BYTE_FROM_ADDRESS(0xd00c)
-#define VIC_SPR6_Y       BYTE_FROM_ADDRESS(0xd00d)
-#define VIC_SPR7_X       BYTE_FROM_ADDRESS(0xd00e)
-#define VIC_SPR7_Y       BYTE_FROM_ADDRESS(0xd00f)
-#define VIC_SPR_HI_X     BYTE_FROM_ADDRESS(0xd010)
-#define VIC_SPR_ENA      BYTE_FROM_ADDRESS(0xd015)
-#define VIC_SPR_EXP_Y    BYTE_FROM_ADDRESS(0xd017)
-#define VIC_SPR_EXP_X    BYTE_FROM_ADDRESS(0xd01d)
-#define VIC_SPR_MCOLOR   BYTE_FROM_ADDRESS(0xd01c)
-#define VIC_SPR_BG_PRIO  BYTE_FROM_ADDRESS(0xd01b)
+#define VIC              0xd000
+#define VIC_SPR0_X       0xd000
+#define VIC_SPR0_Y       0xd001
+#define VIC_SPR1_X       0xd002
+#define VIC_SPR1_Y       0xd003
+#define VIC_SPR2_X       0xd004
+#define VIC_SPR2_Y       0xd005
+#define VIC_SPR3_X       0xd006
+#define VIC_SPR3_Y       0xd007
+#define VIC_SPR4_X       0xd008
+#define VIC_SPR4_Y       0xd009
+#define VIC_SPR5_X       0xd00a
+#define VIC_SPR5_Y       0xd00b
+#define VIC_SPR6_X       0xd00c
+#define VIC_SPR6_Y       0xd00d
+#define VIC_SPR7_X       0xd00e
+#define VIC_SPR7_Y       0xd00f
+#define VIC_SPR_HI_X     0xd010
+#define VIC_SPR_ENA      0xd015
+#define VIC_SPR_EXP_Y    0xd017
+#define VIC_SPR_EXP_X    0xd01d
+#define VIC_SPR_MCOLOR   0xd01c
+#define VIC_SPR_BG_PRIO  0xd01b
 
-#define VIC_SPR_SP_COL   BYTE_FROM_ADDRESS(0xd01e)
-#define VIC_SPR_BG_COL   BYTE_FROM_ADDRESS(0xd01f)
+#define VIC_SPR_SP_COL   0xd01e
+#define VIC_SPR_BG_COL   0xd01f
 
-#define VIC_SPR_MCOLOR0  BYTE_FROM_ADDRESS(0xd025)
-#define VIC_SPR_MCOLOR1  BYTE_FROM_ADDRESS(0xd026)
+#define VIC_SPR_MCOLOR0  0xd025
+#define VIC_SPR_MCOLOR1  0xd026
 
-#define VIC_SPR0_COLOR   BYTE_FROM_ADDRESS(0xd027)
-#define VIC_SPR1_COLOR   BYTE_FROM_ADDRESS(0xd028)
-#define VIC_SPR2_COLOR   BYTE_FROM_ADDRESS(0xd029)
-#define VIC_SPR3_COLOR   BYTE_FROM_ADDRESS(0xd02a)
-#define VIC_SPR4_COLOR   BYTE_FROM_ADDRESS(0xd02b)
-#define VIC_SPR5_COLOR   BYTE_FROM_ADDRESS(0xd02c)
-#define VIC_SPR6_COLOR   BYTE_FROM_ADDRESS(0xd02d)
-#define VIC_SPR7_COLOR   BYTE_FROM_ADDRESS(0xd02e)
+#define VIC_SPR0_COLOR   0xd027
+#define VIC_SPR1_COLOR   0xd028
+#define VIC_SPR2_COLOR   0xd029
+#define VIC_SPR3_COLOR   0xd02a
+#define VIC_SPR4_COLOR   0xd02b
+#define VIC_SPR5_COLOR   0xd02c
+#define VIC_SPR6_COLOR   0xd02d
+#define VIC_SPR7_COLOR   0xd02e
 
 #define SPR_X_SCREEN_LEFT   24
 #define SPR_Y_SCREEN_TOP    50
 
-#define VIC_CTRL1        BYTE_FROM_ADDRESS(0xd011)
-#define VIC_CTRL2        BYTE_FROM_ADDRESS(0xd016)
+#define VIC_CTRL1        0xd011
+#define VIC_CTRL2        0xd016
 
-#define VIC_HLINE        BYTE_FROM_ADDRESS(0xd012)
+#define VIC_HLINE        0xd012
 
-#define VIC_VIDEO_ADR    BYTE_FROM_ADDRESS(0xd018)
+#define VIC_VIDEO_ADR    0xd018
 
-#define VIC_IRR          BYTE_FROM_ADDRESS(0xd019) // Interrupt request register
-#define VIC_IMR          BYTE_FROM_ADDRESS(0xd01a) // Interrupt mask register
+#define VIC_IRR          0xd019 // Interrupt request register
+#define VIC_IMR          0xd01a // Interrupt mask register
 
-#define VIC_BORDERCOLOR  BYTE_FROM_ADDRESS(0xd020)
-#define VIC_BG_COLOR0    BYTE_FROM_ADDRESS(0xd021)
-#define VIC_BG_COLOR1    BYTE_FROM_ADDRESS(0xd022)
-#define VIC_BG_COLOR2    BYTE_FROM_ADDRESS(0xd023)
-#define VIC_BG_COLOR3    BYTE_FROM_ADDRESS(0xd024)
+#define VIC_BORDERCOLOR  0xd020
+#define VIC_BG_COLOR0    0xd021
+#define VIC_BG_COLOR1    0xd022
+#define VIC_BG_COLOR2    0xd023
+#define VIC_BG_COLOR3    0xd024
 
 
 // ---------------------------------------------------------------------------
 // I/O: SID
 
-#define SID              BYTE_FROM_ADDRESS(0xd400)
-#define SID_S1Lo         BYTE_FROM_ADDRESS(0xd400)
-#define SID_S1Hi         BYTE_FROM_ADDRESS(0xd401)
-#define SID_PB1Lo        BYTE_FROM_ADDRESS(0xd402)
-#define SID_PB1Hi        BYTE_FROM_ADDRESS(0xd403)
-#define SID_Ctl1         BYTE_FROM_ADDRESS(0xd404)
-#define SID_AD1          BYTE_FROM_ADDRESS(0xd405)
-#define SID_SUR1         BYTE_FROM_ADDRESS(0xd406)
+#define SID              0xd400
+#define SID_S1Lo         0xd400
+#define SID_S1Hi         0xd401
+#define SID_PB1Lo        0xd402
+#define SID_PB1Hi        0xd403
+#define SID_Ctl1         0xd404
+#define SID_AD1          0xd405
+#define SID_SUR1         0xd406
 
-#define SID_S2Lo         BYTE_FROM_ADDRESS(0xd407)
-#define SID_S2Hi         BYTE_FROM_ADDRESS(0xd408)
-#define SID_PB2Lo        BYTE_FROM_ADDRESS(0xd409)
-#define SID_PB2Hi        BYTE_FROM_ADDRESS(0xd40a)
-#define SID_Ctl2         BYTE_FROM_ADDRESS(0xd40b)
-#define SID_AD2          BYTE_FROM_ADDRESS(0xd40c)
-#define SID_SUR2         BYTE_FROM_ADDRESS(0xd40d)
+#define SID_S2Lo         0xd407
+#define SID_S2Hi         0xd408
+#define SID_PB2Lo        0xd409
+#define SID_PB2Hi        0xd40a
+#define SID_Ctl2         0xd40b
+#define SID_AD2          0xd40c
+#define SID_SUR2         0xd40d
 
-#define SID_S3Lo         BYTE_FROM_ADDRESS(0xd40e)
-#define SID_S3Hi         BYTE_FROM_ADDRESS(0xd40f)
-#define SID_PB3Lo        BYTE_FROM_ADDRESS(0xd410)
-#define SID_PB3Hi        BYTE_FROM_ADDRESS(0xd411)
-#define SID_Ctl3         BYTE_FROM_ADDRESS(0xd412)
-#define SID_AD3          BYTE_FROM_ADDRESS(0xd413)
-#define SID_SUR3         BYTE_FROM_ADDRESS(0xd414)
+#define SID_S3Lo         0xd40e
+#define SID_S3Hi         0xd40f
+#define SID_PB3Lo        0xd410
+#define SID_PB3Hi        0xd411
+#define SID_Ctl3         0xd412
+#define SID_AD3          0xd413
+#define SID_SUR3         0xd414
 
-#define SID_FltLo        BYTE_FROM_ADDRESS(0xd415)
-#define SID_FltHi        BYTE_FROM_ADDRESS(0xd416)
-#define SID_FltCtl       BYTE_FROM_ADDRESS(0xd417)
-#define SID_Amp          BYTE_FROM_ADDRESS(0xd418)
-#define SID_ADConv1      BYTE_FROM_ADDRESS(0xd419)
-#define SID_ADConv2      BYTE_FROM_ADDRESS(0xd41a)
-#define SID_Noise        BYTE_FROM_ADDRESS(0xd41b)
-#define SID_Read3        BYTE_FROM_ADDRESS(0xd41c)
+#define SID_FltLo        0xd415
+#define SID_FltHi        0xd416
+#define SID_FltCtl       0xd417
+#define SID_Amp          0xd418
+#define SID_ADConv1      0xd419
+#define SID_ADConv2      0xd41a
+#define SID_Noise        0xd41b
+#define SID_Read3        0xd41c
 
 // ---------------------------------------------------------------------------
 // I/O: CIAs
 
-#define CIA1             BYTE_FROM_ADDRESS(0xdc00)
-#define CIA1_PRA         BYTE_FROM_ADDRESS(0xdc00)
-#define CIA1_PRB         BYTE_FROM_ADDRESS(0xdc01)
-#define CIA1_DDRA        BYTE_FROM_ADDRESS(0xdc02)
-#define CIA1_DDRB        BYTE_FROM_ADDRESS(0xdc03)
-#define CIA1_TOD10       BYTE_FROM_ADDRESS(0xdc08)
-#define CIA1_TODSEC      BYTE_FROM_ADDRESS(0xdc09)
-#define CIA1_TODMIN      BYTE_FROM_ADDRESS(0xdc0a)
-#define CIA1_TODHR       BYTE_FROM_ADDRESS(0xdc0b)
-#define CIA1_ICR         BYTE_FROM_ADDRESS(0xdc0d)
-#define CIA1_CRA         BYTE_FROM_ADDRESS(0xdc0e)
-#define CIA1_CRB         BYTE_FROM_ADDRESS(0xdc0f)
+#define CIA1             0xdc00
+#define CIA1_PRA         0xdc00
+#define CIA1_PRB         0xdc01
+#define CIA1_DDRA        0xdc02
+#define CIA1_DDRB        0xdc03
+#define CIA1_TOD10       0xdc08
+#define CIA1_TODSEC      0xdc09
+#define CIA1_TODMIN      0xdc0a
+#define CIA1_TODHR       0xdc0b
+#define CIA1_ICR         0xdc0d
+#define CIA1_CRA         0xdc0e
+#define CIA1_CRB         0xdc0f
 
-#define CIA2             BYTE_FROM_ADDRESS(0xdd00)
-#define CIA2_PRA         BYTE_FROM_ADDRESS(0xdd00)
-#define CIA2_PRB         BYTE_FROM_ADDRESS(0xdd01)
-#define CIA2_DDRA        BYTE_FROM_ADDRESS(0xdd02)
-#define CIA2_DDRB        BYTE_FROM_ADDRESS(0xdd03)
-#define CIA2_TOD10       BYTE_FROM_ADDRESS(0xdd08)
-#define CIA2_TODSEC      BYTE_FROM_ADDRESS(0xdd09)
-#define CIA2_TODMIN      BYTE_FROM_ADDRESS(0xdd0a)
-#define CIA2_TODHR       BYTE_FROM_ADDRESS(0xdd0b)
-#define CIA2_ICR         BYTE_FROM_ADDRESS(0xdd0d)
-#define CIA2_CRA         BYTE_FROM_ADDRESS(0xdd0e)
-#define CIA2_CRB         BYTE_FROM_ADDRESS(0xdd0f)
+#define CIA2             0xdd00
+#define CIA2_PRA         0xdd00
+#define CIA2_PRB         0xdd01
+#define CIA2_DDRA        0xdd02
+#define CIA2_DDRB        0xdd03
+#define CIA2_TOD10       0xdd08
+#define CIA2_TODSEC      0xdd09
+#define CIA2_TODMIN      0xdd0a
+#define CIA2_TODHR       0xdd0b
+#define CIA2_ICR         0xdd0d
+#define CIA2_CRA         0xdd0e
+#define CIA2_CRB         0xdd0f
 
 // ---------------------------------------------------------------------------
 // Processor Port at $01
@@ -181,14 +181,14 @@
 // Additional defines (not stolen from Elite128).
 
 //address of the screen buffer
-#define SCREEN_CHAR                   BYTE_FROM_ADDRESS(0xcc00)
-#define SCREEN_CHAR_SIZE              BYTE_FROM_ADDRESS(0x400)
+#define SCREEN_CHAR                   0xcc00
+#define SCREEN_CHAR_SIZE              0x400
 
 //address of color ram
-#define SCREEN_COLOR                  BYTE_FROM_ADDRESS(0xd800)
+#define SCREEN_COLOR                  0xd800
 
-#define SPRITE_GRAPHICS_TARGET        BYTE_FROM_ADDRESS(0xd000)
-#define CHARACTER_GRAPHICS_TARGET     BYTE_FROM_ADDRESS(0xf000)
+#define SPRITE_GRAPHICS_TARGET        0xd000
+#define CHARACTER_GRAPHICS_TARGET     0xf000
   
 #define NUMBER_OF_HARDWARE_SPRITES     8
 

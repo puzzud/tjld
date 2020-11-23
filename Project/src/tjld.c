@@ -117,6 +117,7 @@ void Process(void)
 			
 			if (CursorPosition.x != PreviousCursorPosition.x || CursorPosition.y != PreviousCursorPosition.y)
 			{
+				SetSpriteFrameIndex(0, CursorPosition.x - 1);
 				SetTileMapCellColor(CursorPosition.x, CursorPosition.y, COLOR_BLUE);
 				SetTileMapCellShape(CursorPosition.x, CursorPosition.y, CHARACTER_BLOCK);
 				SetTileMapCellShape(PreviousCursorPosition.x, PreviousCursorPosition.y, 0);

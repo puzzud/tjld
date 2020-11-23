@@ -14,7 +14,7 @@
 .macpack longbranch
 
 .import _CharacterSet
-.import _SPRITES
+.import _SpriteSet
 
 .include "c64.asm"
 
@@ -104,7 +104,7 @@ InitializeCharacterGraphics:
 InitializeSprites:
   ; Init sprite registers.
   ; No visible sprites.
-  lda #$0
+  lda #$00
   sta VIC_SPR_ENA
   
   ; All sprites normal scale.
@@ -112,9 +112,9 @@ InitializeSprites:
   sta VIC_SPR_EXP_Y
   
   ; Take source address from SPRITES.
-  lda #<_SPRITES
+  lda #<_SpriteSet
   sta ptr1
-  lda #>_SPRITES
+  lda #>_SpriteSet
   sta ptr1+1
   
   sei

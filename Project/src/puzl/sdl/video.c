@@ -21,7 +21,9 @@ byte* TileMapColorCodes;
 SDL_Texture* CharacterSetTexture;
 SDL_Texture* SpriteSetTexture;
 
-Sprite Sprites[NUMBER_OF_SPRITES]; 
+Sprite Sprites[NUMBER_OF_SPRITES];
+byte SpriteSeconaryColor;
+byte SpriteTertiaryColor;
 
 void InitializeTilemap(void);
 void InitializeCharacterSet(void);
@@ -500,4 +502,19 @@ void SetSpritePosition(byte spriteIndex, unsigned short x, unsigned short y)
 void SetSpriteFrameIndex(byte spriteIndex, byte frameIndex)
 {
 	Sprites[spriteIndex].frameIndex = frameIndex;
+}
+
+void SetSpriteColor(byte spriteIndex, byte colorCode)
+{
+	Sprites[spriteIndex].colorCode = colorCode;
+}
+
+void SetSpriteSeconaryColor(byte colorCode)
+{
+	SpriteSeconaryColor = colorCode;
+}
+
+void SetSpriteTertiaryColor(byte colorCode)
+{
+	SpriteTertiaryColor = colorCode;
 }

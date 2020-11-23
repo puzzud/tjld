@@ -20,7 +20,7 @@ typedef struct
 	signed short x;
 	signed short y;
 	byte frameIndex;
-	//byte colorCode;
+	byte colorCode;
 } Sprite;
 
 extern const byte CharacterSet[NUMBER_OF_CHARACTERS][CHARACTER_HEIGHT];

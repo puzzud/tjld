@@ -43,10 +43,9 @@ void FASTCALL SetTileMapCellColor(byte x, byte y, byte colorCode)
 
 void EnableSprite(byte spriteIndex, byte enable)
 {
-	SET_MEMORY_BYTE(VIC_SPR_ENA, 0xff);
+	//SET_MEMORY_BYTE(VIC_SPR_ENA, 0xff);
 
-	// # TODO: Some strange bug related to when spriteIndex is 0.
-	/*
+	// TODO: Some strange bug related to when spriteIndex is 0.
 	byte enabledSpriteFlags = GET_MEMORY_BYTE(VIC_SPR_ENA);
 	
 	if (enable != 0)
@@ -57,7 +56,7 @@ void EnableSprite(byte spriteIndex, byte enable)
 	{
 		SET_MEMORY_BYTE(VIC_SPR_ENA, enabledSpriteFlags & ~(1 << spriteIndex));
 	}
-	*/
+	
 
 	SET_MEMORY_BYTE(VIC_SPR_MCOLOR, 0xff); // TODO: Do this separately.
 }
@@ -82,4 +81,20 @@ void SetSpriteFrameIndex(byte spriteIndex, byte frameIndex)
 
 	// TODO: Need to investigate why 64 is a base.
 	SET_MEMORY_BYTE(memoryAddress, 64 + frameIndex);
+}
+
+void SetSpriteColor(byte spriteIndex, byte colorCode)
+{
+	const word memoryAddress = (word)(VIC_SPR0_COLOR + spriteIndex);
+	SET_MEMORY_BYTE(memoryAddress, colorCode);
+}
+
+void SetSpriteSeconaryColor(byte colorCode)
+{
+	SET_MEMORY_BYTE(VIC_SPR_MCOLOR0, colorCode);
+}
+
+void SetSpriteTertiaryColor(byte colorCode)
+{
+	SET_MEMORY_BYTE(VIC_SPR_MCOLOR1, colorCode);
 }

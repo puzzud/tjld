@@ -33,5 +33,8 @@ extern void FASTCALL PrintText(const char* text, byte x, byte y);
 void FASTCALL EnableSprite(byte spriteIndex, byte enable);
 void FASTCALL SetSpritePosition(byte spriteIndex, unsigned short x, unsigned short y);
 void FASTCALL SetSpriteFrameIndex(byte spriteIndex, byte frameIndex);
+void FASTCALL SetSpriteColor(byte spriteIndex, byte colorCode);
+void FASTCALL SetSpriteSeconaryColor(byte colorCode);
+void FASTCALL SetSpriteTertiaryColor(byte colorCode);
 
 #endif

@@ -37,17 +37,23 @@ void InitializeNodeTree(void)
 
 	PrintText("ANDREW", TILEMAP_WIDTH - sizeof("ANDREW") + 1, 0);
 
+	SetSpriteSeconaryColor(COLOR_WHITE);
+	SetSpriteTertiaryColor(COLOR_LIGHT_RED);
+
 	EnableSprite(0, 1);
 	SetSpritePosition(0, 8 + (SPRITE_WIDTH * 0), SPRITE_HEIGHT);
 	SetSpriteFrameIndex(0, 14);
+	SetSpriteColor(0, COLOR_RED);
 	
 	EnableSprite(1, 1);
 	SetSpritePosition(1, 8 + (SPRITE_WIDTH * 2), SPRITE_HEIGHT);
 	SetSpriteFrameIndex(1, 0);
+	SetSpriteColor(1, COLOR_GREEN);
 	
 	EnableSprite(2, 1);
 	SetSpritePosition(2, 8 + (SPRITE_WIDTH * 4), SPRITE_HEIGHT);
 	SetSpriteFrameIndex(2, 21);
+	SetSpriteColor(2, COLOR_BLUE);
 }
 
 void Process(void)

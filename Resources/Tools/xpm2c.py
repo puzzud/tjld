@@ -70,18 +70,46 @@ def ReadXpmImageData(inputFile, xpmHeaderData):
 	
 	return xpmImageData
 
-def GenerateSpriteFrameRowsFromXpm(xpmData, x, y, spriteFrameWidth, spriteFrameHeight):
+def GenerateSpriteFrameRowsFromXpm(xpmData, x, y, spriteFrameWidth, spriteFrameHeight, type):
+	spriteFrameRows = []
+	
+	if type == "base":
+		spriteFrameRows = GenerateSpriteFrameRowsFromXpmBase(xpmData, x, y, spriteFrameWidth, spriteFrameHeight)
+	elif type == "c64":
+		spriteFrameRows = GenerateSpriteFrameRowsFromXpmC64(xpmData, x, y, spriteFrameWidth, spriteFrameHeight)
+
+	return spriteFrameRows
+
+def GenerateSpriteFrameRowsFromXpmBase(xpmData, x, y, spriteFrameWidth, spriteFrameHeight):
 	pixelX = (x * spriteFrameWidth) + x + 1
 	pixelY = (y * spriteFrameHeight) + y + 1
 
 	spriteFrameRows = []
 	for rowIndex in range(0, spriteFrameHeight):
 		rowString = xpmData.imageData.rows[pixelY + rowIndex][pixelX:pixelX + spriteFrameWidth]
-		spriteFrameRows.append(GenerateRowFromRowString(rowString, xpmData.headerData.palette))
+		spriteFrameRows.append(GenerateRowFromRowStringBase(rowString, xpmData.headerData.palette))
 
 	return spriteFrameRows
 
-def GenerateRowFromRowString(rowString, xpmPalette):
+def GenerateSpriteFrameRowsFromXpmC64(xpmData, x, y, spriteFrameWidth, spriteFrameHeight):
+	pixelX = (x * spriteFrameWidth) + x + 1
+	pixelY = (y * spriteFrameHeight) + y + 1
+
+	spriteFrameRows = []
+	for rowIndex in range(0, spriteFrameHeight):
+		rowString = xpmData.imageData.rows[pixelY + rowIndex][pixelX:pixelX + spriteFrameWidth]
+		spriteFrameRows += GenerateRowFromRowStringC64(rowString, xpmData.headerData.palette)
+
+	# 21 C64 sprite height.
+	for rowIndex in range(21 - spriteFrameHeight):
+		row = [0, 0, 0]
+		spriteFrameRows += row
+	
+	spriteFrameRows.append(0) # Last unused byte.
+
+	return spriteFrameRows
+
+def GenerateRowFromRowStringBase(rowString, xpmPalette):
 	row = []
 
 	for colorSymbol in rowString:
@@ -89,7 +117,46 @@ def GenerateRowFromRowString(rowString, xpmPalette):
 
 	return row
 
-def PrintAllSpriteFrames(xpmData, spriteFrameWidth, spriteFrameHeight):
+def GenerateRowFromRowStringC64(rowString, xpmPalette):
+	row = []
+
+	rowString += "".zfill(24 - len(rowString)).replace('0', 'o')
+
+	while len(rowString) > 0:
+		rowStringByte = rowString[0:8]
+		row.append(GetByteFromRowStringByteC64(rowStringByte, xpmPalette))
+
+		rowString = rowString[8:len(rowString)]
+
+	return row
+
+def GetByteFromRowStringByteC64(rowStringByte, xpmPalette):
+	byte = 0x00
+	
+	while len(rowStringByte) > 0:
+		rowStringPair = rowStringByte[0:2]
+
+		byte <<= 2
+		byte += (GetByteFromRowStringPairC64(rowStringPair, xpmPalette))
+
+		rowStringByte = rowStringByte[2:len(rowStringByte)]
+	
+	return byte
+
+def GetByteFromRowStringPairC64(rowStringPair, xpmPalette):
+	colorCodeToCrumb = {
+		0: 0x00,
+		1: 0x01,
+		2: 0x02,
+		3: 0x03
+	}
+
+	colorSymbol = rowStringPair[0] # NOTE: Assuming first character is the same as the second.
+	colorCode = xpmPalette.colorSymbols[colorSymbol]
+
+	return colorCodeToCrumb[colorCode]
+
+def PrintAllSpriteFrames(xpmData, spriteFrameWidth, spriteFrameHeight, type):
 	spriteSheetFrameWidth = int((xpmData.headerData.width - 2) / spriteFrameWidth) # 2 for grid.
 	spriteSheetFrameHeight = int((xpmData.headerData.height - 2) / spriteFrameHeight)
 
@@ -97,14 +164,20 @@ def PrintAllSpriteFrames(xpmData, spriteFrameWidth, spriteFrameHeight):
 
 	for y in range(spriteSheetFrameHeight):
 		for x in range(spriteSheetFrameWidth):
-			spriteFrames.append(GenerateSpriteFrameRowsFromXpm(xpmData, x, y, spriteFrameWidth, spriteFrameHeight))
+			spriteFrames.append(GenerateSpriteFrameRowsFromXpm(xpmData, x, y, spriteFrameWidth, spriteFrameHeight, type))
 	
 	for i in range(0, len(spriteFrames)):
-		PrintNextSpriteFrame(spriteFrames[i])
+		PrintNextSpriteFrame(spriteFrames[i], type)
 		if i != len(spriteFrames) - 1:
 			print(",")
 
-def PrintNextSpriteFrame(spriteFrame):
+def PrintNextSpriteFrame(spriteFrame, type):
+	if type == "base":
+		PrintNextSpriteFrameBase(spriteFrame)
+	elif type == "c64":
+		PrintNextSpriteFrameC64(spriteFrame)
+
+def PrintNextSpriteFrameBase(spriteFrame):
 	print "\t{"
 
 	numberOfRows = len(spriteFrame)
@@ -126,11 +199,55 @@ def PrintNextSpriteFrame(spriteFrame):
 
 	sys.stdout.write("\t}")
 
-if len(sys.argv) != 2:
-	print "Only supply a single parameter with path to a sprite sheet XPM file."
+def PrintNextSpriteFrameC64(spriteFrame):
+	print "\t{"
+
+	numberOfRows = 21
+
+	for i in range(0, numberOfRows):
+		row = []
+		if len(spriteFrame) > 0:
+			row = spriteFrame[0:3]
+			spriteFrame = spriteFrame[3:len(spriteFrame) - 1]
+		else:
+			row = [0, 0, 0]
+		
+		previewString = GetPreviewStringFromRowC64(row)
+
+		sys.stdout.write("\t\t")
+		sys.stdout.write(str(row).replace('[', '').replace(']', ''))
+
+		sys.stdout.write(",")
+		
+		print("\t// " + previewString)
+
+	sys.stdout.write("\t\t")
+	sys.stdout.write("0")
+	sys.stdout.write("")
+	print("\t\t// " + "Unused byte.")
+
+	sys.stdout.write("\t}")
+
+def GetPreviewStringFromRowC64(row):
+	previewString = ""
+	
+	for byte in row:
+		previewString += '{0:08b}'.format(byte)
+
+	previewString = ("|" + previewString + "|")
+
+	return previewString
+
+###################################################################
+# Main
+###################################################################
+
+if len(sys.argv) != 3:
+	print "xpm2c.py <input file> <type>"
 	sys.exit(1)
 
 inputFileName = str(sys.argv[1])
+type = str(sys.argv[2])
 
 # Read the entire file as a single byte string
 inputFile = None
@@ -148,7 +265,7 @@ if inputFile:
 	xpmData.headerData = ReadXpmHeaderData(inputFile)
 	xpmData.imageData = ReadXpmImageData(inputFile, xpmData.headerData)
 
-	PrintAllSpriteFrames(xpmData, 16, 16)
+	PrintAllSpriteFrames(xpmData, 16, 16, type)
 
 	print "\n};"
 

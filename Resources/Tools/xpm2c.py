@@ -200,6 +200,8 @@ def PrintNextSpriteFrameBase(spriteFrame):
 	sys.stdout.write("\t}")
 
 def PrintNextSpriteFrameC64(spriteFrame):
+	minimumLineLength = 16
+	
 	print "\t{"
 
 	numberOfRows = 21
@@ -215,16 +217,18 @@ def PrintNextSpriteFrameC64(spriteFrame):
 		previewString = GetPreviewStringFromRowC64(row)
 
 		sys.stdout.write("\t\t")
-		sys.stdout.write(str(row).replace('[', '').replace(']', ''))
 
-		sys.stdout.write(",")
-		
-		print("\t// " + previewString)
+		line = str(row).replace('[', '').replace(']', '') + ","
+		line += "".zfill(minimumLineLength - len(line)).replace('0', ' ')
+		line += " // " + previewString
+		print(line)
 
 	sys.stdout.write("\t\t")
-	sys.stdout.write("0")
-	sys.stdout.write("")
-	print("\t\t// " + "Unused byte.")
+
+	line = "0"
+	line += "".zfill(minimumLineLength - len(line)).replace('0', ' ')
+	line += " // " + "Unused byte."
+	print(line)
 
 	sys.stdout.write("\t}")
 

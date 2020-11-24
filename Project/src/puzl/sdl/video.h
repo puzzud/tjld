@@ -31,10 +31,14 @@ extern const byte SpriteSet[NUMBER_OF_SPRITE_FRAMES][SPRITE_WIDTH][SPRITE_WIDTH]
 SDL_Surface* CreateSurface(unsigned int width, unsigned int height);
 
 int InitializeVideo(void);
-
 void ShutdownVideo(void);
-
 void Draw(void);
+
+void InitializeTilemap(void);
+void InitializeCharacterSet(void);
+void FreeTilemap(void);
+void ShutdownCharacterSet(void);
+void DrawTileMap(void);
 
 void InitializeSprites(void);
 void ShutdownSprites(void);

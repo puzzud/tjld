@@ -5,35 +5,24 @@
 #include <puzl.h>
 #include <sdl/color.h>
 
-SDL_Texture* SpriteSetTexture;
+SDL_Texture* SpriteSetTextures[NUMBER_OF_SPRITE_COLORS];
 
 Sprite Sprites[NUMBER_OF_SPRITES];
-byte SpriteSeconaryColor;
-byte SpriteTertiaryColor;
+byte SpriteNonPrimaryColorCodes[NUMBER_OF_SPRITE_COLORS - 1];
 
 void InitializeSprites(void);
 void ShutdownSprites(void);
 
-void PopulateSpriteSetSurfaceFromSpriteSet(SDL_Surface* spriteSetSurface);
-void PopulateSpriteSurfaceFromSprite(SDL_Surface* spriteSurface, unsigned int spriteFrameIndex);
+void InitializeSpriteTextures(void);
 
-void DrawSpriteFrame(int x, int y, unsigned int spriteFrameIndex);
+void PopulateSpriteSetSurfaceFromSpriteSet(SDL_Surface* spriteSetSurface, byte focusColorCode);
+void PopulateSpriteSurfaceFromSprite(SDL_Surface* spriteSurface, unsigned int spriteFrameIndex, byte focusColorCode);
+
+void DrawSpriteFrame(int x, int y, unsigned int spriteFrameIndex, byte primaryColorCode);
 
 void InitializeSprites(void)
 {
-	SDL_Surface* spriteSetSurface = CreateSurface(SPRITE_WIDTH, SPRITE_HEIGHT * NUMBER_OF_SPRITE_FRAMES);
-	if (spriteSetSurface == NULL)
-	{
-		// TODO: Generate error.
-		return;
-	}
-
-	PopulateSpriteSetSurfaceFromSpriteSet(spriteSetSurface);
-
-	SpriteSetTexture = SDL_CreateTextureFromSurface(Renderer, spriteSetSurface);
-
-	SDL_FreeSurface(spriteSetSurface);
-	spriteSetSurface = NULL;
+	InitializeSpriteTextures();
 
 	// Sprite controls.
 	memset(Sprites, 0, NUMBER_OF_SPRITES * sizeof(Sprite));
@@ -41,15 +30,37 @@ void InitializeSprites(void)
 
 void ShutdownSprites(void)
 {
-	SDL_DestroyTexture(SpriteSetTexture);
+	unsigned int spriteColorIndex;
+	for (spriteColorIndex = 0; spriteColorIndex < NUMBER_OF_SPRITE_COLORS; ++spriteColorIndex)
+	{
+		SDL_DestroyTexture(SpriteSetTextures[spriteColorIndex]);
+	}
 }
 
-void PopulateSpriteSetSurfaceFromSpriteSet(SDL_Surface* spriteSetSurface)
+void InitializeSpriteTextures(void)
+{
+	unsigned int spriteColorIndex;
+
+	for (spriteColorIndex = 0; spriteColorIndex < NUMBER_OF_SPRITE_COLORS; ++spriteColorIndex)
+	{
+		SDL_Surface* spriteSetSurface = CreateSurface(SPRITE_WIDTH, SPRITE_HEIGHT * NUMBER_OF_SPRITE_FRAMES);
+		// TODO: Generate error if failed.
+
+		PopulateSpriteSetSurfaceFromSpriteSet(spriteSetSurface, (byte)(spriteColorIndex + 1));
+		SpriteSetTextures[spriteColorIndex] = SDL_CreateTextureFromSurface(Renderer, spriteSetSurface);
+
+		SDL_FreeSurface(spriteSetSurface);
+		spriteSetSurface = NULL;
+	}
+}
+
+// focusColorCode will only observe pixels matching this color code in the input sprite set.
+void PopulateSpriteSetSurfaceFromSpriteSet(SDL_Surface* spriteSetSurface, byte focusColorCode)
 {
 	unsigned int spriteFrameIndex;
 
 	SDL_Rect spriteDestinationRect;
-	
+
 	SDL_Surface* spriteSurface = CreateSurface(SPRITE_WIDTH, SPRITE_HEIGHT);
 	if (spriteSurface == NULL)
 	{
@@ -66,7 +77,7 @@ void PopulateSpriteSetSurfaceFromSpriteSet(SDL_Surface* spriteSetSurface)
 
 	for (spriteFrameIndex = 0; spriteFrameIndex < NUMBER_OF_SPRITE_FRAMES; ++spriteFrameIndex)
 	{
-		PopulateSpriteSurfaceFromSprite(spriteSurface, spriteFrameIndex);
+		PopulateSpriteSurfaceFromSprite(spriteSurface, spriteFrameIndex, focusColorCode);
 
 		// Copy it over.
 		SDL_BlitSurface
@@ -85,7 +96,9 @@ void PopulateSpriteSetSurfaceFromSpriteSet(SDL_Surface* spriteSetSurface)
 	spriteSurface = NULL;
 }
 
-void PopulateSpriteSurfaceFromSprite(SDL_Surface* spriteSurface, unsigned int spriteFrameIndex)
+// focusColorCode will only observe pixels matching this color code in the input sprite,
+// resulting in full white wherever it appears and then everywhere else is transparent.
+void PopulateSpriteSurfaceFromSprite(SDL_Surface* spriteSurface, unsigned int spriteFrameIndex, byte focusColorCode)
 {
 	unsigned int x, y;
 	byte colorCode;
@@ -103,9 +116,13 @@ void PopulateSpriteSurfaceFromSprite(SDL_Surface* spriteSurface, unsigned int sp
 		for (x = 0; x < SPRITE_WIDTH; ++x)
 		{
 			colorCode = SpriteSet[spriteFrameIndex][y][x];
+			if (colorCode != focusColorCode)
+			{
+				colorCode = 0;
+			}
 
 			*((unsigned int*)pixels) = colorCode != 0 ?
-				SDL_MapRGBA(spriteSurface->format, 255 / colorCode, 255 / colorCode, 255 / colorCode, 255) :
+				SDL_MapRGBA(spriteSurface->format, 255, 255, 255, 255) :
 				SDL_MapRGBA(spriteSurface->format, 0, 0, 0, 0);
 			
 			++pixels;
@@ -129,14 +146,18 @@ void DrawSprites(void)
 
 		if (sprite->enabled != 0)
 		{
-			DrawSpriteFrame(sprite->x, sprite->y, sprite->frameIndex);
+			DrawSpriteFrame(sprite->x, sprite->y, sprite->frameIndex, sprite->colorCode);
 		}
 	}
 	while (--spriteIndex > -1);
 }
 
-void DrawSpriteFrame(int x, int y, unsigned int spriteFrameIndex)
+void DrawSpriteFrame(int x, int y, unsigned int spriteFrameIndex, byte primaryColorCode)
 {
+	unsigned int spriteColorIndex;
+
+	SDL_Color* color;
+
 	SDL_Rect sourceRect;
 	SDL_Rect destinationRect;
 
@@ -150,7 +171,17 @@ void DrawSpriteFrame(int x, int y, unsigned int spriteFrameIndex)
 	destinationRect.w = SPRITE_WIDTH;
 	destinationRect.h = SPRITE_HEIGHT;
 
-	SDL_RenderCopy(Renderer, SpriteSetTexture, &sourceRect, &destinationRect);
+	color = &Colors[primaryColorCode];
+	SDL_SetTextureColorMod(SpriteSetTextures[1], color->r, color->g, color->b);
+	SDL_RenderCopy(Renderer, SpriteSetTextures[1], &sourceRect, &destinationRect);
+
+	color = &Colors[SpriteNonPrimaryColorCodes[0]];
+	SDL_SetTextureColorMod(SpriteSetTextures[0], color->r, color->g, color->b);
+	SDL_RenderCopy(Renderer, SpriteSetTextures[0], &sourceRect, &destinationRect);
+	
+	color = &Colors[SpriteNonPrimaryColorCodes[1]];
+	SDL_SetTextureColorMod(SpriteSetTextures[2], color->r, color->g, color->b);
+	SDL_RenderCopy(Renderer, SpriteSetTextures[2], &sourceRect, &destinationRect);
 }
 
 void EnableSprite(byte spriteIndex, byte enable)
@@ -177,10 +208,10 @@ void SetSpriteColor(byte spriteIndex, byte colorCode)
 
 void SetSpriteSeconaryColor(byte colorCode)
 {
-	SpriteSeconaryColor = colorCode;
+	SpriteNonPrimaryColorCodes[0] = colorCode;
 }
 
 void SetSpriteTertiaryColor(byte colorCode)
 {
-	SpriteTertiaryColor = colorCode;
+	SpriteNonPrimaryColorCodes[1] = colorCode;
 }

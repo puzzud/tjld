@@ -2,11 +2,12 @@
 
 import sys
 
+# TODO: Be able to specify this order in the future.
 ColorIdNames = [
 	"None",
 	"white",
-	"gray50",
-	"#3F3F3F"
+	"#3F3F3F",
+	"gray50"
 ]
 
 class XpmPalette:
@@ -147,8 +148,8 @@ def GetByteFromRowStringPairC64(rowStringPair, xpmPalette):
 	colorCodeToCrumb = {
 		0: 0x00,
 		1: 0x01,
-		2: 0x03,
-		3: 0x02
+		2: 0x02,
+		3: 0x03
 	}
 
 	colorSymbol = rowStringPair[0] # NOTE: Assuming first character is the same as the second.

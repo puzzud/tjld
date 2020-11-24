@@ -105,6 +105,7 @@ LDCONFIG := c64.cfg
 BIN_EXT := prg
 C64_EMU ?= x64
 EMU := $(C64_EMU)
+LABEL_FILE := $(BTDIR)/vice.lbl
 PROGRAM := $(PROJECT_NAME).$(BIN_EXT)
 #EXECUTABLE := $(BDIR)/$(PROJECT_NAME).d64
 
@@ -112,11 +113,11 @@ PROGRAM := $(PROJECT_NAME).$(BIN_EXT)
 
 CFLAGS := --cpu $(CPU) -O -I $(SDIR) $(CFLAGS) -D__$(PLATFORM_UC)__
 AFLAGS := --cpu $(CPU) -I $(SDIR) -I $(SDIR)/$(PLATFORM)
-LFLAGS := -C $(PUZLDIR)/$(PLATFORM)/$(LDCONFIG) $(CA65_LIB)/$(PLATFORM).lib
+LFLAGS := -C $(PUZLDIR)/$(PLATFORM)/$(LDCONFIG) $(CA65_LIB)/$(PLATFORM).lib -Ln $(LABEL_FILE)
 
 EXECUTABLE := $(BTDIR)/$(PROJECT_NAME).$(BIN_EXT)
 
-EXECUTE := $(EMU) $(EXECUTABLE)
+EXECUTE := $(EMU) -moncommands $(LABEL_FILE) $(EXECUTABLE)
 endif
 
 ########################################

@@ -165,6 +165,12 @@ $(BTDIR)/%_c.asm: $(SDIR)/%.c | $(BTPPDIR)
 transfer: | $(EXECUTABLE)
 	../Resources/Tools/TransferToUltimate.sh $(EXECUTABLE)
 
+.PHONY: play_real
+play_real: | $(EXECUTABLE)
+	# Assumes presence of command.
+	# https://github.com/markusC64/1541ultimate2/releases/tag/tools-v1.2.1
+	1541u2 $(ULTIMATE_HOSTNAME) -c run:$(EXECUTABLE)
+
 endif
 
 $(BTPPDIR): | $(BTPDIR)

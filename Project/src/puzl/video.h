@@ -10,6 +10,7 @@
 #define SPRITE_HEIGHT 16
 #define NUMBER_OF_SPRITE_FRAMES 7 * 7
 #define NUMBER_OF_SPRITES 8
+#define NUMBER_OF_SPRITE_COLORS 3
 
 typedef struct
 {

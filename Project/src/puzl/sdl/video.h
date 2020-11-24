@@ -23,13 +23,21 @@ typedef struct
 	byte colorCode;
 } Sprite;
 
+extern SDL_Renderer* Renderer;
+
 extern const byte CharacterSet[NUMBER_OF_CHARACTERS][CHARACTER_HEIGHT];
 extern const byte SpriteSet[NUMBER_OF_SPRITE_FRAMES][SPRITE_WIDTH][SPRITE_WIDTH];
+
+SDL_Surface* CreateSurface(unsigned int width, unsigned int height);
 
 int InitializeVideo(void);
 
 void ShutdownVideo(void);
 
 void Draw(void);
+
+void InitializeSprites(void);
+void ShutdownSprites(void);
+void DrawSprites(void);
 
 #endif

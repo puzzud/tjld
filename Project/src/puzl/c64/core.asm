@@ -77,24 +77,24 @@ Reset:
   sta $fffb
   sta $fffd
   sta $ffff
-
-  ; Set parameter stack pointer.
-  lda #<(__BSS_START__+__BSS_SIZE__)
-  sta sp
-  lda #>(__BSS_START__+__BSS_SIZE__)
-  sta sp+1
   
   lda #%00110101
   sta LORAM
 
+  ; Set parameter stack pointer.
+  lda #<(__MAIN_LAST__ - __STACKSIZE__)
+  sta sp
+  lda #>(__MAIN_LAST__ - __STACKSIZE__)
+  sta sp+1
+
   jsr _InitializeVideo
   jsr _InitializeInput
   ;jsr _InitializeAudio
-
-  cli
   
   jsr _InitalizeSpeed
   jsr _InitializeNodeTree
+
+  cli
   
 @mainLoop:
   ;jsr _UpdateInput

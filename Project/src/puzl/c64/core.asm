@@ -69,8 +69,7 @@ Reset:
   lda CIA1_ICR
   lda CIA2_ICR
 
-  lda VIC_IMR
-  ora #%00000001
+  lda #%00000000
   sta VIC_IMR
 
   lda #248
@@ -90,6 +89,8 @@ Reset:
   sta $fffd
   sta $ffff
   
+  ; Swap out Kernal & BASIC ROMs for RAM.
+  ; Keep IO.
   lda #%00110101
   sta LORAM
 
@@ -151,11 +152,6 @@ DefaultInterrupt:
   tya
   pha
   
-  ;lda _MusicStatus
-  ;beq @endProcessMusic
-  ;jsr _ProcessMusic
-;@endProcessMusic:
-
   lda #$ff
   sta VIC_IRR
             

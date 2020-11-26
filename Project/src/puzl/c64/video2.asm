@@ -47,16 +47,13 @@ _InitializeVideo:
   rts
 
 ;------------------------------------------------------------------
+; Assumes interrupts are disabled.
 InitializeCharacterGraphics:
   ;VIC bank
   lda CIA2_PRA
   ;and #%11111101  ; bank 2  base vic mem = $8000
   and #%11111100  ; bank 3  base vic mem = $c000
   sta CIA2_PRA
-  
-  ;block interrupts 
-  ;since we turn ROMs off this would result in crashes if we didn't
-  sei
   
   ;set charset
   ;lda #%00111110  ; screen mem = $8000 + $0c00 = $8c00
@@ -90,8 +87,6 @@ InitializeCharacterGraphics:
   ;restore ROMs
   pla
   sta LORAM
-
-  cli
   
   ;enable multi color charset
   lda VIC_CTRL2
@@ -101,6 +96,7 @@ InitializeCharacterGraphics:
   rts
 
 ;------------------------------------------------------------------
+; Assumes interrupts are disabled.
 InitializeSprites:
   ; Init sprite registers.
   ; No visible sprites.
@@ -117,8 +113,6 @@ InitializeSprites:
   lda #>_SpriteSet
   sta ptr1+1
   
-  sei
-  
   ; Save old configuration.
   lda LORAM
   pha
@@ -132,8 +126,6 @@ InitializeSprites:
   ; Restore ROMs.
   pla
   sta LORAM
-
-  cli
 
   rts
 

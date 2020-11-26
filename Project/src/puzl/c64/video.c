@@ -1,6 +1,7 @@
 #include <c64/video.h>
 
 #include <puzl.h>
+#include <core.h>
 
 #include <c64/c64.h>
 #include <stdio.h>
@@ -43,36 +44,35 @@ void FASTCALL SetTileMapCellColor(byte x, byte y, byte colorCode)
 
 void EnableSprite(byte spriteIndex, byte enable)
 {
-	//SET_MEMORY_BYTE(VIC_SPR_ENA, 0xff);
-
-	// TODO: Some strange bug related to when spriteIndex is 0.
-	byte enabledSpriteFlags = GET_MEMORY_BYTE(VIC_SPR_ENA);
-	
 	if (enable != 0)
 	{
-		SET_MEMORY_BYTE(VIC_SPR_ENA, enabledSpriteFlags | (1 << spriteIndex));
+		SET_MEMORY_BYTE(VIC_SPR_ENA, GET_MEMORY_BYTE(VIC_SPR_ENA) | NthBitFlag[spriteIndex]);
 	}
 	else
 	{
-		SET_MEMORY_BYTE(VIC_SPR_ENA, enabledSpriteFlags & ~(1 << spriteIndex));
+		SET_MEMORY_BYTE(VIC_SPR_ENA, GET_MEMORY_BYTE(VIC_SPR_ENA) & ~NthBitFlag[spriteIndex]);
 	}
-	
 
 	SET_MEMORY_BYTE(VIC_SPR_MCOLOR, 0xff); // TODO: Do this separately.
 }
 
-void SetSpritePosition(byte spriteIndex, unsigned short x, unsigned short y)
+void SetSpritePosition(byte spriteIndex, unsigned short x, unsigned char y)
 {
-	word memoryAddress;
+	word memoryAddress = (word)(VIC_SPR0_X + (spriteIndex * 2));
 	
-	memoryAddress = (word)(VIC_SPR0_X + (spriteIndex * 2));
-	SET_MEMORY_BYTE(memoryAddress, 24 + x);
+	x += 24;
+	*((unsigned char*)memoryAddress) = x;
+	if (x > 255)
+	{
+		SET_MEMORY_BYTE(VIC_SPR_HI_X, GET_MEMORY_BYTE(VIC_SPR_HI_X) | NthBitFlag[spriteIndex]);
+	}
+	else
+	{
+		SET_MEMORY_BYTE(VIC_SPR_HI_X, GET_MEMORY_BYTE(VIC_SPR_HI_X) & ~NthBitFlag[spriteIndex]);
+	}
 
 	memoryAddress = (word)(VIC_SPR0_Y + (spriteIndex * 2));
-	SET_MEMORY_BYTE(memoryAddress, 50 + y);
-	
-	memoryAddress = (word)(VIC_SPR_HI_X);
-	SET_MEMORY_BYTE(memoryAddress, 0); // TODO: Impelement this logic.
+	SET_MEMORY_BYTE(memoryAddress, y + 50);
 }
 
 void SetSpriteFrameIndex(byte spriteIndex, byte frameIndex)

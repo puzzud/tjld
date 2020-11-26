@@ -41,18 +41,18 @@ void InitializeNodeTree(void)
 	SetSpriteTertiaryColor(COLOR_LIGHT_RED);
 
 	EnableSprite(0, 1);
-	SetSpritePosition(0, 8 + (SPRITE_WIDTH * 0), SPRITE_HEIGHT);
-	SetSpriteFrameIndex(0, 14);
+	SetSpritePosition(0, 8 + 0, SCREEN_HEIGHT - SPRITE_HEIGHT - TILE_HEIGHT);
+	SetSpriteFrameIndex(0, 0); // 14 right0
 	SetSpriteColor(0, COLOR_RED);
 	
 	EnableSprite(1, 1);
-	SetSpritePosition(1, 8 + (SPRITE_WIDTH * 2), SPRITE_HEIGHT);
+	SetSpritePosition(1, 8 + 32, SCREEN_HEIGHT - SPRITE_HEIGHT - TILE_HEIGHT);
 	SetSpriteFrameIndex(1, 0);
 	SetSpriteColor(1, COLOR_GREEN);
 	
 	EnableSprite(2, 1);
-	SetSpritePosition(2, 8 + (SPRITE_WIDTH * 4), SPRITE_HEIGHT);
-	SetSpriteFrameIndex(2, 21);
+	SetSpritePosition(2, 8 + 64, SCREEN_HEIGHT - SPRITE_HEIGHT - TILE_HEIGHT);
+	SetSpriteFrameIndex(2, 0); // 21 left0
 	SetSpriteColor(2, COLOR_BLUE);
 }
 
@@ -123,7 +123,6 @@ void Process(void)
 			
 			if (CursorPosition.x != PreviousCursorPosition.x || CursorPosition.y != PreviousCursorPosition.y)
 			{
-				SetSpriteFrameIndex(0, CursorPosition.x - 1);
 				SetTileMapCellColor(CursorPosition.x, CursorPosition.y, COLOR_BLUE);
 				SetTileMapCellShape(CursorPosition.x, CursorPosition.y, CHARACTER_BLOCK);
 				SetTileMapCellShape(PreviousCursorPosition.x, PreviousCursorPosition.y, 0);

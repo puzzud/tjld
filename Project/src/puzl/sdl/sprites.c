@@ -189,7 +189,7 @@ void EnableSprite(byte spriteIndex, byte enable)
 	Sprites[spriteIndex].enabled = enable;
 }
 
-void SetSpritePosition(byte spriteIndex, unsigned short x, unsigned short y)
+void SetSpritePosition(byte spriteIndex, unsigned short x, unsigned char y)
 {
 	Sprite* sprite = &Sprites[spriteIndex];
 	sprite->x = x;

@@ -27,6 +27,8 @@
 .exportzp _CurrentScreenInit
 .exportzp _CurrentScreenUpdate
 
+.export _NthBitFlag
+
 .include "c64.asm"
 
 .segment "ZEROPAGE"
@@ -44,8 +46,18 @@ _CurrentScreenUpdate:
   .res 2
 
 .segment "BSS"
-  
+
 .segment "CODE"
+
+_NthBitFlag:
+  .byte $01
+  .byte $02
+  .byte $04
+  .byte $08
+  .byte $10
+  .byte $20
+  .byte $40
+  .byte $80
 
 Reset:
   sei

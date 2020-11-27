@@ -25,7 +25,7 @@ byte FASTCALL GetTileMapColorCode(byte x, byte y)
 {
 	const word cellMemoryAddress = (word)(SCREEN_COLOR + (y * TILEMAP_WIDTH) + x);
 
-	return GET_MEMORY_BYTE(cellMemoryAddress);
+	return GET_MEMORY_BYTE(cellMemoryAddress) & 0x0f; // Masked because upper nibble can be random.
 }
 
 void FASTCALL SetTileMapCellShape(byte x, byte y, byte shapeCode)

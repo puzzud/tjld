@@ -5,13 +5,20 @@
 
 #define CHARACTER_BLOCK 219
 
-byte CursorSpeedPatternIndex;
-TilePoint CursorPosition;
-TilePoint PreviousCursorPosition;
+TilePoint IntendedDirection;
+
+byte SpriteSpeedPatternIndex;
+TilePoint SpriteTilePosition;
+TilePoint PreviousSpriteTilePosition;
 int Score;
+
+const char AuthorFirstName[] = "ANDREW";
 
 void FASTCALL GenerateHWall(byte x, byte y, byte width);
 void FASTCALL GenerateVWall(byte x, byte y, byte height);
+
+void UpdateIntendedDirection(void);
+void UpdateSpriteTile(void);
 
 void InitializeNodeTree(void)
 {
@@ -28,105 +35,33 @@ void InitializeNodeTree(void)
 	
 	Score = 0;
 	
-	CursorPosition.x = 4;
-	CursorPosition.y = TILEMAP_HEIGHT / 2;
-	SetTileMapCellShape(CursorPosition.x, CursorPosition.y, CHARACTER_BLOCK);
-	SetTileMapCellColor(CursorPosition.x, CursorPosition.y, COLOR_BLUE);
+	SpriteTilePosition.x = 4;
+	SpriteTilePosition.y = TILEMAP_HEIGHT / 2;
+	SetTileMapCellShape(SpriteTilePosition.x, SpriteTilePosition.y, CHARACTER_BLOCK);
+	SetTileMapCellColor(SpriteTilePosition.x, SpriteTilePosition.y, COLOR_BLUE);
 
-	CursorSpeedPatternIndex = 2;
+	SpriteSpeedPatternIndex = 2;
 
-	PrintText("ANDREW", TILEMAP_WIDTH - sizeof("ANDREW") + 1, 0);
+	PrintText(AuthorFirstName, 0, 0);
 
 	SetSpriteSeconaryColor(COLOR_WHITE);
 	SetSpriteTertiaryColor(COLOR_LIGHT_RED);
 
 	EnableSprite(0, 1);
 	SetSpritePosition(0, 8 + 0, SCREEN_HEIGHT - SPRITE_HEIGHT - TILE_HEIGHT);
-	SetSpriteFrameIndex(0, 0); // 14 right0
+	SetSpriteFrameIndex(0, 0);
 	SetSpriteColor(0, COLOR_RED);
-	
-	EnableSprite(1, 1);
-	SetSpritePosition(1, 8 + 32, SCREEN_HEIGHT - SPRITE_HEIGHT - TILE_HEIGHT);
-	SetSpriteFrameIndex(1, 0);
-	SetSpriteColor(1, COLOR_GREEN);
-	
-	EnableSprite(2, 1);
-	SetSpritePosition(2, 8 + 64, SCREEN_HEIGHT - SPRITE_HEIGHT - TILE_HEIGHT);
-	SetSpriteFrameIndex(2, 0); // 21 left0
-	SetSpriteColor(2, COLOR_BLUE);
 }
 
 void Process(void)
 {
-	TilePoint cursorDelta;
-	cursorDelta.x = cursorDelta.y = 0;
+	UpdateIntendedDirection();
 
-	#ifdef __C64__
-	if ((KeyCodeStates[KEY_CODE_SHIFT_LEFT] | KeyCodeStates[KEY_CODE_SHIFT_RIGHT]) != 0)
+	if (IntendedDirection.x != 0 || IntendedDirection.y != 0)
 	{
-		cursorDelta.x = 0 - KeyCodeStates[KEY_CODE_RIGHT];
-		cursorDelta.y = 0 - KeyCodeStates[KEY_CODE_DOWN];
-	}
-	else
-	{
-		cursorDelta.x = KeyCodeStates[KEY_CODE_RIGHT];
-		cursorDelta.y = KeyCodeStates[KEY_CODE_DOWN];
-	}
-	#else
-	cursorDelta.x = KeyCodeStates[KEY_CODE_RIGHT] - KeyCodeStates[KEY_CODE_LEFT];
-	cursorDelta.y = KeyCodeStates[KEY_CODE_DOWN] - KeyCodeStates[KEY_CODE_UP];
-	#endif
-
-	if (cursorDelta.x != 0 || cursorDelta.y != 0)
-	{
-		if (IsMoving(CursorSpeedPatternIndex) != 0)
+		if (IsMoving(SpriteSpeedPatternIndex) != 0)
 		{
-			PreviousCursorPosition.x = CursorPosition.x;
-			PreviousCursorPosition.y = CursorPosition.y;
-
-			CursorPosition.x += cursorDelta.x;
-			CursorPosition.y += cursorDelta.y;
-			
-			if (GetTileMapShapeCode(CursorPosition.x, CursorPosition.y) != 0)
-			{
-				switch (GetTileMapColorCode(CursorPosition.x, CursorPosition.y))
-				{
-					case COLOR_YELLOW:
-					{
-						Score += 1;
-						if (Score >= 3)
-						{
-							Running = 0;
-						}
-
-						#ifndef __CC65__
-						// TODO: Figure this out.
-						printf("Score: %d", Score);
-						printf("\n");
-						#endif
-
-						SetBackgroundColor(COLOR_RED);
-
-						break;
-					}
-
-					case COLOR_WHITE:
-					{
-						// Obstacles prevent movement.
-						CursorPosition.x = PreviousCursorPosition.x;
-						CursorPosition.y = PreviousCursorPosition.y;
-
-						break;
-					}
-				}
-			}
-			
-			if (CursorPosition.x != PreviousCursorPosition.x || CursorPosition.y != PreviousCursorPosition.y)
-			{
-				SetTileMapCellColor(CursorPosition.x, CursorPosition.y, COLOR_BLUE);
-				SetTileMapCellShape(CursorPosition.x, CursorPosition.y, CHARACTER_BLOCK);
-				SetTileMapCellShape(PreviousCursorPosition.x, PreviousCursorPosition.y, 0);
-			}
+			UpdateSpriteTile();
 		}
 	}
 }
@@ -153,4 +88,75 @@ void GenerateVWall(byte x, byte y, byte height)
 		++y;
 	}
 	while (--height > 0);
+}
+
+void UpdateIntendedDirection(void)
+{
+	IntendedDirection.x = IntendedDirection.y = 0;
+
+	#ifdef __C64__
+	if ((KeyCodeStates[KEY_CODE_SHIFT_LEFT] | KeyCodeStates[KEY_CODE_SHIFT_RIGHT]) != 0)
+	{
+		IntendedDirection.x = 0 - KeyCodeStates[KEY_CODE_RIGHT];
+		IntendedDirection.y = 0 - KeyCodeStates[KEY_CODE_DOWN];
+	}
+	else
+	{
+		IntendedDirection.x = KeyCodeStates[KEY_CODE_RIGHT];
+		IntendedDirection.y = KeyCodeStates[KEY_CODE_DOWN];
+	}
+	#else
+	IntendedDirection.x = KeyCodeStates[KEY_CODE_RIGHT] - KeyCodeStates[KEY_CODE_LEFT];
+	IntendedDirection.y = KeyCodeStates[KEY_CODE_DOWN] - KeyCodeStates[KEY_CODE_UP];
+	#endif
+}
+
+void UpdateSpriteTile(void)
+{
+	PreviousSpriteTilePosition.x = SpriteTilePosition.x;
+	PreviousSpriteTilePosition.y = SpriteTilePosition.y;
+
+	SpriteTilePosition.x += IntendedDirection.x;
+	SpriteTilePosition.y += IntendedDirection.y;
+	
+	if (GetTileMapShapeCode(SpriteTilePosition.x, SpriteTilePosition.y) != 0)
+	{
+		switch (GetTileMapColorCode(SpriteTilePosition.x, SpriteTilePosition.y))
+		{
+			case COLOR_YELLOW:
+			{
+				Score += 1;
+				if (Score >= 3)
+				{
+					Running = 0;
+				}
+
+				#ifndef __CC65__
+				// TODO: Figure this out.
+				printf("Score: %d", Score);
+				printf("\n");
+				#endif
+
+				SetBackgroundColor(COLOR_RED);
+
+				break;
+			}
+
+			case COLOR_WHITE:
+			{
+				// Obstacles prevent movement.
+				SpriteTilePosition.x = PreviousSpriteTilePosition.x;
+				SpriteTilePosition.y = PreviousSpriteTilePosition.y;
+
+				break;
+			}
+		}
+	}
+	
+	if (SpriteTilePosition.x != PreviousSpriteTilePosition.x || SpriteTilePosition.y != PreviousSpriteTilePosition.y)
+	{
+		SetTileMapCellColor(SpriteTilePosition.x, SpriteTilePosition.y, COLOR_BLUE);
+		SetTileMapCellShape(SpriteTilePosition.x, SpriteTilePosition.y, CHARACTER_BLOCK);
+		SetTileMapCellShape(PreviousSpriteTilePosition.x, PreviousSpriteTilePosition.y, 0);
+	}
 }

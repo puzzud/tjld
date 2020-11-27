@@ -893,7 +893,7 @@ const byte SpriteSet[NUMBER_OF_SPRITE_FRAMES][SPRITE_WIDTH][SPRITE_HEIGHT] =
 
 #ifdef __C64__
 // TODO: Hide this pragma from common code.
-#pragma rodata-name ("RODATA")
+#pragma data-name ("DATA")
 
 const byte SpriteSet[NUMBER_OF_SPRITE_FRAMES][64] =
 {

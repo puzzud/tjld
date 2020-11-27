@@ -48,7 +48,7 @@ _CurrentScreenUpdate:
 
 .segment "BSS"
 
-.segment "CODE"
+.segment "RODATA"
 
 _NthBitFlag:
   .byte $01
@@ -59,6 +59,8 @@ _NthBitFlag:
   .byte $20
   .byte $40
   .byte $80
+
+.segment "CODE"
 
 Reset:
   sei

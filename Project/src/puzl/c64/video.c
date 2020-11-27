@@ -10,8 +10,8 @@
 
 void SetBackgroundColor(byte color)
 {
-	SET_MEMORY_BYTE(VIC_BG_COLOR0, color)
-	SET_MEMORY_BYTE(VIC_BORDERCOLOR, 0) // TODO: Temporary border black.
+	SET_MEMORY_BYTE(BGCOL0, color)
+	SET_MEMORY_BYTE(EXTCOL, 0) // TODO: Temporary border black.
 }
 
 byte GetTileMapShapeCode(byte x, byte y)
@@ -46,32 +46,32 @@ void EnableSprite(byte spriteIndex, byte enable)
 {
 	if (enable != 0)
 	{
-		SET_MEMORY_BYTE(VIC_SPR_ENA, GET_MEMORY_BYTE(VIC_SPR_ENA) | NthBitFlag[spriteIndex]);
+		SET_MEMORY_BYTE(SPENA, GET_MEMORY_BYTE(SPENA) | NthBitFlag[spriteIndex]);
 	}
 	else
 	{
-		SET_MEMORY_BYTE(VIC_SPR_ENA, GET_MEMORY_BYTE(VIC_SPR_ENA) & ~NthBitFlag[spriteIndex]);
+		SET_MEMORY_BYTE(SPENA, GET_MEMORY_BYTE(SPENA) & ~NthBitFlag[spriteIndex]);
 	}
 
-	SET_MEMORY_BYTE(VIC_SPR_MCOLOR, 0xff); // TODO: Do this separately.
+	SET_MEMORY_BYTE(SPMC, 0xff); // TODO: Do this separately.
 }
 
 void SetSpritePosition(byte spriteIndex, unsigned short x, unsigned char y)
 {
-	word memoryAddress = (word)(VIC_SPR0_X + (spriteIndex * 2));
+	word memoryAddress = (word)(SP0X + (spriteIndex * 2));
 	
 	x += 24;
 	*((unsigned char*)memoryAddress) = x;
 	if (x > 255)
 	{
-		SET_MEMORY_BYTE(VIC_SPR_HI_X, GET_MEMORY_BYTE(VIC_SPR_HI_X) | NthBitFlag[spriteIndex]);
+		SET_MEMORY_BYTE(MSIGX, GET_MEMORY_BYTE(MSIGX) | NthBitFlag[spriteIndex]);
 	}
 	else
 	{
-		SET_MEMORY_BYTE(VIC_SPR_HI_X, GET_MEMORY_BYTE(VIC_SPR_HI_X) & ~NthBitFlag[spriteIndex]);
+		SET_MEMORY_BYTE(MSIGX, GET_MEMORY_BYTE(MSIGX) & ~NthBitFlag[spriteIndex]);
 	}
 
-	memoryAddress = (word)(VIC_SPR0_Y + (spriteIndex * 2));
+	memoryAddress = (word)(SP0Y + (spriteIndex * 2));
 	SET_MEMORY_BYTE(memoryAddress, y + 50);
 }
 
@@ -85,16 +85,16 @@ void SetSpriteFrameIndex(byte spriteIndex, byte frameIndex)
 
 void SetSpriteColor(byte spriteIndex, byte colorCode)
 {
-	const word memoryAddress = (word)(VIC_SPR0_COLOR + spriteIndex);
+	const word memoryAddress = (word)(SP0COL + spriteIndex);
 	SET_MEMORY_BYTE(memoryAddress, colorCode);
 }
 
 void SetSpriteSeconaryColor(byte colorCode)
 {
-	SET_MEMORY_BYTE(VIC_SPR_MCOLOR0, colorCode);
+	SET_MEMORY_BYTE(SPMC0, colorCode);
 }
 
 void SetSpriteTertiaryColor(byte colorCode)
 {
-	SET_MEMORY_BYTE(VIC_SPR_MCOLOR1, colorCode);
+	SET_MEMORY_BYTE(SPMC1, colorCode);
 }

@@ -50,10 +50,10 @@ _InitializeVideo:
 ; Assumes interrupts are disabled.
 InitializeCharacterGraphics:
   ;VIC bank
-  lda CIA2_PRA
+  lda CI2PRA
   ;and #%11111101  ; bank 2  base vic mem = $8000
   and #%11111100  ; bank 3  base vic mem = $c000
-  sta CIA2_PRA
+  sta CI2PRA
   
   ;set charset
   ;lda #%00111110  ; screen mem = $8000 + $0c00 = $8c00
@@ -64,16 +64,16 @@ InitializeCharacterGraphics:
   
   ; screen mem = (base VIC memory address) + (1024 * high nibble)
   ; char mem   = (base VIC memory address) + (1024 * low nibble)
-  sta VIC_VIDEO_ADR
+  sta VMCSB
 
   ;save old configuration
-  lda LORAM
+  lda R6510
   pha
 
   ;only RAM
   ;to copy under the IO rom
   lda #%00110000
-  sta LORAM
+  sta R6510
 
   ;take source address from CHARSET
   lda #<_CharacterSet
@@ -86,12 +86,12 @@ InitializeCharacterGraphics:
   
   ;restore ROMs
   pla
-  sta LORAM
+  sta R6510
   
   ;enable multi color charset
-  lda VIC_CTRL2
+  lda SCROLX
   ora #%00010000
-  sta VIC_CTRL2
+  sta SCROLX
   
   rts
 
@@ -101,11 +101,11 @@ InitializeSprites:
   ; Init sprite registers.
   ; No visible sprites.
   lda #$00
-  sta VIC_SPR_ENA
+  sta SPENA
   
   ; All sprites normal scale.
-  sta VIC_SPR_EXP_X
-  sta VIC_SPR_EXP_Y
+  sta XXPAND
+  sta YXPAND
   
   ; Take source address from SPRITES.
   lda #<_SpriteSet
@@ -114,18 +114,18 @@ InitializeSprites:
   sta ptr1+1
   
   ; Save old configuration.
-  lda LORAM
+  lda R6510
   pha
 
   ; Only RAM to copy under the IO ROM.
   lda #%00110000
-  sta LORAM
+  sta R6510
   
   jsr CopySprites
 
   ; Restore ROMs.
   pla
-  sta LORAM
+  sta R6510
 
   rts
 

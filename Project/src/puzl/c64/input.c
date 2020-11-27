@@ -19,24 +19,24 @@ void UpdateKeyCodeStates(void)
 	byte* keyCodeStates = &KeyCodeStates[0];
 
 	// CIA#1 Port set to output.
-	SET_MEMORY_BYTE(CIA1_DDRA, 0xff);
+	SET_MEMORY_BYTE(CIDDRA, 0xff);
 
 	// CIA#1 Port B set to input.
-	SET_MEMORY_BYTE(CIA1_DDRB, 0x00);
+	SET_MEMORY_BYTE(CIDDRB, 0x00);
 
-	// Start row selection with 11111110 (will be inverted when fed into CIA1_PRA).
+	// Start row selection with 11111110 (will be inverted when fed into CIAPRA).
 	rowSelection = 0x01;
 	do
 	{
 		// Set row.
-		SET_MEMORY_BYTE(CIA1_PRA, ~rowSelection);
+		SET_MEMORY_BYTE(CIAPRA, ~rowSelection);
 
 		// Start column selection with 00000001.
 		columnSelection = 0x01;
 		do
 		{
 			// Read column.
-			columnInfo = GET_MEMORY_BYTE(CIA1_PRB) & columnSelection;
+			columnInfo = GET_MEMORY_BYTE(CIAPRB) & columnSelection;
 			*keyCodeStates = (columnInfo == 0) ? 1 : 0;
 
 			++keyCodeStates;

@@ -63,21 +63,21 @@ Reset:
   sei
 
   lda #%01111111
-  sta CIA1_ICR
-  sta CIA2_ICR
+  sta CIAICR
+  sta CI2ICR
 
-  lda CIA1_ICR
-  lda CIA2_ICR
+  lda CIAICR
+  lda CI2ICR
 
   lda #%00000000
-  sta VIC_IMR
+  sta IRQMASK
 
   lda #248
-  sta VIC_HLINE
+  sta RASTER
 
-  lda VIC_CTRL1
+  lda SCROLY
   and #%01111111
-  sta VIC_CTRL1
+  sta SCROLY
 
   ; Set up interrupt routine.
   lda #<DefaultInterrupt
@@ -92,7 +92,7 @@ Reset:
   ; Swap out Kernal & BASIC ROMs for RAM.
   ; Keep IO.
   lda #%00110101
-  sta LORAM
+  sta R6510
 
   ; Set parameter stack pointer.
   lda #<(__MAIN_LAST__ - __STACKSIZE__)
@@ -129,14 +129,14 @@ Reset:
   ; If so, wait for the next full screen,
   ; preventing mistimings if called too fast.
 @waitFrame:
-  lda VIC_HLINE
+  lda RASTER
   cmp #248
   beq @waitFrame
 
   ; Wait for the raster to reach line $f8
   ; (should be closer to the start of this line this way).
 @waitStep2:
-  lda VIC_HLINE
+  lda RASTER
   cmp #248
   bne @waitStep2
   
@@ -153,7 +153,7 @@ DefaultInterrupt:
   pha
   
   lda #$ff
-  sta VIC_IRR
+  sta VICIRQ
             
   pla
   tay

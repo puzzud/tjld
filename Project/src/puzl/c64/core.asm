@@ -18,7 +18,8 @@
 .macpack longbranch
 
 .importzp sp
-.import __BSS_START__, __BSS_SIZE__
+.import __BSS_START__, __BSS_LAST__, __BSS_SIZE__
+.import __STACKSIZE__
 
 .export Reset
 
@@ -95,9 +96,9 @@ Reset:
   sta R6510
 
   ; Set parameter stack pointer.
-  lda #<(__MAIN_LAST__ - __STACKSIZE__)
+  lda #<(__BSS_LAST__+__STACKSIZE__-1)
   sta sp
-  lda #>(__MAIN_LAST__ - __STACKSIZE__)
+  lda #>(__BSS_LAST__+__STACKSIZE__-1)
   sta sp+1
 
   jsr _InitializeVideo

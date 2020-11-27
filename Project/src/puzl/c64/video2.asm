@@ -35,8 +35,8 @@ ImageHeight:
 
 ;------------------------------------------------------------------
 _InitializeVideo:
-  
   lda #COLOR_BLACK
+  sta EXTCOL ; TODO: Temporary border black.
   sta _PrintColor
   
   jsr _ClearScreen
@@ -106,6 +106,10 @@ InitializeSprites:
   ; All sprites normal scale.
   sta XXPAND
   sta YXPAND
+
+  ; All sprites multicolor.
+  lda #$ff
+	sta SPMC
   
   ; Take source address from SPRITES.
   lda #<_SpriteSet

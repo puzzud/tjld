@@ -10,8 +10,7 @@
 
 void SetBackgroundColor(byte color)
 {
-	SET_MEMORY_BYTE(BGCOL0, color)
-	SET_MEMORY_BYTE(EXTCOL, 0) // TODO: Temporary border black.
+	SET_MEMORY_BYTE(BGCOL0, color);
 }
 
 byte GetTileMapShapeCode(byte x, byte y)
@@ -52,8 +51,6 @@ void EnableSprite(byte spriteIndex, byte enable)
 	{
 		SET_MEMORY_BYTE(SPENA, GET_MEMORY_BYTE(SPENA) & ~NthBitFlag[spriteIndex]);
 	}
-
-	SET_MEMORY_BYTE(SPMC, 0xff); // TODO: Do this separately.
 }
 
 void SetSpritePosition(byte spriteIndex, unsigned short x, unsigned char y)

@@ -1,9 +1,9 @@
 #include <c64/video.h>
 
 #include <puzl.h>
-#include <core.h>
-
 #include <c64/c64.h>
+#include <c64/core.h>
+
 #include <stdio.h>
 
 #include <color.h>

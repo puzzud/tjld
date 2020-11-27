@@ -426,16 +426,16 @@ _ClearScreen:
   rts
   
 ;------------------------------------------------------------------
-.macro sloTable loOrHi, n
+.macro sloTable baseAddress, loOrHi, n
   .local lineNumber
-  .if .paramcount > 1
+  .if .paramcount > 2
     lineNumber = n
   .else
     lineNumber = 0
   .endif
   
   .local address
-  address = (SCREEN_CHAR + (SCREEN_CHAR_WIDTH * lineNumber))
+  address = (baseAddress + (SCREEN_CHAR_WIDTH * lineNumber))
 
   .if loOrHi = 0
     .byte <(address)
@@ -446,47 +446,22 @@ _ClearScreen:
   .endif
   
   .if lineNumber < SCREEN_CHAR_HEIGHT
-    sloTable loOrHi, (lineNumber+1) ; NOTE: Wrapping parameter in parentheses is critical (bug?).
-  .endif
-.endmacro
-
-;------------------------------------------------------------------
-.macro scloTable loOrHi, n
-  .local lineNumber
-  .if .paramcount > 1
-    lineNumber = n
-  .else
-    lineNumber = 0
-  .endif
-  
-  .local address
-  address = (SCREEN_COLOR + (SCREEN_CHAR_WIDTH * lineNumber))
-
-  .if loOrHi = 0
-    .byte <(address)
-  .endif
-  
-  .if loOrHi = 1
-    .byte >(address)
-  .endif
-  
-  .if lineNumber < SCREEN_CHAR_HEIGHT
-    scloTable loOrHi, (lineNumber+1) ; NOTE: Wrapping parameter in parentheses is critical (bug?).
+    sloTable baseAddress, loOrHi, (lineNumber+1) ; NOTE: Wrapping parameter in parentheses is critical (bug?).
   .endif
 .endmacro
 
 ;------------------------------------------------------------------
 ; Preprocessed table of video RAM addresses for each start of a line.
 ScreenLineOffsetTableLo:
-  sloTable 0
+  sloTable SCREEN_CHAR, 0
 
 ScreenLineOffsetTableHi:
-  sloTable 1
+  sloTable SCREEN_CHAR, 1
 
 ;------------------------------------------------------------------
 ; Preprocessed table of video color RAM addresses for each start of a line.
 ScreenColorLineOffsetTableLo:
-  scloTable 0
+  sloTable SCREEN_COLOR, 0
 
 ScreenColorLineOffsetTableHi:
-  scloTable 1
+  sloTable SCREEN_COLOR, 1

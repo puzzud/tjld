@@ -5,7 +5,7 @@
 
 #define CHARACTER_BLOCK 219
 
-TilePoint IntendedDirection;
+Direction IntendedDirection;
 
 byte SpriteSpeedPatternIndex;
 TilePoint SpriteTilePosition;
@@ -18,6 +18,7 @@ void FASTCALL GenerateHWall(byte x, byte y, byte width);
 void FASTCALL GenerateVWall(byte x, byte y, byte height);
 
 void UpdateIntendedDirection(void);
+void FASTCALL MoveSprite(byte spriteIndex);
 void UpdateSpriteTile(void);
 
 void InitializeNodeTree(void)
@@ -40,7 +41,7 @@ void InitializeNodeTree(void)
 	SetTileMapCellShape(SpriteTilePosition.x, SpriteTilePosition.y, CHARACTER_BLOCK);
 	SetTileMapCellColor(SpriteTilePosition.x, SpriteTilePosition.y, COLOR_BLUE);
 
-	SpriteSpeedPatternIndex = 2;
+	SpriteSpeedPatternIndex = 8;
 
 	PrintText(AuthorFirstName, 0, 0);
 
@@ -61,6 +62,10 @@ void Process(void)
 	{
 		if (IsMoving(SpriteSpeedPatternIndex) != 0)
 		{
+			PreviousSpriteTilePosition.x = SpriteTilePosition.x;
+			PreviousSpriteTilePosition.y = SpriteTilePosition.y;
+
+			MoveSprite(0);
 			UpdateSpriteTile();
 		}
 	}
@@ -111,11 +116,17 @@ void UpdateIntendedDirection(void)
 	#endif
 }
 
+void MoveSprite(byte spriteIndex)
+{
+	static SpritePoint spritePosition;
+	spritePosition.x = GetSpritePositionX(spriteIndex) + IntendedDirection.x;
+	spritePosition.y = GetSpritePositionY(spriteIndex) + IntendedDirection.y;
+
+	SetSpritePosition(spriteIndex, spritePosition.x, spritePosition.y);
+}
+
 void UpdateSpriteTile(void)
 {
-	PreviousSpriteTilePosition.x = SpriteTilePosition.x;
-	PreviousSpriteTilePosition.y = SpriteTilePosition.y;
-
 	SpriteTilePosition.x += IntendedDirection.x;
 	SpriteTilePosition.y += IntendedDirection.y;
 	

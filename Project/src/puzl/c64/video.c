@@ -53,7 +53,27 @@ void EnableSprite(byte spriteIndex, byte enable)
 	}
 }
 
-void SetSpritePosition(byte spriteIndex, unsigned short x, unsigned char y)
+signed short GetSpritePositionX(byte spriteIndex)
+{
+	word memoryAddress = (word)(SP0X + (spriteIndex * 2));
+
+	unsigned short positionX = GET_MEMORY_BYTE(memoryAddress);
+
+	if ((GET_MEMORY_BYTE(MSIGX) & NthBitFlag[spriteIndex]) != 0)
+	{
+		return positionX + 256 - 24;
+	}
+
+	return positionX - 24;
+}
+
+signed short GetSpritePositionY(byte spriteIndex)
+{
+	word memoryAddress = (word)(SP0Y + (spriteIndex * 2));
+	return GET_MEMORY_BYTE(memoryAddress) - 50;
+}
+
+void SetSpritePosition(byte spriteIndex, signed short x, signed short y)
 {
 	word memoryAddress = (word)(SP0X + (spriteIndex * 2));
 	

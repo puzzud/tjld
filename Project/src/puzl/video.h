@@ -14,9 +14,21 @@
 
 typedef struct
 {
+	signed char x;
+	signed char y;
+} Direction;
+
+typedef struct
+{
 	byte x;
 	byte y;
 } TilePoint;
+
+typedef struct
+{
+	signed short x;
+	signed short y;
+} SpritePoint;
 
 extern byte PrintX;
 extern byte PrintY;
@@ -32,7 +44,9 @@ void FASTCALL SetTileMapCellColor(byte x, byte y, byte colorCode);
 extern void FASTCALL PrintText(const char* text, byte x, byte y);
 
 void FASTCALL EnableSprite(byte spriteIndex, byte enable);
-void FASTCALL SetSpritePosition(byte spriteIndex, unsigned short x, unsigned char y);
+signed short FASTCALL GetSpritePositionX(byte spriteIndex);
+signed short FASTCALL GetSpritePositionY(byte spriteIndex);
+void FASTCALL SetSpritePosition(byte spriteIndex, signed short x, signed short y);
 void FASTCALL SetSpriteFrameIndex(byte spriteIndex, byte frameIndex);
 void FASTCALL SetSpriteColor(byte spriteIndex, byte colorCode);
 void FASTCALL SetSpriteSeconaryColor(byte colorCode);

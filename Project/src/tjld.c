@@ -26,7 +26,7 @@ void UpdateSpriteTile(void);
 void InitializeNodeTree(void)
 {
 	// TODO: Call out custom logic?
-	SetBackgroundColor(COLOR_GREY_1);
+	SetBackgroundColor(COLOR_BLACK);
 
 	GenerateHWall(0, 1, TILEMAP_WIDTH);
 	GenerateVWall(0, 2, TILEMAP_HEIGHT - 2);
@@ -156,7 +156,7 @@ void UpdateSpriteTile(void)
 				printf("\n");
 				#endif
 
-				SetBackgroundColor(COLOR_RED);
+				SetBackgroundColor(COLOR_GREY_1);
 
 				break;
 			}

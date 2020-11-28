@@ -5,6 +5,8 @@
 
 #define CHARACTER_BLOCK 219
 
+byte LoopIndex;
+
 Direction IntendedDirection;
 
 byte SpriteSpeedPatternIndex;
@@ -65,7 +67,13 @@ void Process(void)
 			PreviousSpriteTilePosition.x = SpriteTilePosition.x;
 			PreviousSpriteTilePosition.y = SpriteTilePosition.y;
 
-			MoveSprite(0);
+			LoopIndex = 2;
+			do
+			{
+				MoveSprite(0);
+			}
+			while (--LoopIndex != 0);
+
 			UpdateSpriteTile();
 		}
 	}

@@ -99,27 +99,3 @@ void MoveSprite(byte spriteIndex)
 			GetSpritePositionY(spriteIndex) + SpriteVelocitiesY[spriteIndex]
 		);
 }
-
-void SetSpriteFrameIndex(byte spriteIndex, byte frameIndex)
-{
-	const word memoryAddress = (word)(SPRITE_POINTER_BASE + spriteIndex);
-
-	// TODO: Need to investigate why 64 is a base.
-	SET_MEMORY_BYTE(memoryAddress, 64 + frameIndex);
-}
-
-void SetSpriteColor(byte spriteIndex, byte colorCode)
-{
-	const word memoryAddress = (word)(SP0COL + spriteIndex);
-	SET_MEMORY_BYTE(memoryAddress, colorCode);
-}
-
-void SetSpriteSeconaryColor(byte colorCode)
-{
-	SET_MEMORY_BYTE(SPMC0, colorCode);
-}
-
-void SetSpriteTertiaryColor(byte colorCode)
-{
-	SET_MEMORY_BYTE(SPMC1, colorCode);
-}

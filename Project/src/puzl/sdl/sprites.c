@@ -146,7 +146,7 @@ void DrawSprites(void)
 
 		if (sprite->enabled != 0)
 		{
-			DrawSpriteFrame(sprite->x, sprite->y, sprite->frameIndex, sprite->colorCode);
+			DrawSpriteFrame(sprite->position.x, sprite->position.y, sprite->frameIndex, sprite->colorCode);
 		}
 	}
 	while (--spriteIndex > -1);
@@ -191,19 +191,19 @@ void EnableSprite(byte spriteIndex, byte enable)
 
 signed short GetSpritePositionX(byte spriteIndex)
 {
-	return Sprites[spriteIndex].x;
+	return Sprites[spriteIndex].position.x;
 }
 
 signed short GetSpritePositionY(byte spriteIndex)
 {
-	return Sprites[spriteIndex].y;
+	return Sprites[spriteIndex].position.y;
 }
 
 void SetSpritePosition(byte spriteIndex, signed short x, signed short y)
 {
 	Sprite* sprite = &Sprites[spriteIndex];
-	sprite->x = x;
-	sprite->y = y;
+	sprite->position.x = x;
+	sprite->position.y = y;
 }
 
 void SetSpriteFrameIndex(byte spriteIndex, byte frameIndex)

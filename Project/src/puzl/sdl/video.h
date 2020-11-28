@@ -17,8 +17,7 @@
 typedef struct
 {
 	byte enabled;
-	signed short x;
-	signed short y;
+	SpritePoint position;
 	byte frameIndex;
 	byte colorCode;
 } Sprite;

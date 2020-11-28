@@ -41,7 +41,7 @@ PLATFORM := sdl
 CFLAGS := `sdl2-config --cflags` -g $(CFLAGS)
 LFLAGS := `sdl2-config --libs`
 
-EXECUTABLE := ./$(PROJECT_NAME)
+EXECUTABLE := $(BTDIR)/$(PROJECT_NAME)_$(TARGET)
 
 EXECUTE := $(EXECUTABLE)
 endif

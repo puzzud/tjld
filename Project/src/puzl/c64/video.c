@@ -31,20 +31,6 @@ byte FASTCALL GetTileMapColorCode(byte x, byte y)
 	return GET_MEMORY_BYTE(cellMemoryAddress) & 0x0f; // Masked because upper nibble can be random.
 }
 
-void FASTCALL SetTileMapCellShape(byte x, byte y, byte shapeCode)
-{
-	const word cellMemoryAddress = (word)(SCREEN_CHAR + (y * TILEMAP_WIDTH) + x);
-
-	SET_MEMORY_BYTE(cellMemoryAddress, shapeCode)
-}
-
-void FASTCALL SetTileMapCellColor(byte x, byte y, byte colorCode)
-{
-	const word cellMemoryAddress = (word)(SCREEN_COLOR + (y * TILEMAP_WIDTH) + x);
-
-	SET_MEMORY_BYTE(cellMemoryAddress, colorCode);
-}
-
 signed short GetSpritePositionX(byte spriteIndex)
 {
 	word memoryAddress = (word)(SP0X + (spriteIndex * 2));

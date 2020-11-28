@@ -7,6 +7,11 @@
 .export _PrintText
 .export _DrawImage
 
+.export ScreenLineOffsetTableLo
+.export ScreenLineOffsetTableHi
+.export ScreenColorLineOffsetTableLo
+.export ScreenColorLineOffsetTableHi
+
 .autoimport on
   
 .importzp sp, sreg, regsave, regbank

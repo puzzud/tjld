@@ -17,9 +17,6 @@
 .include "c64.asm"
 
 .segment "BSS"
-  
-ImageHeight:
-  .res 1
 
 .segment "ZEROPAGE"
 
@@ -83,7 +80,7 @@ _SetSpriteFrameIndex:
   adc #64 ; TODO: Need to investigate why 64 is a base.
   sta (ptr1),y
 
-  rts
+  jmp incsp1
 
 ;------------------------------------------------------------------
 ; inputs:
@@ -106,7 +103,7 @@ _SetSpriteColor:
   txa
   sta (ptr1),y
 
-  rts
+  jmp incsp1
 
 ;------------------------------------------------------------------
 ; inputs:

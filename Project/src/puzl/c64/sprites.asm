@@ -25,7 +25,7 @@
 ;------------------------------------------------------------------
 ; inputs:
 ;  - spriteIndex: sp[0], which sprite to enable / disable.
-;  - enable: A, enable or disable sprite.
+;  - enable: a, enable or disable sprite.
 _EnableSprite:
   tax
 
@@ -61,7 +61,7 @@ _EnableSprite:
 ;------------------------------------------------------------------
 ; inputs:
 ;  - spriteIndex: sp[0], which sprite to assign frame index.
-;  - frameIndex: A, index of graphic frame.
+;  - frameIndex: a, index of graphic frame.
 _SetSpriteFrameIndex:
   tax
 
@@ -85,7 +85,7 @@ _SetSpriteFrameIndex:
 ;------------------------------------------------------------------
 ; inputs:
 ;  - spriteIndex: sp[0], which sprite to assign color.
-;  - colorCode: A, color code.
+;  - colorCode: a, color code.
 _SetSpriteColor:
   tax
 
@@ -107,7 +107,7 @@ _SetSpriteColor:
 
 ;------------------------------------------------------------------
 ; inputs:
-;  - colorCode: A, color code.
+;  - colorCode: a, color code.
 _SetSpriteSeconaryColor:
   sta SPMC0
 
@@ -115,7 +115,7 @@ _SetSpriteSeconaryColor:
 
 ;------------------------------------------------------------------
 ; inputs:
-;  - colorCode: A, color code.
+;  - colorCode: a, color code.
 _SetSpriteTertiaryColor:
   sta SPMC1
 

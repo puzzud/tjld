@@ -17,20 +17,6 @@ void SetBackgroundColor(byte color)
 	SET_MEMORY_BYTE(BGCOL0, color);
 }
 
-byte GetTileMapShapeCode(byte x, byte y)
-{
-	const word cellMemoryAddress = (word)(SCREEN_CHAR + (y * TILEMAP_WIDTH) + x);
-
-	return GET_MEMORY_BYTE(cellMemoryAddress);
-}
-
-byte FASTCALL GetTileMapColorCode(byte x, byte y)
-{
-	const word cellMemoryAddress = (word)(SCREEN_COLOR + (y * TILEMAP_WIDTH) + x);
-
-	return GET_MEMORY_BYTE(cellMemoryAddress) & 0x0f; // Masked because upper nibble can be random.
-}
-
 signed short GetSpritePositionX(byte spriteIndex)
 {
 	word memoryAddress = (word)(SP0X + (spriteIndex * 2));

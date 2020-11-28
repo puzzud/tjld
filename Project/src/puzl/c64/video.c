@@ -31,12 +31,6 @@ signed short GetSpritePositionX(byte spriteIndex)
 	return positionX - 24;
 }
 
-signed short GetSpritePositionY(byte spriteIndex)
-{
-	word memoryAddress = (word)(SP0Y + (spriteIndex * 2));
-	return GET_MEMORY_BYTE(memoryAddress) - 50;
-}
-
 void SetSpritePosition(byte spriteIndex, signed short x, signed short y)
 {
 	word memoryAddress = (word)(SP0X + (spriteIndex * 2));

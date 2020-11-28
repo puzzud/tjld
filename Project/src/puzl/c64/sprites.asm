@@ -1,6 +1,7 @@
 ; c64 sprites.asm
 
 .export _EnableSprite
+.export _GetSpritePositionY
 .export _SetSpriteFrameIndex
 .export _SetSpriteColor
 .export _SetSpriteSeconaryColor
@@ -57,6 +58,33 @@ _EnableSprite:
 
 @done:
   jmp incsp1
+
+;------------------------------------------------------------------
+; inputs:
+;  - spriteIndex: a, which sprite to get position y.
+; outputs:
+;  - return: x/a, sprite position y.
+_GetSpritePositionY:
+  asl
+  adc #<SP0Y
+  sta ptr1
+  ; NOTE: No need to transfer carry to high byte,
+  ; because there wouldn't be such on this C64 memory address.
+  lda #>SP0Y
+  sta ptr1+1
+
+  sec
+  ldy #0
+  lda (ptr1),y
+  sbc #SCREEN_BORDER_THICKNESS_Y
+  sta tmp1
+  lda #0
+  sbc #0
+  
+  tax ; Set return values.
+  lda tmp1
+  
+  rts
 
 ;------------------------------------------------------------------
 ; inputs:

@@ -27,35 +27,28 @@ ImageHeight:
 ;  - enable: A, enable or disable sprite.
 _EnableSprite:
   tax
-  bne @enable
 
-@disable:
-  lda #<_NthBitFlag
-  sta ptr1
-  lda #>_NthBitFlag
-  sta ptr1+1
+  ldy #<_NthBitFlag
+  sty ptr1
+  ldy #>_NthBitFlag
+  sty ptr1+1
 
   ldy #0
   lda (sp),y
   tay
-  lda (ptr1),y
 
+  txa
+  bne @enable
+
+@disable:
+  lda (ptr1),y
   eor #$ff
   and SPENA
 
   jmp @set
 
 @enable:
-  lda #<_NthBitFlag
-  sta ptr1
-  lda #>_NthBitFlag
-  sta ptr1+1
-
-  ldy #0
-  lda (sp),y
-  tay
   lda (ptr1),y
-
   ora SPENA
 
 @set:

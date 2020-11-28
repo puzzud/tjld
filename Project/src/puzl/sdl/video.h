@@ -20,6 +20,7 @@ typedef struct
 	SpritePoint position;
 	byte frameIndex;
 	byte colorCode;
+	Direction velocity;
 } Sprite;
 
 extern SDL_Renderer* Renderer;

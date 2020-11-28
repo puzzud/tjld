@@ -47,6 +47,8 @@ void FASTCALL EnableSprite(byte spriteIndex, byte enable);
 signed short FASTCALL GetSpritePositionX(byte spriteIndex);
 signed short FASTCALL GetSpritePositionY(byte spriteIndex);
 void FASTCALL SetSpritePosition(byte spriteIndex, signed short x, signed short y);
+void FASTCALL SetSpriteVelocity(byte spriteIndex, signed char x, signed char y);
+void FASTCALL MoveSprite(byte spriteIndex);
 void FASTCALL SetSpriteFrameIndex(byte spriteIndex, byte frameIndex);
 void FASTCALL SetSpriteColor(byte spriteIndex, byte colorCode);
 void FASTCALL SetSpriteSeconaryColor(byte colorCode);

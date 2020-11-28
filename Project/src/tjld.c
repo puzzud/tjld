@@ -20,7 +20,6 @@ void FASTCALL GenerateHWall(byte x, byte y, byte width);
 void FASTCALL GenerateVWall(byte x, byte y, byte height);
 
 void UpdateIntendedDirection(void);
-void FASTCALL MoveSprite(byte spriteIndex);
 void UpdateSpriteTile(void);
 
 void InitializeNodeTree(void)
@@ -64,6 +63,8 @@ void Process(void)
 	{
 		if (IsMoving(SpriteSpeedPatternIndex) != 0)
 		{
+			SetSpriteVelocity(0, IntendedDirection.x, IntendedDirection.y);
+
 			PreviousSpriteTilePosition.x = SpriteTilePosition.x;
 			PreviousSpriteTilePosition.y = SpriteTilePosition.y;
 
@@ -122,15 +123,6 @@ void UpdateIntendedDirection(void)
 	IntendedDirection.x = KeyCodeStates[KEY_CODE_RIGHT] - KeyCodeStates[KEY_CODE_LEFT];
 	IntendedDirection.y = KeyCodeStates[KEY_CODE_DOWN] - KeyCodeStates[KEY_CODE_UP];
 	#endif
-}
-
-void MoveSprite(byte spriteIndex)
-{
-	static SpritePoint spritePosition;
-	spritePosition.x = GetSpritePositionX(spriteIndex) + IntendedDirection.x;
-	spritePosition.y = GetSpritePositionY(spriteIndex) + IntendedDirection.y;
-
-	SetSpritePosition(spriteIndex, spritePosition.x, spritePosition.y);
 }
 
 void UpdateSpriteTile(void)

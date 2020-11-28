@@ -8,6 +8,10 @@
 
 #include <color.h>
 
+// TODO: Should probably clear these values.
+signed char SpriteVelocitiesX[NUMBER_OF_SPRITES];
+signed char SpriteVelocitiesY[NUMBER_OF_SPRITES];
+
 void SetBackgroundColor(byte color)
 {
 	SET_MEMORY_BYTE(BGCOL0, color);
@@ -90,6 +94,22 @@ void SetSpritePosition(byte spriteIndex, signed short x, signed short y)
 
 	memoryAddress = (word)(SP0Y + (spriteIndex * 2));
 	SET_MEMORY_BYTE(memoryAddress, y + 50);
+}
+
+void SetSpriteVelocity(byte spriteIndex, signed char x, signed char y)
+{
+	SpriteVelocitiesX[spriteIndex] = x;
+	SpriteVelocitiesY[spriteIndex] = y;
+}
+
+void MoveSprite(byte spriteIndex)
+{
+	SetSpritePosition
+		(
+			spriteIndex,
+			GetSpritePositionX(spriteIndex) + SpriteVelocitiesX[spriteIndex],
+			GetSpritePositionY(spriteIndex) + SpriteVelocitiesY[spriteIndex]
+		);
 }
 
 void SetSpriteFrameIndex(byte spriteIndex, byte frameIndex)

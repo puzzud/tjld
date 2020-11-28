@@ -27,7 +27,7 @@ const byte SpeedBitPatterns[9][NUMBER_OF_SPEED_BIT_PATTERN_BYTES] =
 
 void FASTCALL InitalizeSpeed(void)
 {
-	SpeedBitPatternByteTimer = NUMBER_OF_SPEED_BIT_PATTERN_BYTES;
+	SpeedBitPatternByteTimer = NUMBER_OF_SPEED_BIT_PATTERN_BYTES - 1;
 	SpeedBitFlag = 0x80;
 }
 

@@ -14,15 +14,10 @@
 #include <sdl/color.h>
 #include <sdl/input.h>
 
+#define FRAMES_PER_SECOND	60
+#define USE_PERFORMANCE_COUNTER 1
+
 byte Running;
-
-const unsigned int FramesPerSecond = 60;
-#ifndef __EMSCRIPTEN__
-const unsigned int FrameDelay = 1000 / FramesPerSecond;
-#endif
-
-unsigned int FrameStart;
-unsigned int FrameTime;
 
 int Initialize(void);
 void Process(void);
@@ -88,7 +83,11 @@ void MainLoop(void)
 inline void MainLoopIteration(void)
 {
 #ifndef __EMSCRIPTEN__
-	FrameStart = SDL_GetTicks();
+#ifndef USE_PERFORMANCE_COUNTER
+	Uint32 FrameStart = SDL_GetTicks();
+#else
+	Uint64 FrameStart = SDL_GetPerformanceCounter();
+#endif
 #endif
 
 	SDL_Event event;
@@ -119,10 +118,21 @@ inline void MainLoopIteration(void)
 	Draw();
 
 #ifndef __EMSCRIPTEN__
-	FrameTime = SDL_GetTicks() - FrameStart;
-	if (FrameDelay > FrameTime)
+	// Cap to 60 FPS.
+
+#ifndef USE_PERFORMANCE_COUNTER
+	Uint32 FrameTime = SDL_GetTicks();
+	float elapsedTimeMs = FrameTime - FrameStart;
+#else
+	Uint64 FrameTime = SDL_GetPerformanceCounter();
+	float elapsedTimeMs = (FrameTime - FrameStart) / (float)SDL_GetPerformanceFrequency() * 1000.0f;
+#endif
+
+	float delayTimeMs = floor((1000.0f / (float)FRAMES_PER_SECOND) - elapsedTimeMs);
+	if (delayTimeMs > 0.0)
 	{
-		SDL_Delay(FrameDelay - FrameTime);
+		SDL_Delay(delayTimeMs);
 	}
+
 #endif
 }

@@ -39,7 +39,7 @@ int InitializeVideo(void)
 		return 1;
   }
 	
-	Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED);// | SDL_RENDERER_PRESENTVSYNC);
+	Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (Renderer == NULL)
 	{
 		SDL_DestroyWindow(Window);

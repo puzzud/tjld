@@ -45,18 +45,6 @@ void FASTCALL SetTileMapCellColor(byte x, byte y, byte colorCode)
 	SET_MEMORY_BYTE(cellMemoryAddress, colorCode);
 }
 
-void EnableSprite(byte spriteIndex, byte enable)
-{
-	if (enable != 0)
-	{
-		SET_MEMORY_BYTE(SPENA, GET_MEMORY_BYTE(SPENA) | NthBitFlag[spriteIndex]);
-	}
-	else
-	{
-		SET_MEMORY_BYTE(SPENA, GET_MEMORY_BYTE(SPENA) & ~NthBitFlag[spriteIndex]);
-	}
-}
-
 signed short GetSpritePositionX(byte spriteIndex)
 {
 	word memoryAddress = (word)(SP0X + (spriteIndex * 2));

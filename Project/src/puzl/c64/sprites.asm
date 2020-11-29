@@ -1,6 +1,7 @@
 ; c64 sprites.asm
 
 .export _EnableSprite
+.export _GetSpritePositionX
 .export _GetSpritePositionY
 .export _SetSpriteFrameIndex
 .export _SetSpriteColor
@@ -61,11 +62,64 @@ _EnableSprite:
 
 ;------------------------------------------------------------------
 ; inputs:
+;  - spriteIndex: a, which sprite to get position x.
+; outputs:
+;  - return: x/a, sprite position y.
+_GetSpritePositionX:
+  tay
+
+  ; Check 9th bit.
+  lda #<_NthBitFlag
+  sta ptr2
+  lda #>_NthBitFlag
+  sta ptr2+1
+
+  lda (ptr2),y
+  and MSIGX
+  bne @above
+
+@below:
+  sta tmp2 ; a is 0.
+  beq @readLo
+
+@above:
+  lda #$01
+  sta tmp2
+
+@readLo:
+  tya
+  asl
+  ; NOTE: No clc needed, assuming spriteIndex is in the range 0-7.
+  adc #<SP0X
+  sta ptr1
+  ; NOTE: No need to transfer carry to high byte,
+  ; because there wouldn't be such on this C64 memory address.
+  lda #>SP0X
+  sta ptr1+1
+
+  ldy #0
+  lda (ptr1),y
+
+  sec
+  sbc #SCREEN_BORDER_THICKNESS_X
+  sta tmp1
+  lda tmp2
+  sbc #0
+  
+  ; Set return values.
+  tax
+  lda tmp1
+  
+  rts
+
+;------------------------------------------------------------------
+; inputs:
 ;  - spriteIndex: a, which sprite to get position y.
 ; outputs:
 ;  - return: x/a, sprite position y.
 _GetSpritePositionY:
   asl
+  ; NOTE: No clc needed, provided spriteIndex is in the range 0-7.
   adc #<SP0Y
   sta ptr1
   ; NOTE: No need to transfer carry to high byte,

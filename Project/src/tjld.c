@@ -122,6 +122,11 @@ void UpdateIntendedDirection(void)
 	#else
 	IntendedDirection.x = KeyCodeStates[KEY_CODE_RIGHT] - KeyCodeStates[KEY_CODE_LEFT];
 	IntendedDirection.y = KeyCodeStates[KEY_CODE_DOWN] - KeyCodeStates[KEY_CODE_UP];
+
+	if (KeyCodeStates[KEY_CODE_ESCAPE] != 0)
+	{
+		Running = 0;
+	}
 	#endif
 }
 

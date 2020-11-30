@@ -16,4 +16,7 @@
 
 void FASTCALL InitializeVideo(void);
 
+void FASTCALL SetSpritePositionX(byte spriteIndex, signed short x);
+void FASTCALL SetSpritePositionY(byte spriteIndex, signed short y);
+
 #endif

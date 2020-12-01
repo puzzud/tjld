@@ -29,7 +29,7 @@ int InitializeVideo(void)
 			"tjld", // TODO: Expose this.
 			SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
 			SCREEN_WIDTH * RenderScale.x, SCREEN_HEIGHT * RenderScale.y,
-			SDL_WINDOW_SHOWN
+			SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE
 		);
 	
   if (Window == NULL)

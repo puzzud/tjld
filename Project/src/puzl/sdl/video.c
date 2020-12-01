@@ -50,6 +50,7 @@ int InitializeVideo(void)
 	}
 
 	SDL_RenderSetScale(Renderer, (float)RenderScale.x, (float)RenderScale.y);
+	SDL_RenderSetLogicalSize(Renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	ScreenSurface = SDL_GetWindowSurface(Window);
 

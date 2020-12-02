@@ -38,6 +38,15 @@ int InitializeVideo(void)
     
 		return 1;
   }
+
+	// Hide mouse cursor if essentially forced fullscreen (Raspberry Pi).
+	const unsigned int windowFlags = SDL_GetWindowFlags(Window);
+	const unsigned int isFullScreenDesktop = windowFlags & SDL_WINDOW_FULLSCREEN_DESKTOP;
+	const unsigned int isBorderless = windowFlags & SDL_WINDOW_BORDERLESS;
+	if (isFullScreenDesktop != 0 || isBorderless != 0)
+	{
+		SDL_ShowCursor(0);
+	}
 	
 	Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (Renderer == NULL)

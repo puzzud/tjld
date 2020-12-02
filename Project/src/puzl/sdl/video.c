@@ -15,6 +15,8 @@ SDL_Point RenderScale;
 
 byte BackgroundColorCode;
 
+void InitializePointerCursor(void);
+
 void ClearScreen(void);
 void DrawRectangle(unsigned int x, unsigned int y, unsigned int width, unsigned int height, byte colorCode);
 
@@ -39,14 +41,7 @@ int InitializeVideo(void)
 		return 1;
   }
 
-	// Hide mouse cursor if essentially forced fullscreen (Raspberry Pi).
-	const unsigned int windowFlags = SDL_GetWindowFlags(Window);
-	const unsigned int isFullScreenDesktop = windowFlags & SDL_WINDOW_FULLSCREEN_DESKTOP;
-	const unsigned int isBorderless = windowFlags & SDL_WINDOW_BORDERLESS;
-	if (isFullScreenDesktop != 0 || isBorderless != 0)
-	{
-		SDL_ShowCursor(0);
-	}
+	InitializePointerCursor();
 	
 	Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (Renderer == NULL)
@@ -62,7 +57,7 @@ int InitializeVideo(void)
 	SDL_RenderSetLogicalSize(Renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 	ScreenSurface = SDL_GetWindowSurface(Window);
-
+  
 	InitializeColors();
 	InitializeTilemap();
 	InitializeCharacterSet();
@@ -106,6 +101,29 @@ void ShutdownVideo(void)
 	ShutdownSprites();
 	SDL_DestroyWindow(Window);
 	SDL_DestroyRenderer(Renderer);
+}
+
+void InitializePointerCursor(void)
+{
+	int windowWidth, windowHeight;
+	SDL_DisplayMode displayMode;
+
+	if (Window == NULL)
+	{
+		return;
+	}
+
+	// Hide mouse cursor if Raspberry Pi?
+	// NOTE: SDL2 on Rasberry Pi is weird in that it is
+	// not being detected as full screen or borderless, but it essentially is.
+	SDL_GetWindowSize(Window, &windowWidth, &windowHeight);
+	if (SDL_GetCurrentDisplayMode(0, &displayMode) == 0)
+	{
+		if (windowWidth >= displayMode.w && windowHeight >= displayMode.h)
+		{
+			SDL_ShowCursor(0);
+		}
+	}
 }
 
 void Draw(void)

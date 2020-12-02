@@ -8,7 +8,6 @@
 #include <sdl/color.h>
 
 SDL_Window* Window;
-SDL_Surface* ScreenSurface;
 SDL_Renderer* Renderer;
 
 SDL_Point RenderScale;
@@ -55,8 +54,6 @@ int InitializeVideo(void)
 
 	SDL_RenderSetScale(Renderer, (float)RenderScale.x, (float)RenderScale.y);
 	SDL_RenderSetLogicalSize(Renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-	ScreenSurface = SDL_GetWindowSurface(Window);
   
 	InitializeColors();
 	InitializeTilemap();

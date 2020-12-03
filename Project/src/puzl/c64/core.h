@@ -8,6 +8,7 @@
 extern byte SpeedBitPatternByteTimer;
 extern byte SpeedBitFlag;
 
-extern byte NthBitFlag[8];
+extern byte NthBitFlags[8];
+extern byte InverseNthBitFlags[8];
 
 #endif

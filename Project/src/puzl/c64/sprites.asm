@@ -16,7 +16,8 @@
 .importzp tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
 .macpack longbranch
 
-.import _NthBitFlag
+.import _NthBitFlags
+.import _InverseNthBitFlags
 
 .include "c64.asm"
 
@@ -33,11 +34,6 @@
 _EnableSprite:
   tax
 
-  ldy #<_NthBitFlag
-  sty ptr1
-  ldy #>_NthBitFlag
-  sty ptr1+1
-
   ldy #0
   lda (sp),y
   tay
@@ -46,14 +42,13 @@ _EnableSprite:
   bne @enable
 
 @disable:
-  lda (ptr1),y
-  eor #$ff
+  lda _InverseNthBitFlags,y
   and SPENA
 
   jmp @set
 
 @enable:
-  lda (ptr1),y
+  lda _NthBitFlags,y
   ora SPENA
 
 @set:
@@ -88,14 +83,13 @@ _SetSpritePositionX:
   bcc @before256
 
 @after255:
-  lda _NthBitFlag,y
+  lda _NthBitFlags,y
   ora MSIGX
 
   jmp @done
 
 @before256:
-  lda _NthBitFlag,y
-  eor #$ff
+  lda _InverseNthBitFlags,y
   and MSIGX
 
 @done:
@@ -134,12 +128,7 @@ _GetSpritePositionX:
   tay
 
   ; Check 9th bit.
-  lda #<_NthBitFlag
-  sta ptr2
-  lda #>_NthBitFlag
-  sta ptr2+1
-
-  lda (ptr2),y
+  lda _NthBitFlags,y
   and MSIGX
   bne @above
 

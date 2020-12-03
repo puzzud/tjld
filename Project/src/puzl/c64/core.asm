@@ -28,7 +28,8 @@
 .exportzp _CurrentScreenInit
 .exportzp _CurrentScreenUpdate
 
-.export _NthBitFlag
+.export _NthBitFlags
+.export _InverseNthBitFlags
 
 .include "c64.asm"
 
@@ -50,7 +51,7 @@ _CurrentScreenUpdate:
 
 .segment "RODATA"
 
-_NthBitFlag:
+_NthBitFlags:
   .byte $01
   .byte $02
   .byte $04
@@ -59,6 +60,16 @@ _NthBitFlag:
   .byte $20
   .byte $40
   .byte $80
+
+_InverseNthBitFlags:
+  .byte !$01
+  .byte !$02
+  .byte !$04
+  .byte !$08
+  .byte !$10
+  .byte !$20
+  .byte !$40
+  .byte !$80
 
 .segment "CODE"
 

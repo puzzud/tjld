@@ -5,6 +5,7 @@
 .export _GetSpritePositionY
 .export _SetSpritePositionX
 .export _SetSpritePositionY
+.export _SetSpriteVelocity
 .export _SetSpriteFrameIndex
 .export _SetSpriteColor
 .export _SetSpriteSeconaryColor
@@ -18,6 +19,8 @@
 
 .import _NthBitFlags
 .import _InverseNthBitFlags
+.import _SpriteVelocitiesX
+.import _SpriteVelocitiesY
 
 .include "c64.asm"
 
@@ -193,6 +196,35 @@ _GetSpritePositionY:
   lda tmp1
   
   rts
+
+;------------------------------------------------------------------
+; inputs:
+;  - spriteIndex: sp[1], which sprite to set velocity.
+;  - x: sp[0], x velocity (signed).
+;  - y: a, y velocity (signed).
+_SetSpriteVelocity:
+  ; Cache a register on CPU stack.
+  pha
+
+  ; Cache x velocity in x register.
+  ldy #0
+  lda (sp),y
+  tax
+
+  ; spriteIndex * 2, as y register offset.
+  iny
+  lda (sp),y
+
+  asl
+  tay
+
+  txa
+  sta _SpriteVelocitiesX,y
+
+  pla
+  sta _SpriteVelocitiesY,y
+
+  jmp incsp2
 
 ;------------------------------------------------------------------
 ; inputs:

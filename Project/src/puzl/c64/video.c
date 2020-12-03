@@ -17,22 +17,6 @@ void SetBackgroundColor(byte color)
 	SET_MEMORY_BYTE(BGCOL0, color);
 }
 
-void SetSpritePositionX(byte spriteIndex, signed short x)
-{
-	word memoryAddress = (word)(SP0X + (spriteIndex * 2));
-	
- 	x += 24;
- 	*((unsigned char*)memoryAddress) = x;
- 	if (x > 255)
- 	{
- 		SET_MEMORY_BYTE(MSIGX, GET_MEMORY_BYTE(MSIGX) | NthBitFlag[spriteIndex]);
- 	}
- 	else
- 	{
- 		SET_MEMORY_BYTE(MSIGX, GET_MEMORY_BYTE(MSIGX) & ~NthBitFlag[spriteIndex]);
- 	}
-}
-
 void SetSpritePosition(byte spriteIndex, signed short x, signed short y)
 {
 	SetSpritePositionX(spriteIndex, x);

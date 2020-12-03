@@ -3,6 +3,7 @@
 .export _EnableSprite
 .export _GetSpritePositionX
 .export _GetSpritePositionY
+.export _SetSpritePositionX
 .export _SetSpritePositionY
 .export _SetSpriteFrameIndex
 .export _SetSpriteColor
@@ -59,6 +60,47 @@ _EnableSprite:
   sta SPENA
 
 @done:
+  jmp incsp1
+
+;------------------------------------------------------------------
+; inputs:
+;  - spriteIndex: sp[0], which sprite to set position x.
+;  - y: x/a, x position (signed).
+_SetSpritePositionX:
+  stx tmp2
+  tax
+
+  ; spriteIndex * 2, as y register offset.
+  ldy #0
+  lda (sp),y
+
+  asl
+  tay
+
+  txa
+  clc
+  adc #SCREEN_BORDER_THICKNESS_X
+  sta SP0X,y
+  lda #0
+  adc tmp2
+  cmp #0
+  beq @before256
+  bcc @before256
+
+@after255:
+  lda _NthBitFlag,y
+  ora MSIGX
+
+  jmp @done
+
+@before256:
+  lda _NthBitFlag,y
+  eor #$ff
+  and MSIGX
+
+@done:
+  sta MSIGX
+
   jmp incsp1
 
 ;------------------------------------------------------------------

@@ -67,8 +67,7 @@ _EnableSprite:
 ;  - spriteIndex: sp[0], which sprite to set position x.
 ;  - y: x/a, x position (signed).
 _SetSpritePositionX:
-  stx tmp2
-  tax
+  pha
 
   ; spriteIndex * 2, as y register offset.
   ldy #0
@@ -77,14 +76,35 @@ _SetSpritePositionX:
   asl
   tay
 
-  txa
+  pla
   sta _SpritePositionsX,y ; Cache low byte first.
+  txa
+  sta _SpritePositionsX+1,y ; Cache high byte. 
+  
+  tya
+  lsr
+  tay
+  jsr UpdateSpritePositionX
+
+  jmp incsp1
+
+;------------------------------------------------------------------
+; Update C64 sprite register with the value in _SpritePositionsX.
+;
+; inputs:
+;  - spriteIndex: y, which sprite to update position x.
+UpdateSpritePositionX:
+  ; spriteIndex * 2, as y register offset.
+  asl
+  tay
+
+  lda _SpritePositionsX,y
 
   clc
   adc #SCREEN_BORDER_THICKNESS_X
   sta SP0X,y
   lda #0
-  adc tmp2
+  adc _SpritePositionsX+1,y
   cmp #0
   beq @before256
   bcc @before256
@@ -101,11 +121,8 @@ _SetSpritePositionX:
 
 @done:
   sta MSIGX
-
-  lda tmp2
-  sta _SpritePositionsX+1,y ; Cache low high byte.
-
-  jmp incsp1
+  
+  rts
 
 ;------------------------------------------------------------------
 ; inputs:

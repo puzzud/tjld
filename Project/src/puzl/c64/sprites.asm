@@ -6,6 +6,7 @@
 .export _SetSpritePositionX
 .export _SetSpritePositionY
 .export _SetSpriteVelocity
+.export _MoveSprite
 .export _SetSpriteFrameIndex
 .export _SetSpriteColor
 .export _SetSpriteSeconaryColor
@@ -233,6 +234,60 @@ _SetSpriteVelocity:
   sta _SpriteVelocitiesY,y
 
   jmp incsp2
+
+;------------------------------------------------------------------
+; inputs:
+;  - spriteIndex: a, which sprite to move.
+_MoveSprite:
+  sta tmp1 ; Cache spriteIndex.
+
+  asl
+  tay
+  sty tmp2 ; Cache spriteIndex * 2 word offset.
+
+@setX:
+  lda #0
+  sta tmp3 ; Initial velocity high byte.
+  clc
+  lda _SpriteVelocitiesX,y
+  beq @afterSetX
+  bpl @afterNegativeX
+  dec tmp3 ; Make velocity high byte negative.
+@afterNegativeX:
+  adc _SpritePositionsX,y
+  sta _SpritePositionsX,y
+  lda tmp3
+  adc _SpritePositionsX+1,y
+  sta _SpritePositionsX+1,y
+
+@afterSetHiX:
+  lda tmp1
+  jsr UpdateSpritePositionX
+
+  ldy tmp2
+@afterSetX: ; NOTE: Saves on the previous 1 statement.
+
+@setY:
+  lda #0 ; NOTE: It appears as though this might not be necessary for Y, as it only resolves to 1 byte?
+  sta tmp3 ; Initial velocity high byte.
+  clc
+  lda _SpriteVelocitiesY,y
+  beq @afterSetY
+  bpl @afterNegativeY
+  dec tmp3 ; Make velocity high byte negative.
+@afterNegativeY:
+  adc _SpritePositionsY,y
+  sta _SpritePositionsY,y
+  lda tmp3
+  adc _SpritePositionsY+1,y
+  sta _SpritePositionsY+1,y
+
+@afterSetHiY:
+  lda tmp1
+  jsr UpdateSpritePositionY
+
+@afterSetY:
+  rts
 
 ;------------------------------------------------------------------
 ; inputs:

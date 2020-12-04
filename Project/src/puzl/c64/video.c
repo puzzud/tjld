@@ -25,13 +25,3 @@ void SetSpritePosition(byte spriteIndex, signed short x, signed short y)
 	SetSpritePositionX(spriteIndex, x);
 	SetSpritePositionY(spriteIndex, y);
 }
-
-void MoveSprite(byte spriteIndex)
-{
-	SetSpritePosition
-		(
-			spriteIndex,
-			GetSpritePositionX(spriteIndex) + SpriteVelocitiesX[spriteIndex],
-			GetSpritePositionY(spriteIndex) + SpriteVelocitiesY[spriteIndex]
-		);
-}

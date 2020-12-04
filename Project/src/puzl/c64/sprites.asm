@@ -112,8 +112,7 @@ _SetSpritePositionX:
 ;  - spriteIndex: sp[0], which sprite to set position y.
 ;  - y: x/a, y position (signed).
 _SetSpritePositionY:
-  stx tmp1
-  tax
+  pha
 
   ; spriteIndex * 2, as y register offset.
   ldy #0
@@ -122,18 +121,36 @@ _SetSpritePositionY:
   asl
   tay
 
-  txa
+  pla
   sta _SpritePositionsY,y ; Cache low byte first.
+  txa
+  sta _SpritePositionsY+1,y ; Cache high byte. 
+  
+  tya
+  lsr
+  tay
+  jsr UpdateSpritePositionY
+
+  jmp incsp1
+
+;------------------------------------------------------------------
+; Update C64 sprite register with the value in _SpritePositionsY.
+;
+; inputs:
+;  - spriteIndex: y, which sprite to update position y.
+UpdateSpritePositionY:
+  ; spriteIndex * 2, as y register offset.
+  asl
+  tay
+
+  lda _SpritePositionsY,y
 
   ; NOTE: Only low byte is necessary (no x, no 16 bit addition).
   clc
   adc #SCREEN_BORDER_THICKNESS_Y
   sta SP0Y,y
-
-  lda tmp1
-  sta _SpritePositionsY+1,y ; Cache high byte. 
   
-  jmp incsp1
+  rts
 
 ;------------------------------------------------------------------
 ; inputs:

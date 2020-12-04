@@ -19,6 +19,8 @@
 
 .import _NthBitFlags
 .import _InverseNthBitFlags
+.import _SpritePositionsX
+.import _SpritePositionsY
 .import _SpriteVelocitiesX
 .import _SpriteVelocitiesY
 
@@ -76,6 +78,8 @@ _SetSpritePositionX:
   tay
 
   txa
+  sta _SpritePositionsX,y ; Cache low byte first.
+
   clc
   adc #SCREEN_BORDER_THICKNESS_X
   sta SP0X,y
@@ -98,6 +102,9 @@ _SetSpritePositionX:
 @done:
   sta MSIGX
 
+  lda tmp2
+  sta _SpritePositionsX+1,y ; Cache low high byte.
+
   jmp incsp1
 
 ;------------------------------------------------------------------
@@ -105,6 +112,7 @@ _SetSpritePositionX:
 ;  - spriteIndex: sp[0], which sprite to set position y.
 ;  - y: x/a, y position (signed).
 _SetSpritePositionY:
+  stx tmp1
   tax
 
   ; spriteIndex * 2, as y register offset.
@@ -114,11 +122,16 @@ _SetSpritePositionY:
   asl
   tay
 
-  ; NOTE: Only low byte is necessary (no x, no 16 bit addition).
   txa
+  sta _SpritePositionsY,y ; Cache low byte first.
+
+  ; NOTE: Only low byte is necessary (no x, no 16 bit addition).
   clc
   adc #SCREEN_BORDER_THICKNESS_Y
   sta SP0Y,y
+
+  lda tmp1
+  sta _SpritePositionsY+1,y ; Cache high byte. 
   
   jmp incsp1
 
@@ -128,45 +141,16 @@ _SetSpritePositionY:
 ; outputs:
 ;  - return: x/a, sprite position y.
 _GetSpritePositionX:
-  tay
-
-  ; Check 9th bit.
-  lda _NthBitFlags,y
-  and MSIGX
-  bne @above
-
-@below:
-  sta tmp2 ; a is 0.
-  beq @readLo
-
-@above:
-  lda #$01
-  sta tmp2
-
-@readLo:
-  tya
   asl
-  ; NOTE: No clc needed, assuming spriteIndex is in the range 0-7.
-  adc #<SP0X
-  sta ptr1
-  ; NOTE: No need to transfer carry to high byte,
-  ; because there wouldn't be such on this C64 memory address.
-  lda #>SP0X
-  sta ptr1+1
-
-  ldy #0
-  lda (ptr1),y
-
-  sec
-  sbc #SCREEN_BORDER_THICKNESS_X
-  sta tmp1
-  lda tmp2
-  sbc #0
+  tay
   
-  ; Set return values.
+  ; x, high byte.
+  lda _SpritePositionsX+1,y
   tax
-  lda tmp1
-  
+
+  ; a, low byte.
+  lda _SpritePositionsX,y
+
   rts
 
 ;------------------------------------------------------------------
@@ -176,25 +160,15 @@ _GetSpritePositionX:
 ;  - return: x/a, sprite position y.
 _GetSpritePositionY:
   asl
-  ; NOTE: No clc needed, provided spriteIndex is in the range 0-7.
-  adc #<SP0Y
-  sta ptr1
-  ; NOTE: No need to transfer carry to high byte,
-  ; because there wouldn't be such on this C64 memory address.
-  lda #>SP0Y
-  sta ptr1+1
+  tay
+  
+  ; x, high byte.
+  lda _SpritePositionsY+1,y
+  tax
 
-  sec
-  ldy #0
-  lda (ptr1),y
-  sbc #SCREEN_BORDER_THICKNESS_Y
-  sta tmp1
-  lda #0
-  sbc #0
-  
-  tax ; Set return values.
-  lda tmp1
-  
+  ; a, low byte.
+  lda _SpritePositionsY,y
+
   rts
 
 ;------------------------------------------------------------------

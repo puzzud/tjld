@@ -9,6 +9,9 @@
 #include <color.h>
 
 // TODO: Should probably clear these values.
+signed short SpritePositionsX[NUMBER_OF_SPRITES];
+signed short SpritePositionsY[NUMBER_OF_SPRITES];
+
 signed char SpriteVelocitiesX[NUMBER_OF_SPRITES];
 signed char SpriteVelocitiesY[NUMBER_OF_SPRITES];
 

@@ -20,6 +20,8 @@ void FASTCALL GenerateHWall(byte x, byte y, byte width);
 void FASTCALL GenerateVWall(byte x, byte y, byte height);
 
 void UpdateIntendedDirection(void);
+byte GetSpriteTilePositionX(void);
+byte GetSpriteTilePositionY(void);
 void UpdateSpriteTile(void);
 
 void InitializeNodeTree(void)
@@ -36,11 +38,6 @@ void InitializeNodeTree(void)
 	SetTileMapCellColor(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT / 2, COLOR_YELLOW);
 	
 	Score = 0;
-	
-	SpriteTilePosition.x = 4;
-	SpriteTilePosition.y = TILEMAP_HEIGHT / 2;
-	SetTileMapCellShape(SpriteTilePosition.x, SpriteTilePosition.y, CHARACTER_BLOCK);
-	SetTileMapCellColor(SpriteTilePosition.x, SpriteTilePosition.y, COLOR_BLUE);
 
 	SpriteSpeedPatternIndex = 8;
 
@@ -53,6 +50,10 @@ void InitializeNodeTree(void)
 	SetSpritePosition(0, 8 + 0, SCREEN_HEIGHT - SPRITE_HEIGHT - TILE_HEIGHT);
 	SetSpriteFrameIndex(0, 0);
 	SetSpriteColor(0, COLOR_RED);
+
+	PreviousSpriteTilePosition.x = GetSpriteTilePositionX();
+	PreviousSpriteTilePosition.y = GetSpriteTilePositionY();
+	UpdateSpriteTile();
 }
 
 void Process(void)
@@ -132,9 +133,9 @@ void UpdateIntendedDirection(void)
 
 void UpdateSpriteTile(void)
 {
-	SpriteTilePosition.x += IntendedDirection.x;
-	SpriteTilePosition.y += IntendedDirection.y;
-	
+	SpriteTilePosition.x = GetSpriteTilePositionX();
+	SpriteTilePosition.y = GetSpriteTilePositionY();
+
 	if (GetTileMapShapeCode(SpriteTilePosition.x, SpriteTilePosition.y) != 0)
 	{
 		switch (GetTileMapColorCode(SpriteTilePosition.x, SpriteTilePosition.y))
@@ -175,4 +176,26 @@ void UpdateSpriteTile(void)
 		SetTileMapCellShape(SpriteTilePosition.x, SpriteTilePosition.y, CHARACTER_BLOCK);
 		SetTileMapCellShape(PreviousSpriteTilePosition.x, PreviousSpriteTilePosition.y, 0);
 	}
+}
+
+byte GetSpriteTilePositionX(void)
+{
+	byte SpriteTilePositionX = (GetSpritePositionX(0) + TILE_WIDTH) / TILE_WIDTH;
+	if (SpriteTilePositionX >= TILEMAP_WIDTH)
+	{
+		SpriteTilePositionX = TILEMAP_WIDTH;
+	}
+
+	return SpriteTilePositionX;
+}
+
+byte GetSpriteTilePositionY(void)
+{
+	byte SpriteTilePositionY = (GetSpritePositionY(0) + TILE_HEIGHT) / TILE_HEIGHT;
+	if (SpriteTilePositionY >= TILEMAP_HEIGHT)
+	{
+		SpriteTilePositionY = TILEMAP_HEIGHT;
+	}
+
+	return SpriteTilePositionY;
 }

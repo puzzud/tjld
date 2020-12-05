@@ -10,8 +10,10 @@ byte LoopIndex;
 Direction IntendedDirection;
 
 byte SpriteSpeedPatternIndex;
-TilePoint SpriteTilePosition;
+SpritePoint PreviousSpritePosition;
 TilePoint PreviousSpriteTilePosition;
+TilePoint SpriteTilePosition;
+
 int Score;
 
 const char AuthorFirstName[] = "ANDREW";
@@ -65,6 +67,9 @@ void Process(void)
 		if (IsMoving(SpriteSpeedPatternIndex) != 0)
 		{
 			SetSpriteVelocity(0, IntendedDirection.x, IntendedDirection.y);
+
+			PreviousSpritePosition.x = GetSpritePositionX(0);
+			PreviousSpritePosition.y = GetSpritePositionY(0);
 
 			PreviousSpriteTilePosition.x = SpriteTilePosition.x;
 			PreviousSpriteTilePosition.y = SpriteTilePosition.y;
@@ -162,6 +167,8 @@ void UpdateSpriteTile(void)
 			case COLOR_WHITE:
 			{
 				// Obstacles prevent movement.
+				SetSpritePosition(0, PreviousSpritePosition.x, PreviousSpritePosition.y);
+				
 				SpriteTilePosition.x = PreviousSpriteTilePosition.x;
 				SpriteTilePosition.y = PreviousSpriteTilePosition.y;
 
@@ -180,7 +187,7 @@ void UpdateSpriteTile(void)
 
 byte GetSpriteTilePositionX(void)
 {
-	byte SpriteTilePositionX = (GetSpritePositionX(0) + TILE_WIDTH) / TILE_WIDTH;
+	byte SpriteTilePositionX = (GetSpritePositionX(0) + 7) / TILE_WIDTH;
 	if (SpriteTilePositionX >= TILEMAP_WIDTH)
 	{
 		SpriteTilePositionX = TILEMAP_WIDTH;
@@ -191,7 +198,7 @@ byte GetSpriteTilePositionX(void)
 
 byte GetSpriteTilePositionY(void)
 {
-	byte SpriteTilePositionY = (GetSpritePositionY(0) + TILE_HEIGHT) / TILE_HEIGHT;
+	byte SpriteTilePositionY = (GetSpritePositionY(0) + TILE_HEIGHT + (TILE_HEIGHT * 3 / 4)) / TILE_HEIGHT;
 	if (SpriteTilePositionY >= TILEMAP_HEIGHT)
 	{
 		SpriteTilePositionY = TILEMAP_HEIGHT;

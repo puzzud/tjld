@@ -112,22 +112,21 @@ void GenerateVWall(byte x, byte y, byte height)
 
 void UpdateIntendedDirection(void)
 {
-	IntendedDirection.x = IntendedDirection.y = 0;
+	IntendedDirection.x = ControllerAxisXState;
+	IntendedDirection.y = ControllerAxisYState;
 
-	#ifdef __C64__
-	if ((KeyCodeStates[KEY_CODE_SHIFT_LEFT] | KeyCodeStates[KEY_CODE_SHIFT_RIGHT]) != 0)
+	#ifndef __C64__
+	IntendedDirection.x += KeyCodeStates[KEY_CODE_RIGHT] - KeyCodeStates[KEY_CODE_LEFT];
+	if (abs(IntendedDirection.x) > 1)
 	{
-		IntendedDirection.x = 0 - KeyCodeStates[KEY_CODE_RIGHT];
-		IntendedDirection.y = 0 - KeyCodeStates[KEY_CODE_DOWN];
+		IntendedDirection.x /= 2;
 	}
-	else
+
+	IntendedDirection.y += KeyCodeStates[KEY_CODE_DOWN] - KeyCodeStates[KEY_CODE_UP];
+	if (abs(IntendedDirection.y) > 1)
 	{
-		IntendedDirection.x = KeyCodeStates[KEY_CODE_RIGHT];
-		IntendedDirection.y = KeyCodeStates[KEY_CODE_DOWN];
+		IntendedDirection.y /= 2;
 	}
-	#else
-	IntendedDirection.x = KeyCodeStates[KEY_CODE_RIGHT] - KeyCodeStates[KEY_CODE_LEFT];
-	IntendedDirection.y = KeyCodeStates[KEY_CODE_DOWN] - KeyCodeStates[KEY_CODE_UP];
 
 	if (KeyCodeStates[KEY_CODE_ESCAPE] != 0)
 	{

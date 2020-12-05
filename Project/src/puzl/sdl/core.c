@@ -49,17 +49,17 @@ int main(int argc, char* args[])
 
 int Initialize(void)
 {
-	if (SDL_Init(SDL_INIT_VIDEO) < 0)
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0)
 	{
     fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
 
 		return 1;
   }
 
+	InitializeInput();
 	InitializeVideo();
 
 	InitalizeSpeed();
-
 	InitializeNodeTree();
 
 	return 0;
@@ -68,6 +68,7 @@ int Initialize(void)
 void Shutdown(void)
 {
 	ShutdownVideo();
+	ShutdownInput();
 
 	SDL_Quit();
 }
@@ -104,6 +105,9 @@ inline void MainLoopIteration(void)
 
 			case SDL_KEYDOWN:
 			case SDL_KEYUP:
+			case SDL_JOYAXISMOTION:
+			case SDL_JOYBUTTONDOWN:
+			case SDL_JOYBUTTONUP:
 			{
 				OnInputEvent(&event);
 

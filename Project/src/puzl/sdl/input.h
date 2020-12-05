@@ -20,6 +20,9 @@ typedef enum
 #include <input.h>
 
 void InitializeInput(void);
+void InitializeControllers(void);
+void ShutdownInput(void);
+void ShutdownControllers(void);
 
 void OnInputEvent(SDL_Event* event);
 

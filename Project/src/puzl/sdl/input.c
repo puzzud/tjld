@@ -11,7 +11,7 @@ byte ControllerAxisXState;
 byte ControllerAxisYState;
 byte ControllerButtonState;
 
-SDL_Joystick* controller;
+SDL_GameController* controller;
 
 void InitializeKeyboard(void);
 void InitializeControllers(void);
@@ -39,7 +39,10 @@ void InitializeControllers(void)
 
 	if (SDL_NumJoysticks() > 0)
 	{
-		controller = SDL_JoystickOpen(0);
+		if (SDL_IsGameController(0) == SDL_TRUE)
+		{
+			controller = SDL_GameControllerOpen(0);
+		}
 	}
 }
 
@@ -52,7 +55,7 @@ void ShutdownControllers(void)
 {
 	if (controller != NULL)
 	{
-		SDL_JoystickClose(controller);
+		SDL_GameControllerClose(controller);
 		controller = NULL;
 	}
 }
@@ -75,21 +78,21 @@ void OnInputEvent(SDL_Event* event)
 			break;
 		}
 
-		case SDL_JOYAXISMOTION:
+		case SDL_CONTROLLERAXISMOTION:
 		{
 			OnInputControllerAxisEvent(event);
 
 			break;
 		}
 
-		case SDL_JOYBUTTONDOWN:
+		case SDL_CONTROLLERBUTTONDOWN:
 		{
 			OnInputControllerButtonEvent(event, 1);
 
 			break;
 		}
 
-		case SDL_JOYBUTTONUP:
+		case SDL_CONTROLLERBUTTONUP:
 		{
 			OnInputControllerButtonEvent(event, 0);
 
@@ -126,9 +129,32 @@ void OnInputKeyEvent(SDL_Event* event, unsigned int isDown)
 
 void OnInputControllerAxisEvent(SDL_Event* event)
 {
-	byte* controllerAxisState = (event->jaxis.axis == 0) ? &ControllerAxisXState : &ControllerAxisYState;
-	const int axisValue = event->jaxis.value;
+	const int axisValue = event->caxis.value;
 	
+	byte* controllerAxisState = NULL;
+
+	switch (event->caxis.axis)
+	{
+		case 0:
+		{
+			controllerAxisState = &ControllerAxisXState;
+
+			break;
+		}
+
+		case 1:
+		{
+			controllerAxisState = &ControllerAxisYState;
+
+			break;
+		}
+
+		default:
+		{
+			return;
+		}
+	}
+
 	if (axisValue < -16000)
 	{
 		*controllerAxisState = -1;
@@ -145,18 +171,49 @@ void OnInputControllerAxisEvent(SDL_Event* event)
 
 void OnInputControllerButtonEvent(SDL_Event* event, unsigned int isDown)
 {
-	const int buttonIndex = event->jbutton.button;
-	if (buttonIndex > 3)
+	const int buttonIndex = event->cbutton.button; 
+	if (buttonIndex < 4)
 	{
-		return;
-	}
-
-	if (isDown == 0)
-	{
-		ControllerButtonState &= ~(0x01 << buttonIndex);
+		if (isDown == 0)
+		{
+			ControllerButtonState &= ~(0x01 << buttonIndex);
+		}
+		else
+		{
+			ControllerButtonState |= (0x01 << buttonIndex);
+		}
 	}
 	else
 	{
-		ControllerButtonState |= (0x01 << buttonIndex);
+		switch (buttonIndex)
+		{
+			case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+			{
+				ControllerAxisXState = (isDown == 0) ? 0 : -1;
+
+				break;
+			}
+
+			case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+			{
+				ControllerAxisXState = (isDown == 0) ? 0 : 1;
+
+				break;
+			}
+
+			case SDL_CONTROLLER_BUTTON_DPAD_UP:
+			{
+				ControllerAxisYState = (isDown == 0) ? 0 : -1;
+
+				break;
+			}
+
+			case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+			{
+				ControllerAxisYState = (isDown == 0) ? 0 : 1;
+
+				break;
+			}
+		}
 	}
 }

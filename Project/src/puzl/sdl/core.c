@@ -49,7 +49,7 @@ int main(int argc, char* args[])
 
 int Initialize(void)
 {
-	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) < 0)
+	if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER) < 0)
 	{
     fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
 
@@ -105,9 +105,9 @@ inline void MainLoopIteration(void)
 
 			case SDL_KEYDOWN:
 			case SDL_KEYUP:
-			case SDL_JOYAXISMOTION:
-			case SDL_JOYBUTTONDOWN:
-			case SDL_JOYBUTTONUP:
+			case SDL_CONTROLLERAXISMOTION:
+			case SDL_CONTROLLERBUTTONDOWN:
+			case SDL_CONTROLLERBUTTONUP:
 			{
 				OnInputEvent(&event);
 

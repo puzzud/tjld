@@ -62,28 +62,30 @@ void Process(void)
 {
 	UpdateIntendedDirection();
 
-	if (IntendedDirection.x != 0 || IntendedDirection.y != 0)
+	LoopIndex = 2;
+	do
 	{
-		if (IsMoving(SpriteSpeedPatternIndex) != 0)
+		if (IntendedDirection.x != 0 || IntendedDirection.y != 0)
 		{
-			SetSpriteVelocity(0, IntendedDirection.x, IntendedDirection.y);
-
-			PreviousSpritePosition.x = GetSpritePositionX(0);
-			PreviousSpritePosition.y = GetSpritePositionY(0);
-
-			PreviousSpriteTilePosition.x = SpriteTilePosition.x;
-			PreviousSpriteTilePosition.y = SpriteTilePosition.y;
-
-			LoopIndex = 2;
-			do
+			if (IsMoving(SpriteSpeedPatternIndex) != 0)
 			{
-				MoveSprite(0);
-			}
-			while (--LoopIndex != 0);
+				SetSpriteVelocity(0, IntendedDirection.x, IntendedDirection.y);
 
-			UpdateSpriteTile();
+				PreviousSpritePosition.x = GetSpritePositionX(0);
+				PreviousSpritePosition.y = GetSpritePositionY(0);
+
+				PreviousSpriteTilePosition.x = SpriteTilePosition.x;
+				PreviousSpriteTilePosition.y = SpriteTilePosition.y;
+				
+				MoveSprite(0);
+
+				UpdateSpriteTile();
+			}
 		}
+
+		CycleSpeedBit();
 	}
+	while (--LoopIndex != 0);
 }
 
 void GenerateHWall(byte x, byte y, byte width)

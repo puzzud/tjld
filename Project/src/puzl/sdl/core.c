@@ -117,7 +117,6 @@ inline void MainLoopIteration(void)
 	}
 
 	Process();
-	CycleSpeedBit();
 
 	Draw();
 

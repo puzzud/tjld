@@ -10,6 +10,10 @@ byte KeyCodeStates[NUMBER_OF_KEY_CODES];
 void InitializeInput(void)
 {
 	memset(KeyCodeStates, 0, NUMBER_OF_KEY_CODES * sizeof(byte));
+
+	ControllerAxisXState = 0;
+	ControllerAxisYState = 0;
+	ControllerButtonState = 0;
 }
 
 void UpdateKeyCodeStates(void)

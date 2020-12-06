@@ -80,6 +80,10 @@ typedef enum
 
 #include <input.h>
 
+#pragma zpsym ("ControllerAxisXState");
+#pragma zpsym ("ControllerAxisYState");
+#pragma zpsym ("ControllerButtonState");
+
 void FASTCALL InitializeInput(void);
 
 void FASTCALL UpdateKeyCodeStates(void);

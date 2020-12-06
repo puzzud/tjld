@@ -1,10 +1,7 @@
-;.import _Init
-
-;.import _UpdateInput
 .import _InitializeVideo
 .import _InitializeInput
 
-.import _UpdateKeyCodeStates
+.import _UpdateInput
 
 .import _InitalizeSpeed
 .import _InitializeNodeTree
@@ -124,8 +121,7 @@ Reset:
   cli
   
 @mainLoop:
-  ;jsr _UpdateInput
-  jsr _UpdateKeyCodeStates
+  jsr _UpdateInput
   
   ;lda #>(@endUpdate-1)
   ;pha

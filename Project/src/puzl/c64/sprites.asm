@@ -322,17 +322,10 @@ _SetSpriteColor:
 
   ldy #0
   lda (sp),y
-
-  clc
-  adc #<SP0COL
-  sta ptr1
-  ; NOTE: No need to transfer carry to high byte,
-  ; because there wouldn't be such on this C64 memory address.
-  lda #>SP0COL
-  sta ptr1+1
+  tay
 
   txa
-  sta (ptr1),y
+  sta SP0COL,y
 
   jmp incsp1
 

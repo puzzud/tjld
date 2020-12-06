@@ -13,12 +13,29 @@ byte ControllerButtonState;
 
 SDL_GameController* controller;
 
+byte* DpadButtonAxisMap[] =
+{
+	&ControllerAxisYState, // SDL_CONTROLLER_BUTTON_DPAD_UP
+	&ControllerAxisYState, // SDL_CONTROLLER_BUTTON_DPAD_DOWN
+	&ControllerAxisXState, // SDL_CONTROLLER_BUTTON_DPAD_LEFT
+	&ControllerAxisXState  // SDL_CONTROLLER_BUTTON_DPAD_RIGHT	
+};
+
+int DpadButtonAxisStateMap[] =
+{
+	-1, // SDL_CONTROLLER_BUTTON_DPAD_UP
+	1,  // SDL_CONTROLLER_BUTTON_DPAD_DOWN
+	-1, // SDL_CONTROLLER_BUTTON_DPAD_LEFT
+	1   // SDL_CONTROLLER_BUTTON_DPAD_RIGHT	
+};
+
 void InitializeKeyboard(void);
 void InitializeControllers(void);
 
 void OnInputKeyEvent(SDL_Event* event, unsigned int isDown);
-void OnInputControllerAxisEvent(SDL_Event* event);
-void OnInputControllerButtonEvent(SDL_Event* event, unsigned int isDown);
+void OnInputControllerAxisEvent(SDL_ControllerAxisEvent* event);
+void OnInputControllerButtonEvent(SDL_ControllerButtonEvent* event, unsigned int isDown);
+void OnInputControllerDpadEvent(SDL_ControllerButtonEvent* event, unsigned int isDown);
 
 void InitializeInput(void)
 {
@@ -80,21 +97,21 @@ void OnInputEvent(SDL_Event* event)
 
 		case SDL_CONTROLLERAXISMOTION:
 		{
-			OnInputControllerAxisEvent(event);
+			OnInputControllerAxisEvent(&event->caxis);
 
 			break;
 		}
 
 		case SDL_CONTROLLERBUTTONDOWN:
 		{
-			OnInputControllerButtonEvent(event, 1);
+			OnInputControllerButtonEvent(&event->cbutton, 1);
 
 			break;
 		}
 
 		case SDL_CONTROLLERBUTTONUP:
 		{
-			OnInputControllerButtonEvent(event, 0);
+			OnInputControllerButtonEvent(&event->cbutton, 0);
 
 			break;
 		}
@@ -127,13 +144,13 @@ void OnInputKeyEvent(SDL_Event* event, unsigned int isDown)
 	}
 }
 
-void OnInputControllerAxisEvent(SDL_Event* event)
+void OnInputControllerAxisEvent(SDL_ControllerAxisEvent* event)
 {
-	const int axisValue = event->caxis.value;
+	const int axisValue = event->value;
 	
 	byte* controllerAxisState = NULL;
 
-	switch (event->caxis.axis)
+	switch (event->axis)
 	{
 		case 0:
 		{
@@ -169,9 +186,9 @@ void OnInputControllerAxisEvent(SDL_Event* event)
 	}
 }
 
-void OnInputControllerButtonEvent(SDL_Event* event, unsigned int isDown)
+void OnInputControllerButtonEvent(SDL_ControllerButtonEvent* event, unsigned int isDown)
 {
-	const int buttonIndex = event->cbutton.button; 
+	const int buttonIndex = event->button;
 	if (buttonIndex < 4)
 	{
 		if (isDown == 0)
@@ -185,35 +202,17 @@ void OnInputControllerButtonEvent(SDL_Event* event, unsigned int isDown)
 	}
 	else
 	{
-		switch (buttonIndex)
+		if (buttonIndex >= SDL_CONTROLLER_BUTTON_DPAD_UP && buttonIndex <= SDL_CONTROLLER_BUTTON_DPAD_RIGHT)
 		{
-			case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
-			{
-				ControllerAxisXState = (isDown == 0) ? 0 : -1;
-
-				break;
-			}
-
-			case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
-			{
-				ControllerAxisXState = (isDown == 0) ? 0 : 1;
-
-				break;
-			}
-
-			case SDL_CONTROLLER_BUTTON_DPAD_UP:
-			{
-				ControllerAxisYState = (isDown == 0) ? 0 : -1;
-
-				break;
-			}
-
-			case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
-			{
-				ControllerAxisYState = (isDown == 0) ? 0 : 1;
-
-				break;
-			}
+			OnInputControllerDpadEvent(event, isDown);
 		}
 	}
+}
+
+void OnInputControllerDpadEvent(SDL_ControllerButtonEvent* event, unsigned int isDown)
+{
+	unsigned int dpadButtonAxisMapIndex = event->button - SDL_CONTROLLER_BUTTON_DPAD_UP;
+	byte* controllerAxisState = DpadButtonAxisMap[dpadButtonAxisMapIndex];
+	
+	*controllerAxisState = (isDown == 0) ? 0 : DpadButtonAxisStateMap[dpadButtonAxisMapIndex];
 }

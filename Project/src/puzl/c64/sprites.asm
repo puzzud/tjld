@@ -298,18 +298,12 @@ _SetSpriteFrameIndex:
 
   ldy #0
   lda (sp),y
-
-  clc
-  adc #<SPRITE_POINTER_BASE
-  sta ptr1
-  lda #0
-  adc #>SPRITE_POINTER_BASE
-  sta ptr1+1
+  tay
 
   txa
   clc
   adc #64 ; TODO: Need to investigate why 64 is a base.
-  sta (ptr1),y
+  sta SPRITE_POINTER_BASE,y
 
   jmp incsp1
 

@@ -48,6 +48,8 @@ InitializeAudio:
 UpdateAudio:
   jsr ProcessMusic
 
+  rts
+
 ;------------------------------------------------------------------
 InitializeVoices:
   ; Set Voice1/2/3 Waveform (high nibble) to 8.

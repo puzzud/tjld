@@ -7,6 +7,7 @@
 #endif
 
 #include <stdio.h>
+#include <math.h>
 
 #include <puzl.h>
 

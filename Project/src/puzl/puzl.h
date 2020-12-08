@@ -23,6 +23,7 @@ typedef struct
 #include <sdl/video.h>
 #include <sdl/color.h>
 #include <sdl/input.h>
+#include <sdl/audio.h>
 #endif
 
 #ifdef __CC65__
@@ -30,6 +31,7 @@ typedef struct
 #include <c64/video.h>
 #include <color.h>
 #include <c64/input.h>
+#include <audio.h>
 #endif
 
 #endif

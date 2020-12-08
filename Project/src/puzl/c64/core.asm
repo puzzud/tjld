@@ -1,5 +1,6 @@
 .import _InitializeVideo
 .import _InitializeInput
+.import InitializeAudio
 
 .import _UpdateInput
 
@@ -79,7 +80,7 @@ Reset:
   lda CIAICR
   lda CI2ICR
 
-  lda #%00000000
+  lda #%00000001
   sta IRQMASK
 
   lda #248
@@ -112,7 +113,7 @@ Reset:
 
   jsr _InitializeVideo
   jsr _InitializeInput
-  ;jsr _InitializeAudio
+  jsr InitializeAudio
   
   jsr _InitalizeSpeed
   jsr _InitializeNodeTree
@@ -159,6 +160,8 @@ DefaultInterrupt:
   pha
   tya
   pha
+  
+  jsr UpdateAudio
   
   lda #$ff
   sta VICIRQ

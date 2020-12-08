@@ -18,6 +18,9 @@ int Score;
 
 const char AuthorFirstName[] = "ANDREW";
 
+extern const byte Voice1Start[];
+extern const byte Voice2Start[];
+
 void FASTCALL GenerateHWall(byte x, byte y, byte width);
 void FASTCALL GenerateVWall(byte x, byte y, byte height);
 
@@ -56,6 +59,11 @@ void InitializeNodeTree(void)
 	PreviousSpriteTilePosition.x = GetSpriteTilePositionX();
 	PreviousSpriteTilePosition.y = GetSpriteTilePositionY();
 	UpdateSpriteTile();
+
+	SetMusicVoice(0, Voice1Start);
+	SetMusicVoice(1, Voice2Start);
+	SetMusicVoice(2, Voice2Start);
+	StartMusic();
 }
 
 void Process(void)

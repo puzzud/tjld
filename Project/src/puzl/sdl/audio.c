@@ -92,7 +92,7 @@ void SoundKillAll(void)
 void AudioCallback(void* userData, Uint8* audioData, int length)
 {
 	float* floatStream = (float*)audioData;
-	float volumeMultiplier = (((float)Volume / 15.0f) / 16.0f);
+	float volumeMultiplier = (((float)Volume / 15.0f) / 32.0f);
 	const unsigned int numberOfSamples = (length / sizeof(float));
 	unsigned int sampleIndex;
 	unsigned int voiceIndex;
@@ -105,7 +105,7 @@ void AudioCallback(void* userData, Uint8* audioData, int length)
 
 		for (voiceIndex = 0; voiceIndex < NUMBER_OF_VOICES; ++voiceIndex)
 		{
-			floatStream[sampleIndex] += GenerateVoiceSampleSine(voiceIndex);
+			floatStream[sampleIndex] += GenerateVoiceSampleSquare(voiceIndex);
 		}
 
 		floatStream[sampleIndex] *= volumeMultiplier;

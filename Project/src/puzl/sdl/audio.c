@@ -14,6 +14,8 @@ byte Voice1Enabled;
 word Voice1Pitch;
 unsigned int Voice1WaveCounter;
 
+byte Volume;
+
 void AudioCallback(void* userData, Uint8* audioData, int length);
 
 void InitializeAudio(void)
@@ -52,6 +54,8 @@ void InitializeAudio(void)
 
     Voice1Pitch = 0;
     Voice1WaveCounter = 0;
+
+    Volume = 15;
 
     SDL_PauseAudioDevice(AudioDeviceId, 0);
 }
@@ -92,7 +96,7 @@ void AudioCallback(void* userData, Uint8* audioData, int length)
         else
         {
             // Generate samples of a square-wave that alternates between signal levels -0.5 and +0.5.
-            floatStream[sampleIndex] = sinf(Voice1WaveCounter * 2 * M_PI / AudioSpec.freq);
+            floatStream[sampleIndex] = sinf(Voice1WaveCounter * 2 * M_PI / AudioSpec.freq) * (((float)Volume / 15.0f) / 8.0f);
         }
         
         Voice1WaveCounter += Voice1Pitch;

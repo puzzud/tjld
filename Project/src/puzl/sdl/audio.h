@@ -5,8 +5,10 @@
 
 #include <audio.h>
 
-extern byte Voice1Enabled;
-extern word Voice1Pitch;
+#define NUMBER_OF_VOICES 3
+
+extern byte VoiceEnabled[NUMBER_OF_VOICES];
+extern word VoicePitch[NUMBER_OF_VOICES];
 
 extern void UpdateAudio(void);
 extern void ProcessMusic(void);

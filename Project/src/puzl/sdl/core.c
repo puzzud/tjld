@@ -14,6 +14,7 @@
 #include <sdl/video.h>
 #include <sdl/color.h>
 #include <sdl/input.h>
+#include <sdl/audio.h>
 
 #define FRAMES_PER_SECOND	60
 #define USE_PERFORMANCE_COUNTER 1
@@ -59,6 +60,7 @@ int Initialize(void)
 
 	InitializeInput();
 	InitializeVideo();
+	InitializeAudio();
 
 	InitalizeSpeed();
 	InitializeNodeTree();
@@ -70,6 +72,7 @@ void Shutdown(void)
 {
 	ShutdownVideo();
 	ShutdownInput();
+	ShutdownAudio();
 
 	SDL_Quit();
 }
@@ -120,6 +123,7 @@ inline void MainLoopIteration(void)
 	Process();
 
 	Draw();
+	UpdateAudio();
 
 #ifndef __EMSCRIPTEN__
 	// Cap to 60 FPS.

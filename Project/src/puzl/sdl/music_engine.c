@@ -6,7 +6,6 @@
 #include <puzl.h>
 
 void InitializeMusicEngine(void);
-void SetMusicVoice(void);
 void StartMusic(void);
 void StopMusic(void);
 void ProcessMusic(void);

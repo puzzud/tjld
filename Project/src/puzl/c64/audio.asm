@@ -8,9 +8,9 @@
 
 .export _SoundKillAll
 
-.exportzp Voice1ControlCache
-.exportzp Voice2ControlCache
-.exportzp Voice3ControlCache
+.exportzp VoiceControlCache
+
+.export VoiceRegisterSidOffset
 
 .autoimport on
   
@@ -26,14 +26,15 @@
 
 ; Caching of gating / waveform type SID registers for each voice,
 ; because reading from them is apparently not possible.
-Voice1ControlCache:
-  .res 1
-  
-Voice2ControlCache:
-  .res 1
-  
-Voice3ControlCache:
-  .res 1
+VoiceControlCache:
+  .res 1 * NUMBER_OF_VOICES
+
+.segment "RODATA"
+
+VoiceRegisterSidOffset:
+  .byte (FRELO1-SID)
+  .byte (FRELO2-SID)
+  .byte (FRELO3-SID)
 
 .segment "CODE"
 
@@ -81,14 +82,14 @@ InitializeVoices:
   lda #%01000000 ; pulse
   
   sta VCREG1
-  sta Voice1ControlCache
+  sta VoiceControlCache+0
   
   sta VCREG2
-  sta Voice2ControlCache
+  sta VoiceControlCache+1
   
   lda #%00010000 ; triangle
   sta VCREG3
-  sta Voice3ControlCache
+  sta VoiceControlCache+2
 
   ; Set volume 15 (max).
   lda #15
@@ -98,19 +99,19 @@ InitializeVoices:
   
 ;------------------------------------------------------------------
 _SoundKillAll:
-  lda Voice1ControlCache
+  lda VoiceControlCache+0
   and #%11111110
   sta VCREG1
-  sta Voice1ControlCache
+  sta VoiceControlCache+0
   
-  lda Voice2ControlCache
+  lda VoiceControlCache+1
   and #%11111110
   sta VCREG2
-  sta Voice2ControlCache
+  sta VoiceControlCache+1
   
-  lda Voice3ControlCache
+  lda VoiceControlCache+2
   and #%11111110
   sta VCREG3
-  sta Voice3ControlCache
+  sta VoiceControlCache+2
   
   rts

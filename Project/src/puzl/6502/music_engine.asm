@@ -7,18 +7,12 @@
 .export _StopMusic
 .export ProcessMusic
 
-.exportzp _MusicStatus
+.exportzp MusicStatus
 
-.export _MusicEngineV1MusicStart
-.export _MusicEngineV1MusicEnd
-.export _MusicEngineV2MusicStart
-.export _MusicEngineV2MusicEnd
-.export _MusicEngineV3MusicStart
-.export _MusicEngineV3MusicEnd
+.export MusicEngineVoiceMusicStart
+.export MusicEngineVoiceMusicEnd
 
-.export _MusicEngineV1TimeToRelease
-.export _MusicEngineV2TimeToRelease
-.export _MusicEngineV3TimeToRelease
+.export MusicEngineVoiceTimeToRelease
 
 .autoimport on
   
@@ -30,95 +24,40 @@
 
 .segment "BSS"
 
-_MusicEngineV1MusicStart:
-MusicEngineV1MusicStart:
-  .res 2
+MusicEngineVoiceMusicStart:
+  .res 2 * NUMBER_OF_VOICES
 
-_MusicEngineV2MusicStart:
-MusicEngineV2MusicStart:
-  .res 2
+MusicEngineVoiceMusicEnd:
+  .res 2 * NUMBER_OF_VOICES
 
-_MusicEngineV3MusicStart:
-MusicEngineV3MusicStart:
-  .res 2
-
-_MusicEngineV1MusicEnd:
-MusicEngineV1MusicEnd:
-  .res 2
-
-_MusicEngineV2MusicEnd:
-MusicEngineV2MusicEnd:
-  .res 2
-
-_MusicEngineV3MusicEnd:
-MusicEngineV3MusicEnd:
-  .res 2
-
-_MusicEngineV1TimeToRelease:
-MusicEngineV1TimeToRelease:
-  .res 1
-
-_MusicEngineV2TimeToRelease:
-MusicEngineV2TimeToRelease:
-  .res 1
-
-_MusicEngineV3TimeToRelease:
-MusicEngineV3TimeToRelease:
-  .res 1
+MusicEngineVoiceTimeToRelease:
+  .res 1 * NUMBER_OF_VOICES
 
 .segment "ZEROPAGE"
 
 mePtr1: ; NOTE: Not using ptr1, because this is expected to run in an interrupt.
   .res 2
 
-_MusicStatus:
+meTmp1: ; NOTE: Not using tmp1, because this is expected to run in an interrupt.
+  .res 1
+
 MusicStatus:
   .res 1
 
-MusicEngineV1Position:
-  .res 2
-  
-MusicEngineV2Position:
-  .res 2
-  
-MusicEngineV3Position:
-  .res 2
+MusicEngineVoicePosition:
+  .res 2 * NUMBER_OF_VOICES
 
-MusicEngineV1Duration:
-  .res 1
+MusicEngineVoiceDuration:
+  .res 1 * NUMBER_OF_VOICES
 
-MusicEngineV2Duration:
-  .res 1
+MusicEngineVoiceActive:
+  .res 1 * NUMBER_OF_VOICES
 
-MusicEngineV3Duration:
-  .res 1
+MusicEngineVoiceTimeToReleaseCounter:
+  .res 1 * NUMBER_OF_VOICES
 
-MusicEngineV1Active:
-  .res 1
-
-MusicEngineV2Active:
-  .res 1
-
-MusicEngineV3Active:
-  .res 1
-
-MusicEngineV1TimeToReleaseCounter:
-  .res 1
-
-MusicEngineV2TimeToReleaseCounter:
-  .res 1
-
-MusicEngineV3TimeToReleaseCounter:
-  .res 1
-
-MusicEngineV1DurationCounter:
-  .res 1
-
-MusicEngineV2DurationCounter:
-  .res 1
-
-MusicEngineV3DurationCounter:
-  .res 1
+MusicEngineVoiceDurationCounter:
+  .res 1 * NUMBER_OF_VOICES
 
 MusicEngineTempFetch:
   .res 1
@@ -360,9 +299,9 @@ _SetMusicVoice:
   tay
 
   lda mePtr1
-  sta MusicEngineV1MusicStart,y
+  sta MusicEngineVoiceMusicStart,y
   lda mePtr1+1
-  sta MusicEngineV1MusicStart+1,y
+  sta MusicEngineVoiceMusicStart+1,y
   
   jmp incsp3
   
@@ -371,9 +310,12 @@ _StopMusic:
 StopMusic:
   ; Disable all voice music processing.
   lda #0
-  sta MusicEngineV1Active
-  sta MusicEngineV2Active
-  sta MusicEngineV3Active
+  ldx #NUMBER_OF_VOICES-1
+@loop:
+  sta MusicEngineVoiceActive,x
+
+  dex
+  bpl @loop
   
   sta MusicStatus
   
@@ -384,42 +326,32 @@ StopMusic:
 ;---------------------------------------
 _StartMusic:
   ; Calculate these rather than setting them.
-  ldx #0
-  jsr CalculateMusicVoiceEnd
-  inx
-  jsr CalculateMusicVoiceEnd
-  inx
+  ldx #NUMBER_OF_VOICES-1
+@loop:
   jsr CalculateMusicVoiceEnd
   
   ; TODO: Perhaps it's possible to integrate
   ; release time better with NES voice timed envelopes?
   lda #$1e
-  sta MusicEngineV1TimeToRelease
-  sta MusicEngineV2TimeToRelease
-  sta MusicEngineV3TimeToRelease
+  sta MusicEngineVoiceTimeToRelease,x
   
   ; Load music vectors into music engine voice music data vector (counters).
-  lda MusicEngineV1MusicStart
-  sta MusicEngineV1Position
-  lda MusicEngineV1MusicStart+1
-  sta MusicEngineV1Position+1
+  txa
+  asl
+  tay
 
-  lda MusicEngineV2MusicStart
-  sta MusicEngineV2Position
-  lda MusicEngineV2MusicStart+1
-  sta MusicEngineV2Position+1
-
-  lda MusicEngineV3MusicStart
-  sta MusicEngineV3Position
-  lda MusicEngineV3MusicStart+1
-  sta MusicEngineV3Position+1
+  lda MusicEngineVoiceMusicStart,y
+  sta MusicEngineVoicePosition,y
+  lda MusicEngineVoiceMusicStart+1,y
+  sta MusicEngineVoicePosition+1,y
 
   ; Disable all voice music processing.
-  ldx #0
-  stx MusicEngineV1Active
-  stx MusicEngineV2Active
-  stx MusicEngineV3Active
-  
+  lda #0
+  sta MusicEngineVoiceActive,x
+
+  dex
+  bpl @loop
+
   dex ; X=$ff
   stx MusicStatus
 
@@ -431,7 +363,7 @@ _StartMusic:
 ;
 ; inputs:
 ;  - voiceIndex: X, indicates which music voice to calculate.
-;  - MusicEngineV1MusicStart + (2 * voiceIndex): start of music pointer should be set before calling.
+;  - MusicEngineVoiceMusicStart + (2 * voiceIndex): start of music pointer should be set before calling.
 ;
 ; outputs:
 ;  - MusicEnd: mePtr1, 
@@ -441,20 +373,10 @@ CalculateMusicVoiceEnd:
   asl
   tay
 
-  lda MusicEngineV1MusicStart,y
+  lda MusicEngineVoiceMusicStart,y
   sta mePtr1
-  lda MusicEngineV1MusicStart+1,y
+  lda MusicEngineVoiceMusicStart+1,y
   sta mePtr1+1
-  
-  ; Set the correct music start pointer according to voiceIndex.
-; @setMusicStartPointer:
-;   clc
-;   txa
-;   adc mePtr1
-;   sta mePtr1
-;   bcc @endSetMusicStartPointer
-;   inc mePtr1+1
-; @endSetMusicStartPointer:
 
 @findNullMusicVoiceTerminator:
   ldy #0
@@ -483,336 +405,154 @@ CalculateMusicVoiceEnd:
   tay
   
   lda mePtr1
-  sta MusicEngineV1MusicEnd,y
+  sta MusicEngineVoiceMusicEnd,y
   
   lda mePtr1+1
-  sta MusicEngineV1MusicEnd+1,y
+  sta MusicEngineVoiceMusicEnd+1,y
   
   rts
   
 ; Start of all voice/music processing.
+; inputs:
+;  - voiceIndex: x, which voice to operate on.
 ProcessMusic:
   lda MusicStatus
-  bne @startProcessing
-  rts
-@startProcessing:
+  beq @done
 
-CheckVoice1:
-  lda MusicEngineV1Active
+  ldx #NUMBER_OF_VOICES-1
+@loop:
+  jsr ProcessVoice
+
+  dex
+  bpl @loop
+
+@done:
+  rts
+
+ProcessVoice:
+  stx meTmp1 ; Cache voiceIndex.
+
+  lda MusicEngineVoiceActive,x
   beq A_70EC
 
-  jmp CheckVoice2
+  jmp ProcessMusicDurAndRel
 
 A_70EC:
-  lda MusicEngineV1MusicEnd
-  cmp MusicEngineV1Position
-  bne @processVoice1
+  lda meTmp1
+  asl
+  tay
 
-  lda MusicEngineV1MusicEnd+1
-  cmp MusicEngineV1Position+1
-  bne @processVoice1
+  lda MusicEngineVoiceMusicEnd,y
+  cmp MusicEngineVoicePosition,y
+  bne @processVoice
 
-  ; Loop?
-  ;jmp @resetMusicVectors
-  ;jmp SoundKillAll
+  lda MusicEngineVoiceMusicEnd+1,y
+  cmp MusicEngineVoicePosition+1,y
+  bne @processVoice
 
 ; Reset music engine vectors to currently set base music data vectors.
 @resetMusicVectors:
-  lda MusicEngineV1MusicStart
-  sta MusicEngineV1Position
-  lda MusicEngineV1MusicStart+1
-  sta MusicEngineV1Position+1
-
-  lda MusicEngineV2MusicStart
-  sta MusicEngineV2Position
-  lda MusicEngineV2MusicStart+1
-  sta MusicEngineV2Position+1
-
-  lda MusicEngineV3MusicStart
-  sta MusicEngineV3Position
-  lda MusicEngineV3MusicStart+1
-  sta MusicEngineV3Position+1
+  lda MusicEngineVoiceMusicStart,y
+  sta MusicEngineVoicePosition,y
+  lda MusicEngineVoiceMusicStart+1,y
+  sta MusicEngineVoicePosition+1,y
 
   lda #0
-  sta MusicEngineV1Active
-  sta MusicEngineV2Active
-  sta MusicEngineV3Active
+  sta MusicEngineVoiceActive,x
 
-; Start music data processing (of voice 1).
-@processVoice1:
-  ; Fetch current byte and cache for later for later analysis.
+; Start music data processing (of voice).
+@processVoice:
+  ; Fetch current byte and cache for later analysis.
+  lda MusicEngineVoicePosition,y
+  sta mePtr1
+  lda MusicEngineVoicePosition+1,y
+  sta mePtr1+1
+  
   ldy #0
-  lda (MusicEngineV1Position),y
+  lda (mePtr1),y
   sta MusicEngineTempFetch
   
   ; Cutoff bits 6 & 7.
   ; The first six bits of this byte are the music note index.
   and #%00111111
   
-  ; Load Voice 1 Frequency.
-  tax
-  setVoiceFrequencyV1 ; macro
+  ; Load Voice Frequency.
+  SetVoiceFrequency ; macro
   
   ; Now check bit 7.
   bit MusicEngineTempFetch
   bpl A_7180
 
   ; Fetch and store next byte.
-  iny
-  lda (MusicEngineV1Position),y
-  sta MusicEngineV1Duration
+  ldy #1
+  lda (mePtr1),y
+  sta MusicEngineVoiceDuration,x
 
   ; Increase music pointer.
-  inc MusicEngineV1Position
+  inc mePtr1
   bne A_7180
-  inc MusicEngineV1Position+1
+  inc mePtr1+1
 A_7180:
-  inc MusicEngineV1Position
-  bne A_7186
-  inc MusicEngineV1Position+1
+  inc mePtr1
+  bne @skip2ndIncrementCarry
+  inc mePtr1+1
+@skip2ndIncrementCarry:
+  lda meTmp1
+  asl
+  tay
+  lda mePtr1
+  sta MusicEngineVoicePosition,y
+  lda mePtr1+1
+  sta MusicEngineVoicePosition+1,y
 
   ; Now check bit 6.
 A_7186:
   bit MusicEngineTempFetch
   bvc A_7192
 
-  ; Disable Voice 1.
-  disableVoice1 ; macro
+  DisableVoice ; macro
   
   jmp A_7197
 
 A_7192:
-  ; Gate Voice 1.
-  enableVoice1 ; macro
+  ; Gate Voice.
+  EnableVoice ; macro, squashes y.
   
 A_7197:
-  lda MusicEngineV1TimeToRelease
-  sta MusicEngineV1TimeToReleaseCounter
+  lda MusicEngineVoiceTimeToRelease,x
+  sta MusicEngineVoiceTimeToReleaseCounter,x
 
-  lda MusicEngineV1Duration
-  sta MusicEngineV1DurationCounter
-
-  lda #1
-  sta MusicEngineV1Active
-
-CheckVoice2:
-  lda MusicEngineV2Active
-  beq A_71B0
-
-  jmp CheckVoice3
-
-A_71B0:
-  lda MusicEngineV2MusicEnd
-  cmp MusicEngineV2Position
-  bne @processVoice2
-
-  lda MusicEngineV2MusicEnd+1
-  cmp MusicEngineV2Position+1
-  bne @processVoice2
-
-  lda MusicEngineV2MusicStart          ; // Reset music data address (counter).
-  sta MusicEngineV2Position
-  lda MusicEngineV2MusicStart+1
-  sta MusicEngineV2Position+1
-
-; Start music data processing (of voice 2).
-@processVoice2:
-  ldy #0
-  lda (MusicEngineV2Position),y
-  sta MusicEngineTempFetch
-  and #%00111111
-  
-  ; Load Voice 2 Frequency.
-  tax
-  setVoiceFrequencyV2 ; macro
-  
-  bit MusicEngineTempFetch
-  bpl A_71EF
-
-  iny
-  lda (MusicEngineV2Position),y
-  sta MusicEngineV2Duration
-  inc MusicEngineV2Position
-  bne A_71EF
-
-  inc MusicEngineV2Position+1
-A_71EF:
-  inc MusicEngineV2Position
-  bne A_71F5
-
-  inc MusicEngineV2Position+1
-A_71F5:
-  bit MusicEngineTempFetch
-  bvc A_7201
-
-  ; Disable Voice 2.
-  disableVoice2 ; macro
-  
-  jmp A_7206
-
-A_7201:
-  ; Gate Voice 2.
-  enableVoice2 ; macro
-  
-A_7206:
-  lda MusicEngineV2TimeToRelease
-  sta MusicEngineV2TimeToReleaseCounter
-
-  lda MusicEngineV2Duration
-  sta MusicEngineV2DurationCounter
+  lda MusicEngineVoiceDuration,x
+  sta MusicEngineVoiceDurationCounter,x
 
   lda #1
-  sta MusicEngineV2Active
-
-CheckVoice3:
-  lda MusicEngineV3Active
-  beq A_721F
-
-  jmp ProcessMusicDurAndRel
-
-A_721F:
-  lda MusicEngineV3MusicEnd
-  cmp MusicEngineV3Position
-  bne @processVoice3
-  
-  lda MusicEngineV3MusicEnd+1
-  cmp MusicEngineV3Position+1
-  bne @processVoice3
-
-  lda MusicEngineV3MusicStart
-  sta MusicEngineV3Position
-  lda MusicEngineV3MusicStart+1
-  sta MusicEngineV3Position+1
-
-@processVoice3:
-  ldy #0
-  lda (MusicEngineV3Position),y
-  sta MusicEngineTempFetch
-  and #%00111111
-  
-  ; Load Voice 3 Frequency.
-  tax
-  setVoiceFrequencyV3 ; macro
-  
-  bit MusicEngineTempFetch
-  bpl V3A_71EF
-
-  iny
-  lda (MusicEngineV3Position),y
-  sta MusicEngineV3Duration
-  inc MusicEngineV3Position
-  bne V3A_71EF
-
-  inc MusicEngineV3Position+1
-V3A_71EF:
-  inc MusicEngineV3Position
-  bne V3A_71F5
-
-  inc MusicEngineV3Position+1
-V3A_71F5:
-  bit MusicEngineTempFetch
-  bvc V3A_7201
-
-  ; Disable Voice 3.
-  disableVoice3 ; macro
-  
-  jmp V3A_7206
-
-V3A_7201:
-  ; Gate Voice 3.
-  enableVoice3 ; macro
-  
-V3A_7206:
-  lda MusicEngineV3TimeToRelease
-  sta MusicEngineV3TimeToReleaseCounter
-
-  lda MusicEngineV3Duration
-  sta MusicEngineV3DurationCounter
-
-  lda #1
-  sta MusicEngineV3Active
+  sta MusicEngineVoiceActive,x
 
 ; Process music engine voice time to release and duration.
 ProcessMusicDurAndRel:
-  lda MusicEngineV1TimeToReleaseCounter
+  lda MusicEngineVoiceTimeToReleaseCounter,x
   bne A_7266
 
-  ; Disable Voice 1.
-  disableVoice1 ; macro
+  DisableVoice ; macro, squashes y.
   
   jmp A_7269
   
 A_7266:
-  dec MusicEngineV1TimeToReleaseCounter                ;   MusicEngineV1TimeToReleaseCounter--
+  dec MusicEngineVoiceTimeToReleaseCounter,x
 
 A_7269:
-  lda MusicEngineV1DurationCounter                     ; A=MusicEngineV1DurationCounter
+  lda MusicEngineVoiceDurationCounter,x
   cmp #1
   beq A_7276
 
-  dec MusicEngineV1DurationCounter                     ;   MusicEngineV1DurationCounter--
-  jmp J_727E
+  dec MusicEngineVoiceDurationCounter,x
 
-A_7276:
-  ; Disable Voice 1.
-  disableVoice1 ; macro
-  
-  lda #0
-  sta MusicEngineV1Active
-
-J_727E:
-  lda MusicEngineV2TimeToReleaseCounter
-  bne A_728A
-
-  ; Disable Voice 2.
-  disableVoice2 ; macro
-  
-  jmp A_728D
-  
-A_728A:
-  dec MusicEngineV2TimeToReleaseCounter
-
-A_728D:
-  lda MusicEngineV2DurationCounter
-  cmp #1
-  beq A_729A
-
-  dec MusicEngineV2DurationCounter
-  jmp J_72A2
-
-A_729A:
-  ; Disable Voice 2.
-  disableVoice2 ; macro
-  
-  lda #0
-  sta MusicEngineV2Active
-
-J_72A2:
-  lda MusicEngineV3TimeToReleaseCounter
-  bne A_72AE
-
-  ; Disable Voice 3.
-  disableVoice3 ; macro
-  
-  jmp A_72B1
-  
-A_72AE:
-  dec MusicEngineV3TimeToReleaseCounter
-
-A_72B1:
-  lda MusicEngineV3DurationCounter
-  cmp #1
-  beq A_72BC
-
-  dec MusicEngineV3DurationCounter
-  
   rts
 
-A_72BC:
-  ; Disable Voice 3.
-  disableVoice3 ; macro
+A_7276:
+  DisableVoice ; macro, squashes y.
   
   lda #0
-  sta MusicEngineV3Active
+  sta MusicEngineVoiceActive,x
   
   rts

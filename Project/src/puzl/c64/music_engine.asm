@@ -6,15 +6,11 @@
 ;.importzp tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
 .macpack longbranch
 
-.importzp Voice1ControlCache
-.importzp Voice2ControlCache
-.importzp Voice3ControlCache
+.importzp VoiceControlCache
+
+.import VoiceRegisterSidOffset
 
 .include "c64.asm"
-
-NUMBER_OF_VOICES = 3
-
-.segment "CODE"
 
 ; NOTE: Platform specific (C64).
 NOTE_FREQ_1_C  =   536 ; C-1
@@ -90,88 +86,57 @@ NOTE_FREQ_6_A  = 28871 ; A-6
 NOTE_FREQ_6_AS = 30588 ; A#-6
 NOTE_FREQ_6_B  = 32407 ; B-6
 
-;---------------------------------------
-; C64 specific.
-MusicEngineV1FreqTableHi = MusicEngineNoteFreqTableHi1C
-MusicEngineV1FreqTableLo = MusicEngineNoteFreqTableLo1C
+.segment "CODE"
 
-MusicEngineV2FreqTableHi = MusicEngineNoteFreqTableHi1C
-MusicEngineV2FreqTableLo = MusicEngineNoteFreqTableLo1C
-
-MusicEngineV3FreqTableHi = MusicEngineNoteFreqTableHi1C
-MusicEngineV3FreqTableLo = MusicEngineNoteFreqTableLo1C
-  
 ;------------------------------------------------------------------
-.macro setVoiceFrequencyV1
-  ; Macro for voice 1 frequency load.
-  lda MusicEngineV1FreqTableHi,x
-  sta FREHI1
-  lda MusicEngineV1FreqTableLo,x
-  sta FRELO1
+; inputs:
+;  - noteIndex: a, indicates an entry from the note frequency table.
+;  - voiceIndex: x, meTmp1, which voice to change note frequency (preserved).
+.macro SetVoiceFrequency
+  ; Macro for voice frequency load.
+  tay
+
+  lda VoiceRegisterSidOffset,x
+  tax
+
+  lda MusicEngineNoteFreqTableLo1C,y
+  sta FRELO1,x
+  lda MusicEngineNoteFreqTableHi1C,y
+  sta FREHI1,x
+
+  ldx meTmp1
 .endmacro
 
-.macro setVoiceFrequencyV2
-  ; Macro for voice 2 frequency load.
-  lda MusicEngineV2FreqTableHi,x
-  sta FREHI2
-  lda MusicEngineV2FreqTableLo,x
-  sta FRELO2
-.endmacro
+;------------------------------------------------------------------
+; inputs:
+;  - voiceIndex: x, which voice to change note frequency (preserved).
+; notes:
+;  - squashes y.
+.macro DisableVoice
+  ; Disable Voice.
+  lda VoiceRegisterSidOffset,x
+  tay
 
-.macro setVoiceFrequencyV3
-  ; Macro for voice 3 frequency load.
-  lda MusicEngineV3FreqTableHi,x
-  sta FREHI3
-  lda MusicEngineV3FreqTableLo,x
-  sta FRELO3
-.endmacro
-
-.macro disableVoice1
-  ; Disable Voice 1.
-  lda Voice1ControlCache
+  lda VoiceControlCache,x
   and #%11111110
-  sta VCREG1
-  sta Voice1ControlCache
+  sta VoiceControlCache,x
+  sta VCREG1,y
 .endmacro
 
-.macro disableVoice2
-  ; Disable Voice 2.
-  lda Voice2ControlCache
-  and #%11111110
-  sta VCREG2
-  sta Voice2ControlCache
-.endmacro
+;------------------------------------------------------------------
+; inputs:
+;  - voiceIndex: x, which voice to change note frequency (preserved).
+; notes:
+;  - squashes y.
+.macro EnableVoice
+  ; Gate Voice.
+  lda VoiceRegisterSidOffset,x
+  tay
 
-.macro disableVoice3
-  ; Disable Voice 3.
-  lda Voice3ControlCache
-  and #%11111110
-  sta VCREG3
-  sta Voice3ControlCache
-.endmacro
-  
-.macro enableVoice1
-  ; Gate Voice 1.
-  lda Voice1ControlCache
+  lda VoiceControlCache,x
   ora #%00000001
-  sta VCREG1
-  sta Voice1ControlCache
-.endmacro
-
-.macro enableVoice2
-  ; Gate Voice 2.
-  lda Voice2ControlCache
-  ora #%00000001
-  sta VCREG2
-  sta Voice2ControlCache
-.endmacro
-
-.macro enableVoice3
-  ; Gate Voice 3.
-  lda Voice3ControlCache
-  ora #%00000001
-  sta VCREG3
-  sta Voice3ControlCache
+  sta VoiceControlCache,x
+  sta VCREG1,y
 .endmacro
 
 .include "../6502/music_engine.asm"

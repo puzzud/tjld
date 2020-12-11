@@ -20,6 +20,7 @@ const char AuthorFirstName[] = "ANDREW";
 
 extern const byte Voice1Start[];
 extern const byte Voice2Start[];
+extern const byte PickupSound[];
 
 void FASTCALL GenerateHWall(byte x, byte y, byte width);
 void FASTCALL GenerateVWall(byte x, byte y, byte height);
@@ -39,8 +40,8 @@ void InitializeNodeTree(void)
 	GenerateVWall(TILEMAP_WIDTH - 1, 2, TILEMAP_HEIGHT - 2);
 	GenerateHWall(0, TILEMAP_HEIGHT - 1, TILEMAP_WIDTH);
 
-	SetTileMapCellShape(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT / 2, CHARACTER_BLOCK);
-	SetTileMapCellColor(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT / 2, COLOR_YELLOW);
+	SetTileMapCellShape(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT - 2, CHARACTER_BLOCK);
+	SetTileMapCellColor(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT - 2, COLOR_YELLOW);
 	
 	Score = 0;
 
@@ -60,8 +61,8 @@ void InitializeNodeTree(void)
 	PreviousSpriteTilePosition.y = GetSpriteTilePositionY();
 	UpdateSpriteTile();
 
-	PlayAudioPattern(0, Voice1Start);
-	PlayAudioPattern(1, Voice2Start);
+	PlayAudioPattern(0, Voice1Start, 1);
+	PlayAudioPattern(2, Voice2Start, 1);
 }
 
 void Process(void)
@@ -167,6 +168,8 @@ void UpdateSpriteTile(void)
 				#endif
 
 				SetBackgroundColor(COLOR_GREY_1);
+
+				PlayAudioPattern(1, PickupSound, 0);
 
 				break;
 			}

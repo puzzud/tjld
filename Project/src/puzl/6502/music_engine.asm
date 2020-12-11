@@ -32,6 +32,9 @@ MusicEngineVoiceMusicEnd:
 MusicEngineVoiceTimeToRelease:
   .res 1 * NUMBER_OF_VOICES
 
+MusicEngineVoiceLooping:
+  .res 1 * NUMBER_OF_VOICES
+
 .segment "ZEROPAGE"
 
 mePtr1: ; NOTE: Not using ptr1, because this is expected to run in an interrupt.
@@ -287,26 +290,36 @@ InitializeMusicEngine:
   rts
 
 ;---------------------------------------
+; inputs:
+;  - voiceIndex: sp[2], which voice to play this pattern with.
+;  - voiceStart: sp[1]/sp[0], address of audio pattern data to play.
+;  - looping: a, indicate whether pattern should loop.
 _PlayAudioPattern:
-; TODO: Clean up this program stack usage.
-  jsr pushax
-  
-  jsr ldax0sp
-  sta mePtr1
-  stx mePtr1+1
-  
+  pha
+
   ; voiceIndex
-  ldy #2
+  ldy #2 
   lda (sp),y
   tax ; Cache normal offset for call to StartAudioPattern.
+
+  dey
+  lda (sp),y
+  pha
+  dey
+  lda (sp),y
+  pha
+
+  ; voiceIndex as word offset.
+  txa
   asl
   tay
 
-  lda mePtr1
+  pla
   sta MusicEngineVoiceMusicStart,y
-  lda mePtr1+1
+  pla
   sta MusicEngineVoiceMusicStart+1,y
   
+  pla
   jsr StartAudioPattern
 
   jmp incsp3
@@ -314,7 +327,10 @@ _PlayAudioPattern:
 ;---------------------------------------
 ; inputs:
 ;  - voiceIndex: x, which voice to start.
+;  - looping: a, indicate whether pattern should loop.
 StartAudioPattern:
+  sta MusicEngineVoiceLooping,x
+  
   ; Calculate these rather than setting them.
   jsr CalculateMusicVoiceEnd
   
@@ -359,6 +375,7 @@ _StopAudioPattern:
 
   rts
 
+;---------------------------------------
 ; CalculateMusicVoiceEnd
 ; Populate the corresponding MusicEngineV*MusicEnd
 ; pointer from its current starting point.
@@ -413,7 +430,8 @@ CalculateMusicVoiceEnd:
   sta MusicEngineVoiceMusicEnd+1,y
   
   rts
-  
+
+;---------------------------------------
 ; Start of all voice/music processing.
 ; inputs:
 ;  - voiceIndex: x, which voice to operate on.
@@ -436,22 +454,59 @@ ProcessVoice:
   stx meTmp1 ; Cache voiceIndex.
 
   lda MusicEngineVoiceActive,x
-  beq A_70EC
+  bne @processMusicDurAndRel
 
-  jmp ProcessMusicDurAndRel
+  jsr FetchVoiceNotes
 
-A_70EC:
+; Process music engine voice time to release and duration.
+@processMusicDurAndRel:
+  lda MusicEngineVoiceTimeToReleaseCounter,x
+  bne A_7266
+
+  DisableVoice ; macro, squashes y.
+  
+  jmp A_7269
+  
+A_7266:
+  dec MusicEngineVoiceTimeToReleaseCounter,x
+
+A_7269:
+  lda MusicEngineVoiceDurationCounter,x
+  cmp #1
+  beq A_7276
+
+  dec MusicEngineVoiceDurationCounter,x
+
+  rts
+
+A_7276:
+  DisableVoice ; macro, squashes y.
+  
+  lda #0
+  sta MusicEngineVoiceActive,x
+  
+  rts
+
+FetchVoiceNotes:
   lda meTmp1
   asl
   tay
 
+  ; Check if at end of pattern.
   lda MusicEngineVoiceMusicEnd,y
   cmp MusicEngineVoicePosition,y
-  bne @processVoice
+  bne @fetchPatternDatum
 
   lda MusicEngineVoiceMusicEnd+1,y
   cmp MusicEngineVoicePosition+1,y
-  bne @processVoice
+  bne @fetchPatternDatum
+
+  lda MusicEngineVoiceLooping,x
+  bne @resetMusicVectors
+
+  ; No looping, so do no fetching.
+  sta MusicEngineVoiceActive,x ; a should be 0.
+  rts
 
 ; Reset music engine vectors to currently set base music data vectors.
 @resetMusicVectors:
@@ -464,7 +519,7 @@ A_70EC:
   sta MusicEngineVoiceActive,x
 
 ; Start music data processing (of voice).
-@processVoice:
+@fetchPatternDatum:
   ; Fetch current byte and cache for later analysis.
   lda MusicEngineVoicePosition,y
   sta mePtr1
@@ -531,31 +586,4 @@ A_7197:
   lda #1
   sta MusicEngineVoiceActive,x
 
-; Process music engine voice time to release and duration.
-ProcessMusicDurAndRel:
-  lda MusicEngineVoiceTimeToReleaseCounter,x
-  bne A_7266
-
-  DisableVoice ; macro, squashes y.
-  
-  jmp A_7269
-  
-A_7266:
-  dec MusicEngineVoiceTimeToReleaseCounter,x
-
-A_7269:
-  lda MusicEngineVoiceDurationCounter,x
-  cmp #1
-  beq A_7276
-
-  dec MusicEngineVoiceDurationCounter,x
-
-  rts
-
-A_7276:
-  DisableVoice ; macro, squashes y.
-  
-  lda #0
-  sta MusicEngineVoiceActive,x
-  
   rts

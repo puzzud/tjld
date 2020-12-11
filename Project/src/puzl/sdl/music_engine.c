@@ -8,17 +8,17 @@
 void InitializeMusicEngine(void);
 void ProcessMusic(void);
 void ProcessVoice(unsigned int voiceIndex);
+void FetchVoiceNotes(unsigned int voiceIndex);
 
 void SetVoiceFrequency(unsigned int voiceIndex, unsigned int frequencyIndex);
 void EnableVoice(unsigned int voiceIndex);
 void DisableVoice(unsigned int voiceIndex);
 
-byte MusicEngineVoiceStatus[NUMBER_OF_VOICES];
-
 const byte* MusicEngineVoiceMusicStart[NUMBER_OF_VOICES];
-
 byte MusicEngineVoiceTimeToRelease[NUMBER_OF_VOICES];
+byte MusicEngineVoiceLooping[NUMBER_OF_VOICES];
 
+byte MusicEngineVoiceStatus[NUMBER_OF_VOICES];
 unsigned int MusicEngineVoicePosition[NUMBER_OF_VOICES];
 byte MusicEngineVoiceDuration[NUMBER_OF_VOICES];
 byte MusicEngineVoiceActive[NUMBER_OF_VOICES];
@@ -87,7 +87,7 @@ void InitializeMusicEngine(void)
 }
 
 // ---------------------------------------
-void PlayAudioPattern(byte voiceIndex, const byte* voiceStart)
+void PlayAudioPattern(byte voiceIndex, const byte* voiceStart, byte looping)
 {
 	MusicEngineVoiceMusicStart[voiceIndex] = voiceStart;
 
@@ -102,6 +102,8 @@ void PlayAudioPattern(byte voiceIndex, const byte* voiceStart)
 	MusicEngineVoiceActive[voiceIndex] = 0;
 
 	MusicEngineVoiceStatus[voiceIndex] = -1; // 0xff
+
+	MusicEngineVoiceLooping[voiceIndex] = looping;
 }
 
 // ---------------------------------------
@@ -135,53 +137,9 @@ void ProcessMusic(void)
 
 void ProcessVoice(unsigned int voiceIndex)
 {
-	byte musicEngineTempFetch;
-
-	// Check voice.
 	if (MusicEngineVoiceActive[voiceIndex] == 0)
 	{
-		if (MusicEngineVoiceMusicStart[voiceIndex][MusicEngineVoicePosition[voiceIndex]] == 0)
-		{
-			// Reset music engine vectors to currently set base music data vectors.
-			MusicEngineVoicePosition[voiceIndex] = 0;
-			MusicEngineVoiceActive[voiceIndex] = 0;
-		}
-
-		// Process Voice.
-		// Fetch current byte and cache for later for later analysis.
-		musicEngineTempFetch = MusicEngineVoiceMusicStart[voiceIndex][MusicEngineVoicePosition[voiceIndex]];
-
-		// Cutoff bits 6 & 7.
-  		// The first six bits of this byte are the music note index.
-		// Load Voice Frequency.
-		SetVoiceFrequency(voiceIndex, musicEngineTempFetch & 0x3f); // %00111111
-
-		// Now check bit 7.
-		if ((musicEngineTempFetch & 0x80) != 0) // %10000000
-		{
-			// Fetch and store next byte.
-			// Increase music pointer.
-			MusicEngineVoiceDuration[voiceIndex] = MusicEngineVoiceMusicStart[voiceIndex][++MusicEngineVoicePosition[voiceIndex]];
-		}
-
-		++MusicEngineVoicePosition[voiceIndex];
-
-		// Now check bit 6.
-		if ((musicEngineTempFetch & 0x40) != 0) // %01000000
-		{
-			// Disable Voice.
-			DisableVoice(voiceIndex);
-		}
-		else
-		{
-			// Gate Voice.
-			EnableVoice(voiceIndex);
-		}
-
-		MusicEngineVoiceTimeToReleaseCounter[voiceIndex] = MusicEngineVoiceTimeToRelease[voiceIndex];
-		MusicEngineVoiceDurationCounter[voiceIndex] = MusicEngineVoiceDuration[voiceIndex];
-
-		MusicEngineVoiceActive[voiceIndex] = 1;	
+		FetchVoiceNotes(voiceIndex);
 	}
 
 	// Process music engine voice time to release and duration.
@@ -206,6 +164,63 @@ void ProcessVoice(unsigned int voiceIndex)
 
 		MusicEngineVoiceActive[voiceIndex] = 0;
 	}
+}
+
+void FetchVoiceNotes(unsigned int voiceIndex)
+{
+	byte musicEngineTempFetch;
+
+	if (MusicEngineVoiceMusicStart[voiceIndex][MusicEngineVoicePosition[voiceIndex]] == 0)
+	{
+		if (MusicEngineVoiceLooping[voiceIndex] == 0)
+		{
+			// No looping, so do no fetching.
+			MusicEngineVoiceActive[voiceIndex] = 1;
+			return;
+		}
+		else
+		{
+			// Reset music engine vectors to currently set base music data vectors.
+			MusicEngineVoicePosition[voiceIndex] = 0;
+			MusicEngineVoiceActive[voiceIndex] = 0;
+		}
+	}
+
+	// Process Voice.
+	// Fetch current byte and cache for later for later analysis.
+	musicEngineTempFetch = MusicEngineVoiceMusicStart[voiceIndex][MusicEngineVoicePosition[voiceIndex]];
+
+	// Cutoff bits 6 & 7.
+	// The first six bits of this byte are the music note index.
+	// Load Voice Frequency.
+	SetVoiceFrequency(voiceIndex, musicEngineTempFetch & 0x3f); // %00111111
+
+	// Now check bit 7.
+	if ((musicEngineTempFetch & 0x80) != 0) // %10000000
+	{
+		// Fetch and store next byte.
+		// Increase music pointer.
+		MusicEngineVoiceDuration[voiceIndex] = MusicEngineVoiceMusicStart[voiceIndex][++MusicEngineVoicePosition[voiceIndex]];
+	}
+
+	++MusicEngineVoicePosition[voiceIndex];
+
+	// Now check bit 6.
+	if ((musicEngineTempFetch & 0x40) != 0) // %01000000
+	{
+		// Disable Voice.
+		DisableVoice(voiceIndex);
+	}
+	else
+	{
+		// Gate Voice.
+		EnableVoice(voiceIndex);
+	}
+
+	MusicEngineVoiceTimeToReleaseCounter[voiceIndex] = MusicEngineVoiceTimeToRelease[voiceIndex];
+	MusicEngineVoiceDurationCounter[voiceIndex] = MusicEngineVoiceDuration[voiceIndex];
+
+	MusicEngineVoiceActive[voiceIndex] = 1;	
 }
 
 // SDL Specific.

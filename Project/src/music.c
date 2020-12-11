@@ -2,6 +2,7 @@
 
 extern const byte Voice1Start[];
 extern const byte Voice2Start[];
+extern const byte PickupSound[];
 
 #pragma rodata-name ("RODATA")
 
@@ -96,6 +97,12 @@ const byte Voice2Start[] =
 	192, 48, 159, 24, 24, 64, 160, 48, 159, 24, 64, 160, 48, 159, 24, 159,
 	48, 159, 24,
 	0
+};
+
+const byte PickupSound[] =
+{
+	0x80 | 48, 8, 48, 50, 48, 52, 50,
+	0x00
 };
 
 // =====================================================

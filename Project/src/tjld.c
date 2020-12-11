@@ -1,5 +1,6 @@
 // TJLD
 #include <stdio.h>
+#include <stdlib.h>
 
 #include <puzl.h>
 
@@ -29,6 +30,8 @@ void UpdateIntendedDirection(void);
 byte GetSpriteTilePositionX(void);
 byte GetSpriteTilePositionY(void);
 void UpdateSpriteTile(void);
+
+void AddNewPickup(void);
 
 void InitializeNodeTree(void)
 {
@@ -156,9 +159,13 @@ void UpdateSpriteTile(void)
 			case COLOR_YELLOW:
 			{
 				Score += 1;
-				if (Score >= 3)
+				if (Score >= 8)
 				{
 					Running = 0;
+				}
+				else
+				{
+					AddNewPickup();
 				}
 
 				#ifndef __CC65__
@@ -215,4 +222,20 @@ byte GetSpriteTilePositionY(void)
 	}
 
 	return SpriteTilePositionY;
+}
+
+void AddNewPickup(void)
+{
+	TilePoint randomTile;
+
+	do
+	{
+		// TODO: Use of rand in cc65 C64 is warning about initialized data in BSS.
+		randomTile.x = rand() % TILEMAP_WIDTH;
+		randomTile.y = (rand() % (TILEMAP_HEIGHT - 1)) + 1;
+	}
+	while (GetTileMapShapeCode(randomTile.x, randomTile.y) == CHARACTER_BLOCK);
+
+	SetTileMapCellShape(randomTile.x, randomTile.y, CHARACTER_BLOCK);
+	SetTileMapCellColor(randomTile.x, randomTile.y, COLOR_YELLOW);
 }

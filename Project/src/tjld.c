@@ -60,10 +60,8 @@ void InitializeNodeTree(void)
 	PreviousSpriteTilePosition.y = GetSpriteTilePositionY();
 	UpdateSpriteTile();
 
-	SetMusicVoice(0, Voice1Start);
-	SetMusicVoice(1, Voice2Start);
-	SetMusicVoice(2, Voice2Start);
-	StartMusic();
+	PlayAudioPattern(0, Voice1Start);
+	PlayAudioPattern(1, Voice2Start);
 }
 
 void Process(void)

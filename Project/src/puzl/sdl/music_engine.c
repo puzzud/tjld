@@ -6,8 +6,6 @@
 #include <puzl.h>
 
 void InitializeMusicEngine(void);
-void StartMusic(void);
-void StopMusic(void);
 void ProcessMusic(void);
 void ProcessVoice(unsigned int voiceIndex);
 
@@ -15,7 +13,7 @@ void SetVoiceFrequency(unsigned int voiceIndex, unsigned int frequencyIndex);
 void EnableVoice(unsigned int voiceIndex);
 void DisableVoice(unsigned int voiceIndex);
 
-byte MusicStatus;
+byte MusicEngineVoiceStatus[NUMBER_OF_VOICES];
 
 const byte* MusicEngineVoiceMusicStart[NUMBER_OF_VOICES];
 
@@ -32,7 +30,6 @@ byte MusicEngineVoiceDurationCounter[NUMBER_OF_VOICES];
 // It provides the following major routines:
 // InitializeMusic
 // StartMusic
-// StopMusic
 // ProcessMusic
 
 // The encoding for the music is as follows:
@@ -79,56 +76,46 @@ byte MusicEngineVoiceDurationCounter[NUMBER_OF_VOICES];
 #define OCTAVE NUMBER_OF_NOTES_IN_OCTAVE
 
 // ---------------------------------------
-// InitializeMusicEngine
 void InitializeMusicEngine(void)
-{
-	StopMusic();
-}
-
-// ---------------------------------------
-void SetMusicVoice(byte voiceIndex, const byte* voiceStart)
-{
-	MusicEngineVoiceMusicStart[voiceIndex] = voiceStart;
-}
-
-// ---------------------------------------
-void StopMusic(void)
 {
 	unsigned int voiceIndex;
 
+	for (voiceIndex = 0; voiceIndex < NUMBER_OF_VOICES; ++voiceIndex)
+	{
+		StopAudioPattern(voiceIndex);
+	}
+}
+
+// ---------------------------------------
+void PlayAudioPattern(byte voiceIndex, const byte* voiceStart)
+{
+	MusicEngineVoiceMusicStart[voiceIndex] = voiceStart;
+
+	// TODO: Perhaps it's possible to integrate
+	// release time better with NES voice timed envelopes?
+	MusicEngineVoiceTimeToRelease[voiceIndex] = 0x1e;
+
+	// TODO: These zeroing could be consolidated with reset that happens during ProcessMusic.
+	MusicEngineVoicePosition[voiceIndex] = 0;
+
+	// Disable all voice music processing.
+	MusicEngineVoiceActive[voiceIndex] = 0;
+
+	MusicEngineVoiceStatus[voiceIndex] = -1; // 0xff
+}
+
+// ---------------------------------------
+void StopAudioPattern(byte voiceIndex)
+{
 	// Disable all voice music processing.
 	for (voiceIndex = 0; voiceIndex < NUMBER_OF_VOICES; ++voiceIndex)
 	{
 		MusicEngineVoiceActive[voiceIndex] = 0;
+		MusicEngineVoiceStatus[voiceIndex] = 0;
 	}
 
-	MusicStatus = 0;
-
-	SoundKillAll();
-}
-
-// ---------------------------------------
-void StartMusic(void)
-{
-	// TODO: Perhaps it's possible to integrate
-	// release time better with NES voice timed envelopes?
-	const byte musicEngineVoiceTimeToRelease = 0x1e;
-
-	unsigned int voiceIndex;
-
-	for (voiceIndex = 0; voiceIndex < NUMBER_OF_VOICES; ++voiceIndex)
-	{
-		MusicEngineVoiceActive[voiceIndex] = 0;
-		MusicEngineVoiceTimeToRelease[voiceIndex] = musicEngineVoiceTimeToRelease;
-
-		// TODO: These zeroing could be consolidated with reset that happens curing ProcessMusic.
-		MusicEngineVoicePosition[voiceIndex] = 0;
-
-		// Disable all voice music processing.
-		MusicEngineVoiceActive[voiceIndex] = 0;
-	}
-
-	MusicStatus = -1; // 0xff
+	// TODO: Need to translate this function.
+	//SoundKillAll();
 }
 
 // Start of all voice/music processing.
@@ -136,15 +123,13 @@ void ProcessMusic(void)
 {
 	unsigned int voiceIndex;
 
-	if (MusicStatus == 0)
-	{
-		return;
-	}
-
 	// Start processing.
 	for (voiceIndex = 0; voiceIndex < NUMBER_OF_VOICES; ++voiceIndex)
 	{
-		ProcessVoice(voiceIndex);
+		if (MusicEngineVoiceStatus[voiceIndex] != 0)
+		{
+			ProcessVoice(voiceIndex);
+		}
 	}
 }
 

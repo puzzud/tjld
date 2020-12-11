@@ -2,12 +2,11 @@
 ; base implementation.
 
 .export InitializeMusicEngine
-.export _SetMusicVoice
-.export _StartMusic
-.export _StopMusic
+.export _PlayAudioPattern
+.export _StopAudioPattern
 .export ProcessMusic
 
-.exportzp MusicStatus
+.exportzp MusicEngineVoiceStatus
 
 .export MusicEngineVoiceMusicStart
 .export MusicEngineVoiceMusicEnd
@@ -41,8 +40,8 @@ mePtr1: ; NOTE: Not using ptr1, because this is expected to run in an interrupt.
 meTmp1: ; NOTE: Not using tmp1, because this is expected to run in an interrupt.
   .res 1
 
-MusicStatus:
-  .res 1
+MusicEngineVoiceStatus:
+  .res 1 * NUMBER_OF_VOICES
 
 MusicEngineVoicePosition:
   .res 2 * NUMBER_OF_VOICES
@@ -66,7 +65,6 @@ MusicEngineTempFetch:
 ;
 ; It provides the following major routines:
 ; _InitializeMusic
-; _StartMusic
 ; _ProcessMusic
 
 ; The encoding for the music is as follows:
@@ -278,14 +276,19 @@ MusicEngineNoteFreqTableLo6C = MusicEngineNoteFreqTableLo1C + (NUMBER_OF_NOTES_I
 ; InitializeMusicEngine
 ;
 ; inputs:
-;  - A: newMusicStatus, what to set MusicStatus to.
 InitializeMusicEngine:
-  jsr StopMusic
+  ldx #NUMBER_OF_VOICES-1
+@loop:
+  jsr _StopAudioPattern
+
+  dex
+  bpl @loop
 
   rts
 
 ;---------------------------------------
-_SetMusicVoice:
+_PlayAudioPattern:
+; TODO: Clean up this program stack usage.
   jsr pushax
   
   jsr ldax0sp
@@ -295,6 +298,7 @@ _SetMusicVoice:
   ; voiceIndex
   ldy #2
   lda (sp),y
+  tax ; Cache normal offset for call to StartAudioPattern.
   asl
   tay
 
@@ -303,31 +307,15 @@ _SetMusicVoice:
   lda mePtr1+1
   sta MusicEngineVoiceMusicStart+1,y
   
+  jsr StartAudioPattern
+
   jmp incsp3
-  
-;---------------------------------------
-_StopMusic:
-StopMusic:
-  ; Disable all voice music processing.
-  lda #0
-  ldx #NUMBER_OF_VOICES-1
-@loop:
-  sta MusicEngineVoiceActive,x
 
-  dex
-  bpl @loop
-  
-  sta MusicStatus
-  
-  jsr _SoundKillAll
-
-  rts
-  
 ;---------------------------------------
-_StartMusic:
+; inputs:
+;  - voiceIndex: x, which voice to start.
+StartAudioPattern:
   ; Calculate these rather than setting them.
-  ldx #NUMBER_OF_VOICES-1
-@loop:
   jsr CalculateMusicVoiceEnd
   
   ; TODO: Perhaps it's possible to integrate
@@ -349,11 +337,25 @@ _StartMusic:
   lda #0
   sta MusicEngineVoiceActive,x
 
-  dex
-  bpl @loop
+  tay
+  dey
+  tya
+  sta MusicEngineVoiceStatus,x
 
-  dex ; X=$ff
-  stx MusicStatus
+  rts
+
+;---------------------------------------
+; inputs:
+;  - voiceIndex: a, index of which voice to stop.
+_StopAudioPattern:
+  tax
+
+  lda #0
+  sta MusicEngineVoiceActive,x
+  sta MusicEngineVoiceStatus,x
+  
+  ; TODO: Need to translate this function.
+  ;jsr _SoundKillAll
 
   rts
 
@@ -416,13 +418,14 @@ CalculateMusicVoiceEnd:
 ; inputs:
 ;  - voiceIndex: x, which voice to operate on.
 ProcessMusic:
-  lda MusicStatus
-  beq @done
-
   ldx #NUMBER_OF_VOICES-1
 @loop:
+  lda MusicEngineVoiceStatus,x
+  beq @afterProcessVoice
+
   jsr ProcessVoice
 
+@afterProcessVoice:
   dex
   bpl @loop
 

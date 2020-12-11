@@ -9,7 +9,7 @@ extern void UpdateAudio(void);
 
 extern void SoundKillAll(void);
 
-extern void SetMusicVoice(byte voiceIndex, const byte* voiceStart);
-extern void StartMusic(void);
+extern void PlayAudioPattern(byte voiceIndex, const byte* voiceStart);
+extern void StopAudioPattern(byte voiceIndex);
 
 #endif

@@ -12,12 +12,6 @@
 typedef unsigned char byte;
 typedef unsigned short word;
 
-typedef struct
-{
-	int x;
-	int y;
-} Point;
-
 #if defined(__linux__) || defined(_WIN32) | defined(__EMSCRIPTEN__)
 #include <sdl/core.h>
 #include <sdl/video.h>

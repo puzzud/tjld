@@ -201,14 +201,14 @@ signed short GetSpritePositionY(byte spriteIndex)
 
 void SetSpritePosition(byte spriteIndex, signed short x, signed short y)
 {
-	SpritePoint* position = &Sprites[spriteIndex].position;
+	ScreenPoint* position = &Sprites[spriteIndex].position;
 	position->x = x;
 	position->y = y;
 }
 
 void SetSpriteVelocity(byte spriteIndex, signed char x, signed char y)
 {
-	Direction* velocity = &Sprites[spriteIndex].velocity;
+	Vector2d* velocity = &Sprites[spriteIndex].velocity;
 	velocity->x = x;
 	velocity->y = y;
 }

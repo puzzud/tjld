@@ -17,10 +17,10 @@
 typedef struct
 {
 	byte enabled;
-	SpritePoint position;
+	ScreenPoint position;
 	byte frameIndex;
 	byte colorCode;
-	Direction velocity;
+	Vector2d velocity;
 } Sprite;
 
 extern SDL_Renderer* Renderer;

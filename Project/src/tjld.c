@@ -8,12 +8,12 @@
 
 byte LoopIndex;
 
-Direction IntendedDirection;
+Vector2d IntendedDirection;
 
 byte SpriteSpeedPatternIndex;
-SpritePoint PreviousSpritePosition;
-TilePoint PreviousSpriteTilePosition;
-TilePoint SpriteTilePosition;
+ScreenPoint PreviousSpritePosition;
+Vector2d PreviousSpriteTilePosition;
+Vector2d SpriteTilePosition;
 
 int Score;
 
@@ -226,7 +226,7 @@ byte GetSpriteTilePositionY(void)
 
 void AddNewPickup(void)
 {
-	TilePoint randomTile;
+	Vector2d randomTile;
 
 	do
 	{

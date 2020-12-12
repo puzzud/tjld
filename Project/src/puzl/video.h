@@ -16,19 +16,13 @@ typedef struct
 {
 	signed char x;
 	signed char y;
-} Direction;
-
-typedef struct
-{
-	byte x;
-	byte y;
-} TilePoint;
+} Vector2d;
 
 typedef struct
 {
 	signed short x;
 	signed short y;
-} SpritePoint;
+} ScreenPoint;
 
 extern byte PrintX;
 extern byte PrintY;

@@ -218,17 +218,26 @@ void MoveSprite(byte spriteIndex)
 	Sprite* sprite = &Sprites[spriteIndex];
 	ScreenPoint* spritePosition = &sprite->position;
 	Vector2d* spriteVelocity = &sprite->velocity;
+	
 	ScreenPoint tempSpritePosition;
+	Vector2d upperLeftSpriteTile;
+	Vector2d lowerRightSpriteTile;
 
 	tempSpritePosition.x = spritePosition->x + spriteVelocity->x;
 	tempSpritePosition.y = spritePosition->y + spriteVelocity->y;
+
+	upperLeftSpriteTile.x = tempSpritePosition.x / TILE_WIDTH;
+	upperLeftSpriteTile.y = tempSpritePosition.y / TILE_HEIGHT;
+
+	lowerRightSpriteTile.x = (tempSpritePosition.x + 16 - 1) / TILE_WIDTH; // TODO: Need way to track sprite dimensions.
+	lowerRightSpriteTile.y = (tempSpritePosition.y + 16 - 1) / TILE_HEIGHT;
 
 	if (spriteVelocity->x < 0)
 	{
 		// Upper left.
 		// Lower left.
-		if ((GetTileMapCellCollisionCode(tempSpritePosition.x / TILE_WIDTH, tempSpritePosition.y / TILE_HEIGHT) != 0) ||
-			 ((GetTileMapCellCollisionCode(tempSpritePosition.x / TILE_WIDTH, (tempSpritePosition.y + 16 - 1) / TILE_HEIGHT) != 0)))
+		if ((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, upperLeftSpriteTile.y) != 0) ||
+			 ((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, lowerRightSpriteTile.y) != 0)))
 		{
 			tempSpritePosition.x = spritePosition->x;
 		}
@@ -237,19 +246,19 @@ void MoveSprite(byte spriteIndex)
 	{
 		// Upper right.
 		// Lower right.
-		if ((GetTileMapCellCollisionCode((tempSpritePosition.x + 16 - 1) / TILE_WIDTH, tempSpritePosition.y / TILE_HEIGHT) != 0) ||
-			 ((GetTileMapCellCollisionCode((tempSpritePosition.x + 16 - 1) / TILE_WIDTH, (tempSpritePosition.y + 16 - 1) / TILE_HEIGHT) != 0)))
+		if ((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, upperLeftSpriteTile.y) != 0) ||
+			 ((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, lowerRightSpriteTile.y) != 0)))
 		{
 			tempSpritePosition.x = spritePosition->x;
 		}
 	}
-	
+
 	if (spriteVelocity->y < 0)
 	{
 		// Upper left.
 		// Upper right.
-		if ((GetTileMapCellCollisionCode(tempSpritePosition.x / TILE_WIDTH, tempSpritePosition.y / TILE_HEIGHT) != 0) ||
-			 ((GetTileMapCellCollisionCode((tempSpritePosition.x + 16 - 1) / TILE_WIDTH, tempSpritePosition.y / TILE_HEIGHT) != 0)))
+		if ((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, upperLeftSpriteTile.y) != 0) ||
+			 ((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, upperLeftSpriteTile.y) != 0)))
 		{
 			tempSpritePosition.y = spritePosition->y;
 		}
@@ -258,8 +267,8 @@ void MoveSprite(byte spriteIndex)
 	{
 		// Lower left.
 		// Lower right.
-		if ((GetTileMapCellCollisionCode(tempSpritePosition.x / TILE_WIDTH, (tempSpritePosition.y + 16 - 1) / TILE_HEIGHT) != 0) ||
-			 ((GetTileMapCellCollisionCode((tempSpritePosition.x + 16 - 1) / TILE_WIDTH, (tempSpritePosition.y + 16 - 1) / TILE_HEIGHT) != 0)))
+		if ((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, lowerRightSpriteTile.y) != 0) ||
+			 ((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, lowerRightSpriteTile.y) != 0)))
 		{
 			tempSpritePosition.y = spritePosition->y;
 		}

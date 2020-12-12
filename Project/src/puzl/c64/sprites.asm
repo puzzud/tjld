@@ -18,6 +18,10 @@
 .importzp tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
 .macpack longbranch
 
+.importzp mathOperandLo1, mathOperandHi1
+.importzp mathOperandLo2, mathOperandHi2
+.import AddSignedByteToSignedWord
+
 .import _NthBitFlags
 .import _InverseNthBitFlags
 .import _SpritePositionsX
@@ -93,7 +97,7 @@ _SetSpritePositionX:
 ; Update C64 sprite register with the value in _SpritePositionsX.
 ;
 ; inputs:
-;  - spriteIndex: y, which sprite to update position x.
+;  - spriteIndex: a, which sprite to update position x.
 UpdateSpritePositionX:
   ; spriteIndex * 2, as y register offset.
   asl
@@ -155,7 +159,7 @@ _SetSpritePositionY:
 ; Update C64 sprite register with the value in _SpritePositionsY.
 ;
 ; inputs:
-;  - spriteIndex: y, which sprite to update position y.
+;  - spriteIndex: a, which sprite to update position y.
 UpdateSpritePositionY:
   ; spriteIndex * 2, as y register offset.
   asl
@@ -239,54 +243,59 @@ _SetSpriteVelocity:
 ; inputs:
 ;  - spriteIndex: a, which sprite to move.
 _MoveSprite:
-  sta tmp1 ; Cache spriteIndex.
+  tax ; Cache spriteIndex.
+  stx tmp1
 
   asl
   tay
-  sty tmp2 ; Cache spriteIndex * 2 word offset.
 
 @setX:
-  lda #0
-  sta tmp3 ; Initial velocity high byte.
-  clc
-  lda _SpriteVelocitiesX,y
+  lda _SpriteVelocitiesX,x
   beq @afterSetX
-  bpl @afterNegativeX
-  dec tmp3 ; Make velocity high byte negative.
-@afterNegativeX:
-  adc _SpritePositionsX,y
+
+  sta mathOperandLo2
+  lda _SpritePositionsX,y
+  sta mathOperandLo1
+  lda _SpritePositionsX+1,y
+  sta mathOperandHi1
+  jsr AddSignedByteToSignedWord
+
   sta _SpritePositionsX,y
-  lda tmp3
-  adc _SpritePositionsX+1,y
+  txa
   sta _SpritePositionsX+1,y
 
-@afterSetHiX:
   lda tmp1
   jsr UpdateSpritePositionX
 
-  ldy tmp2
-@afterSetX: ; NOTE: Saves on the previous 1 statement.
+@afterSetX:
 
 @setY:
-  lda #0 ; NOTE: It appears as though this might not be necessary for Y, as it only resolves to 1 byte?
-  sta tmp3 ; Initial velocity high byte.
-  clc
-  lda _SpriteVelocitiesY,y
+  ldx tmp1
+  lda _SpriteVelocitiesY,x
   beq @afterSetY
-  bpl @afterNegativeY
-  dec tmp3 ; Make velocity high byte negative.
-@afterNegativeY:
-  adc _SpritePositionsY,y
+
+  sta mathOperandLo2
+  lda _SpritePositionsY,y
+  sta mathOperandLo1
+  lda _SpritePositionsY+1,y
+  sta mathOperandHi1
+  jsr AddSignedByteToSignedWord
+
   sta _SpritePositionsY,y
-  lda tmp3
-  adc _SpritePositionsY+1,y
+  txa
   sta _SpritePositionsY+1,y
 
-@afterSetHiY:
   lda tmp1
   jsr UpdateSpritePositionY
 
 @afterSetY:
+  rts
+
+;------------------------------------------------------------------
+; inputs:
+;  - spriteIndex: a, tmp1, which sprite to move.
+;  - tmp2, word offset of spriteIndex.
+MoveSpriteWithCollision:
   rts
 
 ;------------------------------------------------------------------

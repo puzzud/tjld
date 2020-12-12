@@ -11,6 +11,9 @@
 .export ScreenLineOffsetTableHi
 .export ScreenColorLineOffsetTableLo
 .export ScreenColorLineOffsetTableHi
+.export TileMapCollisionOffsetTableLo
+.export TileMapCollisionOffsetTableHi
+.export TileMapCollisionCodes
 
 .autoimport on
   
@@ -33,6 +36,11 @@ ImageWidth:
   
 ImageHeight:
   .res 1
+
+; TODO: This should probably be moved elsewhere,
+; particularly if it is made of 2x2 character blocks.
+TileMapCollisionCodes:
+  .res SCREEN_CHAR_SIZE
 
 .segment "ZEROPAGE"
 
@@ -474,3 +482,11 @@ ScreenColorLineOffsetTableLo:
 
 ScreenColorLineOffsetTableHi:
   sloTable SCREEN_COLOR, 1
+
+;------------------------------------------------------------------
+; Preprocessed table of collision map addresses for each start of a line.
+TileMapCollisionOffsetTableLo:
+  sloTable TileMapCollisionCodes, 0
+
+TileMapCollisionOffsetTableHi:
+  sloTable TileMapCollisionCodes, 1

@@ -2,8 +2,10 @@
 
 .export _GetTileMapShapeCode
 .export _GetTileMapColorCode
+.export _GetTileMapCellCollisionCode
 .export _SetTileMapCellShape
 .export _SetTileMapCellColor
+.export _SetTileMapCellCollisionCode
 
 .autoimport on
   
@@ -15,6 +17,8 @@
 .import ScreenLineOffsetTableHi
 .import ScreenColorLineOffsetTableLo
 .import ScreenColorLineOffsetTableHi
+.import TileMapCollisionOffsetTableLo
+.import TileMapCollisionOffsetTableHi
 
 .include "c64.asm"
 
@@ -81,6 +85,33 @@ _GetTileMapColorCode:
 
 ;------------------------------------------------------------------
 ; inputs:
+;  - x: sp[0], x coordinate.
+;  - y: a, y coordinate.
+; outputs:
+;  - return: x/a, collision code at this coordinate.
+_GetTileMapCellCollisionCode:
+  ; y coordinate.
+  tax
+
+  ; Get memory collision row start.
+  lda TileMapCollisionOffsetTableLo,x
+  sta ptr1
+  lda TileMapCollisionOffsetTableHi,x
+  sta ptr1+1
+
+  ; x coordinate.
+  ldy #0
+  lda (sp),y
+  tay
+
+  ; Set up return values.
+  ldx #0 ; Returning a byte requires zeroing x.
+  lda (ptr1),y
+
+  jmp incsp1
+
+;------------------------------------------------------------------
+; inputs:
 ;  - x: sp[1], x coordinate.
 ;  - y: sp[0], y coordinate.
 ;  - shapeCode: a, code indicating what graphic shape to put at this coordinate.
@@ -125,6 +156,35 @@ _SetTileMapCellColor:
   lda ScreenColorLineOffsetTableLo,x
   sta ptr1
   lda ScreenColorLineOffsetTableHi,x
+  sta ptr1+1
+
+  ; x coordinate.
+  iny
+  lda (sp),y
+  tay
+
+  lda tmp1
+  sta (ptr1),y
+
+  jmp incsp2
+
+;------------------------------------------------------------------
+; inputs:
+;  - x: sp[1], x coordinate.
+;  - y: sp[0], y coordinate.
+;  - collisionCode: a, code indicating the set of collisions.
+_SetTileMapCellCollisionCode:
+  sta tmp1
+
+  ; y coordinate.  
+  ldy #0
+  lda (sp),y
+  tax
+
+  ; Get memory screen row start.
+  lda TileMapCollisionOffsetTableLo,x
+  sta ptr1
+  lda TileMapCollisionOffsetTableHi,x
   sta ptr1+1
 
   ; x coordinate.

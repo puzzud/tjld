@@ -20,6 +20,8 @@ void PopulateSpriteSurfaceFromSprite(SDL_Surface* spriteSurface, unsigned int sp
 
 void DrawSpriteFrame(int x, int y, unsigned int spriteFrameIndex, byte primaryColorCode);
 
+void MoveSpriteWithCollision(byte spriteIndex);
+
 void InitializeSprites(void)
 {
 	InitializeSpriteTextures();
@@ -215,10 +217,32 @@ void SetSpriteVelocity(byte spriteIndex, signed char x, signed char y)
 
 void MoveSprite(byte spriteIndex)
 {
+	Sprite* sprite;
+	ScreenPoint* spritePosition;
+	Vector2d* spriteVelocity;
+	
+	// TODO: Make collision map optional.
+	if (0)
+	{
+		sprite = &Sprites[spriteIndex];
+		spritePosition = &sprite->position;
+		spriteVelocity = &sprite->velocity;
+
+		spritePosition->x =+ spriteVelocity->x;
+		spritePosition->y =+ spriteVelocity->y;
+	}
+	else
+	{
+		MoveSpriteWithCollision(spriteIndex);
+	}
+}
+
+void MoveSpriteWithCollision(byte spriteIndex)
+{
 	Sprite* sprite = &Sprites[spriteIndex];
 	ScreenPoint* spritePosition = &sprite->position;
 	Vector2d* spriteVelocity = &sprite->velocity;
-	
+
 	ScreenPoint tempSpritePosition;
 	Vector2d upperLeftSpriteTile;
 	Vector2d lowerRightSpriteTile;
@@ -229,7 +253,8 @@ void MoveSprite(byte spriteIndex)
 	upperLeftSpriteTile.x = tempSpritePosition.x / TILE_WIDTH;
 	upperLeftSpriteTile.y = tempSpritePosition.y / TILE_HEIGHT;
 
-	lowerRightSpriteTile.x = (tempSpritePosition.x + 16 - 1) / TILE_WIDTH; // TODO: Need way to track sprite dimensions.
+// TODO: Need way to track sprite dimensions.
+	lowerRightSpriteTile.x = (tempSpritePosition.x + 16 - 1) / TILE_WIDTH;
 	lowerRightSpriteTile.y = (tempSpritePosition.y + 16 - 1) / TILE_HEIGHT;
 
 	if (spriteVelocity->x < 0)

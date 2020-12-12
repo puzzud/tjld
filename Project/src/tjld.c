@@ -11,8 +11,6 @@ byte LoopIndex;
 Vector2d IntendedDirection;
 
 byte SpriteSpeedPatternIndex;
-ScreenPoint PreviousSpritePosition;
-Vector2d PreviousSpriteTilePosition;
 Vector2d SpriteTilePosition;
 
 int Score;
@@ -29,7 +27,8 @@ void FASTCALL GenerateVWall(byte x, byte y, byte height);
 void UpdateIntendedDirection(void);
 byte GetSpriteTilePositionX(void);
 byte GetSpriteTilePositionY(void);
-void UpdateSpriteTile(void);
+byte GetTileOffsetFromPoint(char point);
+void CheckSpriteTile(void);
 
 void AddNewPickup(void);
 
@@ -60,9 +59,7 @@ void InitializeNodeTree(void)
 	SetSpriteFrameIndex(0, 0);
 	SetSpriteColor(0, COLOR_RED);
 
-	PreviousSpriteTilePosition.x = GetSpriteTilePositionX();
-	PreviousSpriteTilePosition.y = GetSpriteTilePositionY();
-	UpdateSpriteTile();
+	CheckSpriteTile();
 
 	PlayAudioPattern(0, Voice1Start, 1);
 	PlayAudioPattern(2, Voice2Start, 1);
@@ -75,21 +72,15 @@ void Process(void)
 	LoopIndex = 2;
 	do
 	{
-		if (IntendedDirection.x != 0 || IntendedDirection.y != 0)
+		if (IntendedDirection.x | IntendedDirection.y != 0)
 		{
 			if (IsMoving(SpriteSpeedPatternIndex) != 0)
 			{
 				SetSpriteVelocity(0, IntendedDirection.x, IntendedDirection.y);
 
-				PreviousSpritePosition.x = GetSpritePositionX(0);
-				PreviousSpritePosition.y = GetSpritePositionY(0);
-
-				PreviousSpriteTilePosition.x = SpriteTilePosition.x;
-				PreviousSpriteTilePosition.y = SpriteTilePosition.y;
-				
 				MoveSprite(0);
 
-				UpdateSpriteTile();
+				CheckSpriteTile();
 			}
 		}
 
@@ -104,6 +95,7 @@ void GenerateHWall(byte x, byte y, byte width)
 	{
 		SetTileMapCellColor(x, y, COLOR_WHITE);
 		SetTileMapCellShape(x, y, CHARACTER_BLOCK);
+		SetTileMapCellCollisionCode(x, y, 1);
 
 		++x;
 	}
@@ -116,6 +108,7 @@ void GenerateVWall(byte x, byte y, byte height)
 	{
 		SetTileMapCellColor(x, y, COLOR_WHITE);
 		SetTileMapCellShape(x, y, CHARACTER_BLOCK);
+		SetTileMapCellCollisionCode(x, y, 1);
 
 		++y;
 	}
@@ -147,7 +140,7 @@ void UpdateIntendedDirection(void)
 	#endif
 }
 
-void UpdateSpriteTile(void)
+void CheckSpriteTile(void)
 {
 	SpriteTilePosition.x = GetSpriteTilePositionX();
 	SpriteTilePosition.y = GetSpriteTilePositionY();
@@ -166,6 +159,8 @@ void UpdateSpriteTile(void)
 				else
 				{
 					AddNewPickup();
+
+					SetTileMapCellShape(SpriteTilePosition.x, SpriteTilePosition.y, 0);
 				}
 
 				#ifndef __CC65__
@@ -180,26 +175,13 @@ void UpdateSpriteTile(void)
 
 				break;
 			}
-
-			case COLOR_WHITE:
-			{
-				// Obstacles prevent movement.
-				SetSpritePosition(0, PreviousSpritePosition.x, PreviousSpritePosition.y);
-				
-				SpriteTilePosition.x = PreviousSpriteTilePosition.x;
-				SpriteTilePosition.y = PreviousSpriteTilePosition.y;
-
-				break;
-			}
 		}
 	}
-	
-	if (SpriteTilePosition.x != PreviousSpriteTilePosition.x || SpriteTilePosition.y != PreviousSpriteTilePosition.y)
-	{
-		SetTileMapCellColor(SpriteTilePosition.x, SpriteTilePosition.y, COLOR_BLUE);
-		SetTileMapCellShape(SpriteTilePosition.x, SpriteTilePosition.y, CHARACTER_BLOCK);
-		SetTileMapCellShape(PreviousSpriteTilePosition.x, PreviousSpriteTilePosition.y, 0);
-	}
+}
+
+byte GetTileOffsetFromPoint(char point)
+{
+	return point << 3;
 }
 
 byte GetSpriteTilePositionX(void)

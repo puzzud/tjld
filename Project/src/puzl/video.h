@@ -32,8 +32,11 @@ void FASTCALL SetBackgroundColor(byte colorCode);
 
 byte FASTCALL GetTileMapShapeCode(byte x, byte y);
 byte FASTCALL GetTileMapColorCode(byte x, byte y);
+byte FASTCALL GetTileMapCellCollisionCode(byte x, byte y);
+
 void FASTCALL SetTileMapCellShape(byte x, byte y, byte shapeCode);
 void FASTCALL SetTileMapCellColor(byte x, byte y, byte colorCode);
+void FASTCALL SetTileMapCellCollisionCode(byte x, byte y, byte collisionCode);
 
 extern void FASTCALL PrintText(const char* text, byte x, byte y);
 

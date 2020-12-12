@@ -9,6 +9,7 @@
 
 byte* TileMapShapeCodes;
 byte* TileMapColorCodes;
+byte* TileMapCollisionCodes;
 
 SDL_Texture* CharacterSetTexture;
 
@@ -19,6 +20,7 @@ void InitializeTilemap(void)
 {
 	TileMapShapeCodes = (byte*)calloc(TILEMAP_WIDTH * TILEMAP_HEIGHT, sizeof(byte));
 	TileMapColorCodes = (byte*)calloc(TILEMAP_WIDTH * TILEMAP_HEIGHT, sizeof(byte));
+	TileMapCollisionCodes = (byte*)calloc(TILEMAP_WIDTH * TILEMAP_HEIGHT, sizeof(byte));
 }
 
 void InitializeCharacterSet(void)
@@ -180,6 +182,11 @@ byte GetTileMapColorCode(byte x, byte y)
 	return TileMapColorCodes[(y * TILEMAP_WIDTH) + x];
 }
 
+byte GetTileMapCellCollisionCode(byte x, byte y)
+{
+	return TileMapCollisionCodes[(y * TILEMAP_WIDTH) + x];
+}
+
 void SetTileMapCellShape(byte x, byte y, byte shapeCode)
 {
 	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
@@ -192,6 +199,13 @@ void SetTileMapCellColor(byte x, byte y, byte colorCode)
 	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
 
 	TileMapColorCodes[tileMapOffset] = colorCode;
+}
+
+void SetTileMapCellCollisionCode(byte x, byte y, byte collisionCode)
+{
+	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
+
+	TileMapCollisionCodes[tileMapOffset] = collisionCode;
 }
 
 void PrintText(const char* text, byte x, byte y)

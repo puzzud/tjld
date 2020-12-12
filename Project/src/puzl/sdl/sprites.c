@@ -216,8 +216,57 @@ void SetSpriteVelocity(byte spriteIndex, signed char x, signed char y)
 void MoveSprite(byte spriteIndex)
 {
 	Sprite* sprite = &Sprites[spriteIndex];
-	sprite->position.x += sprite->velocity.x;
-	sprite->position.y += sprite->velocity.y;
+	ScreenPoint* spritePosition = &sprite->position;
+	Vector2d* spriteVelocity = &sprite->velocity;
+	ScreenPoint tempSpritePosition;
+
+	tempSpritePosition.x = spritePosition->x + spriteVelocity->x;
+	tempSpritePosition.y = spritePosition->y + spriteVelocity->y;
+
+	if (spriteVelocity->x < 0)
+	{
+		// Upper left.
+		// Lower left.
+		if ((GetTileMapCellCollisionCode(tempSpritePosition.x / TILE_WIDTH, tempSpritePosition.y / TILE_HEIGHT) != 0) ||
+			 ((GetTileMapCellCollisionCode(tempSpritePosition.x / TILE_WIDTH, (tempSpritePosition.y + 16 - 1) / TILE_HEIGHT) != 0)))
+		{
+			tempSpritePosition.x = spritePosition->x;
+		}
+	}
+	else if (spriteVelocity->x > 0)
+	{
+		// Upper right.
+		// Lower right.
+		if ((GetTileMapCellCollisionCode((tempSpritePosition.x + 16 - 1) / TILE_WIDTH, tempSpritePosition.y / TILE_HEIGHT) != 0) ||
+			 ((GetTileMapCellCollisionCode((tempSpritePosition.x + 16 - 1) / TILE_WIDTH, (tempSpritePosition.y + 16 - 1) / TILE_HEIGHT) != 0)))
+		{
+			tempSpritePosition.x = spritePosition->x;
+		}
+	}
+	
+	if (spriteVelocity->y < 0)
+	{
+		// Upper left.
+		// Upper right.
+		if ((GetTileMapCellCollisionCode(tempSpritePosition.x / TILE_WIDTH, tempSpritePosition.y / TILE_HEIGHT) != 0) ||
+			 ((GetTileMapCellCollisionCode((tempSpritePosition.x + 16 - 1) / TILE_WIDTH, tempSpritePosition.y / TILE_HEIGHT) != 0)))
+		{
+			tempSpritePosition.y = spritePosition->y;
+		}
+	}
+	else if (spriteVelocity->y > 0)
+	{
+		// Lower left.
+		// Lower right.
+		if ((GetTileMapCellCollisionCode(tempSpritePosition.x / TILE_WIDTH, (tempSpritePosition.y + 16 - 1) / TILE_HEIGHT) != 0) ||
+			 ((GetTileMapCellCollisionCode((tempSpritePosition.x + 16 - 1) / TILE_WIDTH, (tempSpritePosition.y + 16 - 1) / TILE_HEIGHT) != 0)))
+		{
+			tempSpritePosition.y = spritePosition->y;
+		}
+	}
+
+	spritePosition->x = tempSpritePosition.x;
+	spritePosition->y = tempSpritePosition.y;
 }
 
 void SetSpriteFrameIndex(byte spriteIndex, byte frameIndex)

@@ -25,3 +25,13 @@ void SetSpritePosition(byte spriteIndex, signed short x, signed short y)
 	SetSpritePositionX(spriteIndex, x);
 	SetSpritePositionY(spriteIndex, y);
 }
+
+byte GetTileMapCellCollisionCode(byte x, byte y)
+{
+	return 0;
+}
+
+void SetTileMapCellCollisionCode(byte x, byte y, byte collisionCode)
+{
+	
+}

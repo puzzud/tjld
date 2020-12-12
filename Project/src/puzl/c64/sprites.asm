@@ -289,12 +289,13 @@ _MoveSprite:
   jsr UpdateSpritePositionY
 
 @afterSetY:
+
   rts
 
 ;------------------------------------------------------------------
 ; inputs:
 ;  - spriteIndex: a, tmp1, which sprite to move.
-;  - tmp2, word offset of spriteIndex.
+;  - y, word offset of spriteIndex.
 MoveSpriteWithCollision:
   rts
 

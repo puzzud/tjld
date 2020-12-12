@@ -28,12 +28,14 @@ mathOperandHi2:
 ;  - addOperand: mathOperandLo2, byte sized signed number to add to other operand.
 ; outputs:
 ;  - return: x/a, resulting signed word.
+; notes:
+;  - Squashes a, mathOperandHi2
 AddSignedByteToSignedWord:
   lda #0
   sta mathOperandHi2 ; Initial velocity high byte.
   
   lda mathOperandLo2
-  beq @afterSet
+  beq @addZero
   bpl @afterNegative
   dec mathOperandHi2 ; Make high byte negative.
 
@@ -44,11 +46,16 @@ AddSignedByteToSignedWord:
   pha
   lda mathOperandHi2
   adc mathOperandHi1
-  ;sta mathOperandHi1
   
   ; Set return values.
   tax
   pla
 
-@afterSet:
+  rts
+
+@addZero:
+  ; Set return values.
+  lda mathOperandLo1
+  ldx mathOperandHi1
+
   rts

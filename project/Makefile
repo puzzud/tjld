@@ -127,10 +127,8 @@ endif
 ########################################
 # Platform Dependent Settings
 ########################################
-ASMS += $(wildcard $(PUZLDIR)/$(PLATFORM)/*.asm)
-SRCS += $(wildcard $(PUZLDIR)/$(PLATFORM)/*.c)
-
-BTPPDIR := $(BTPDIR)/$(PLATFORM)
+ASMS += $(foreach LIB,$(LIBS),$(wildcard $(SDIR)/$(LIB)/$(PLATFORM)/*.asm))
+SRCS += $(foreach LIB,$(LIBS),$(wildcard $(SDIR)/$(LIB)/$(PLATFORM)/*.c))
 
 CASMS := $(patsubst %.c,%_c.asm,$(SRCS))
 CASMS := $(subst $(SDIR),$(BTDIR),$(CASMS))

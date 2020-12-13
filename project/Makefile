@@ -27,7 +27,6 @@ SRCS := $(foreach LIB,$(LIBS),$(wildcard $(SDIR)/$(LIB)/*.c))
 BIN := bin
 BDIR := ./$(BIN)
 BTDIR := $(BDIR)/$(TARGET)
-BTPDIR := $(BTDIR)/$(PUZL)
 
 CFLAGS := -I $(PUZLDIR)
 

@@ -6,6 +6,8 @@
 
 #define CHARACTER_BLOCK 219
 
+#define PLAYER_SPRITE_INDEX 1
+
 byte LoopIndex;
 
 Vector2d IntendedDirection;
@@ -54,10 +56,10 @@ void InitializeNodeTree(void)
 	SetSpriteSeconaryColor(COLOR_WHITE);
 	SetSpriteTertiaryColor(COLOR_LIGHT_RED);
 
-	EnableSprite(0, 1);
-	SetSpritePosition(0, 8 + 0, SCREEN_HEIGHT - SPRITE_HEIGHT - TILE_HEIGHT);
-	SetSpriteFrameIndex(0, 0);
-	SetSpriteColor(0, COLOR_RED);
+	EnableSprite(PLAYER_SPRITE_INDEX, 1);
+	SetSpritePosition(PLAYER_SPRITE_INDEX, 8 + 0, SCREEN_HEIGHT - SPRITE_HEIGHT - TILE_HEIGHT);
+	SetSpriteFrameIndex(PLAYER_SPRITE_INDEX, 0);
+	SetSpriteColor(PLAYER_SPRITE_INDEX, COLOR_RED);
 
 	CheckSpriteTile();
 
@@ -76,9 +78,9 @@ void Process(void)
 		{
 			if (IsMoving(SpriteSpeedPatternIndex) != 0)
 			{
-				SetSpriteVelocity(0, IntendedDirection.x, IntendedDirection.y);
+				SetSpriteVelocity(PLAYER_SPRITE_INDEX, IntendedDirection.x, IntendedDirection.y);
 
-				MoveSprite(0);
+				MoveSprite(PLAYER_SPRITE_INDEX);
 
 				CheckSpriteTile();
 			}
@@ -186,7 +188,7 @@ byte GetTileOffsetFromPoint(char point)
 
 byte GetSpriteTilePositionX(void)
 {
-	byte SpriteTilePositionX = (GetSpritePositionX(0) + 7) / TILE_WIDTH;
+	byte SpriteTilePositionX = (GetSpritePositionX(PLAYER_SPRITE_INDEX) + 7) / TILE_WIDTH;
 	if (SpriteTilePositionX >= TILEMAP_WIDTH)
 	{
 		SpriteTilePositionX = TILEMAP_WIDTH;
@@ -197,7 +199,7 @@ byte GetSpriteTilePositionX(void)
 
 byte GetSpriteTilePositionY(void)
 {
-	byte SpriteTilePositionY = (GetSpritePositionY(0) + TILE_HEIGHT + (TILE_HEIGHT * 3 / 4)) / TILE_HEIGHT;
+	byte SpriteTilePositionY = (GetSpritePositionY(PLAYER_SPRITE_INDEX) + TILE_HEIGHT + (TILE_HEIGHT * 3 / 4)) / TILE_HEIGHT;
 	if (SpriteTilePositionY >= TILEMAP_HEIGHT)
 	{
 		SpriteTilePositionY = TILEMAP_HEIGHT;

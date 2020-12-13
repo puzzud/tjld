@@ -11,12 +11,16 @@ TARGET ?= lin
 
 PUZL := puzl
 
+LIBS := $(PUZL) game
+
 SRC := src
 SDIR := ./$(SRC)
 PUZLDIR := $(SDIR)/$(PUZL)
 
-ASMS := $(wildcard $(SDIR)/*.asm)
-SRCS := $(wildcard $(SDIR)/*.c)
+#ASMS := $(wildcard $(SDIR)/*.asm)
+ASMS := $(foreach LIB,$(LIBS),$(wildcard $(SDIR)/$(LIB)/*.asm))
+#SRCS := $(wildcard $(SDIR)/*.c)
+SRCS := $(foreach LIB,$(LIBS),$(wildcard $(SDIR)/$(LIB)/*.c))
 
 BIN := bin
 BDIR := ./$(BIN)
@@ -144,22 +148,28 @@ all: $(EXECUTABLE)
 
 ifeq ($(CC_FAMILY),g++)
 $(EXECUTABLE): $(OBJS)
+	@mkdir -p $(@D)
 	$(CC) -o $@ $^ $(CFLAGS) $(LFLAGS)
 
-$(BDIR)/$(TARGET)/%.o: $(SDIR)/%.c | $(BTPPDIR)
+$(BDIR)/$(TARGET)/%.o: $(SDIR)/%.c
+	@mkdir -p $(@D)
 	$(CC) -o $@ -c $< $(CFLAGS) $(LFLAGS)
 
 else ifeq ($(CC_FAMILY),cc65)
 $(EXECUTABLE): $(OBJS)
+	@mkdir -p $(@D)
 	$(LD) -o $@ $^ $(LFLAGS)
 
-$(BTDIR)/%.o: $(SDIR)/%.asm | $(BTPPDIR)
+$(BTDIR)/%.o: $(SDIR)/%.asm
+	@mkdir -p $(@D)
 	$(AS) -o $@ $< $(AFLAGS)
 
-$(BTDIR)/%.o: $(BTDIR)/%_c.asm | $(BTPPDIR)
+$(BTDIR)/%.o: $(BTDIR)/%_c.asm
+	@mkdir -p $(@D)
 	$(AS) -o $@ $< $(AFLAGS)
 
-$(BTDIR)/%_c.asm: $(SDIR)/%.c | $(BTPPDIR)
+$(BTDIR)/%_c.asm: $(SDIR)/%.c
+	@mkdir -p $(@D)
 	$(CC) -o $@ $< $(CFLAGS)
 
 .PHONY: transfer
@@ -173,18 +183,6 @@ play_real: | transfer
 	1541u2 $(ULTIMATE_HOSTNAME) -c run:$(EXECUTABLE)
 
 endif
-
-$(BTPPDIR): | $(BTPDIR)
-	mkdir $(BTPPDIR)
-
-$(BTPDIR): | $(BTDIR)
-	mkdir $(BTPDIR)
-
-$(BTDIR): | $(BDIR)
-	mkdir $(BTDIR)
-
-$(BDIR):
-	mkdir $(BDIR)
 
 .PHONY: clean
 clean:

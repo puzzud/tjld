@@ -20,7 +20,7 @@ void PopulateSpriteSurfaceFromSprite(SDL_Surface* spriteSurface, unsigned int sp
 
 void DrawSpriteFrame(int x, int y, unsigned int spriteFrameIndex, byte primaryColorCode);
 
-void MoveSpriteWithCollision(byte spriteIndex);
+void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition);
 
 void InitializeSprites(void)
 {
@@ -217,45 +217,44 @@ void SetSpriteVelocity(byte spriteIndex, signed char x, signed char y)
 
 void MoveSprite(byte spriteIndex)
 {
-	Sprite* sprite;
-	ScreenPoint* spritePosition;
-	Vector2d* spriteVelocity;
-	
-	// TODO: Make collision map optional.
-	if (0)
-	{
-		sprite = &Sprites[spriteIndex];
-		spritePosition = &sprite->position;
-		spriteVelocity = &sprite->velocity;
-
-		spritePosition->x =+ spriteVelocity->x;
-		spritePosition->y =+ spriteVelocity->y;
-	}
-	else
-	{
-		MoveSpriteWithCollision(spriteIndex);
-	}
-}
-
-void MoveSpriteWithCollision(byte spriteIndex)
-{
 	Sprite* sprite = &Sprites[spriteIndex];
 	ScreenPoint* spritePosition = &sprite->position;
 	Vector2d* spriteVelocity = &sprite->velocity;
 
 	ScreenPoint tempSpritePosition;
-	Vector2d upperLeftSpriteTile;
-	Vector2d lowerRightSpriteTile;
 
 	tempSpritePosition.x = spritePosition->x + spriteVelocity->x;
 	tempSpritePosition.y = spritePosition->y + spriteVelocity->y;
+	
+	// TODO: Make collision map optional.
+	//if (1)
+	{
+		CheckSpriteCollision(spriteIndex, &tempSpritePosition);
+	}
 
-	upperLeftSpriteTile.x = tempSpritePosition.x / TILE_WIDTH;
-	upperLeftSpriteTile.y = tempSpritePosition.y / TILE_HEIGHT;
+	spritePosition->x = tempSpritePosition.x;
+	spritePosition->y = tempSpritePosition.y;
+}
 
-// TODO: Need way to track sprite dimensions.
-	lowerRightSpriteTile.x = (tempSpritePosition.x + 16 - 1) / TILE_WIDTH;
-	lowerRightSpriteTile.y = (tempSpritePosition.y + 16 - 1) / TILE_HEIGHT;
+//--------------------------------------------------------------------------
+// Checks for collision map overlap with temporary sprite position.
+// Adjusts this position to original X or Y position, depending on velocity.
+// Assumes sprite dimensions of 16x16.
+void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
+{
+	Sprite* sprite = &Sprites[spriteIndex];
+	ScreenPoint* spritePosition = &sprite->position;
+	Vector2d* spriteVelocity = &sprite->velocity;
+
+	Vector2d upperLeftSpriteTile;
+	Vector2d lowerRightSpriteTile;
+
+	upperLeftSpriteTile.x = tempSpritePosition->x / TILE_WIDTH;
+	upperLeftSpriteTile.y = tempSpritePosition->y / TILE_HEIGHT;
+
+	// TODO: Need way to track sprite dimensions.
+	lowerRightSpriteTile.x = (tempSpritePosition->x + 16 - 1) / TILE_WIDTH;
+	lowerRightSpriteTile.y = (tempSpritePosition->y + 16 - 1) / TILE_HEIGHT;
 
 	if (spriteVelocity->x < 0)
 	{
@@ -264,7 +263,7 @@ void MoveSpriteWithCollision(byte spriteIndex)
 		if ((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, upperLeftSpriteTile.y) != 0) ||
 			 ((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, lowerRightSpriteTile.y) != 0)))
 		{
-			tempSpritePosition.x = spritePosition->x;
+			tempSpritePosition->x = spritePosition->x;
 		}
 	}
 	else if (spriteVelocity->x > 0)
@@ -274,7 +273,7 @@ void MoveSpriteWithCollision(byte spriteIndex)
 		if ((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, upperLeftSpriteTile.y) != 0) ||
 			 ((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, lowerRightSpriteTile.y) != 0)))
 		{
-			tempSpritePosition.x = spritePosition->x;
+			tempSpritePosition->x = spritePosition->x;
 		}
 	}
 
@@ -285,7 +284,7 @@ void MoveSpriteWithCollision(byte spriteIndex)
 		if ((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, upperLeftSpriteTile.y) != 0) ||
 			 ((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, upperLeftSpriteTile.y) != 0)))
 		{
-			tempSpritePosition.y = spritePosition->y;
+			tempSpritePosition->y = spritePosition->y;
 		}
 	}
 	else if (spriteVelocity->y > 0)
@@ -295,12 +294,9 @@ void MoveSpriteWithCollision(byte spriteIndex)
 		if ((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, lowerRightSpriteTile.y) != 0) ||
 			 ((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, lowerRightSpriteTile.y) != 0)))
 		{
-			tempSpritePosition.y = spritePosition->y;
+			tempSpritePosition->y = spritePosition->y;
 		}
 	}
-
-	spritePosition->x = tempSpritePosition.x;
-	spritePosition->y = tempSpritePosition.y;
 }
 
 void SetSpriteFrameIndex(byte spriteIndex, byte frameIndex)

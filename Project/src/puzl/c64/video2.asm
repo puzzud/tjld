@@ -13,7 +13,7 @@
 .export ScreenColorLineOffsetTableHi
 .export TileMapCollisionOffsetTableLo
 .export TileMapCollisionOffsetTableHi
-.export TileMapCollisionCodes
+.export _TileMapCollisionCodes
 
 .autoimport on
   
@@ -23,6 +23,8 @@
 
 .import _CharacterSet
 .import _SpriteSet
+
+.import _ClearTileMapCollisionCodes
 
 .include "c64.asm"
 
@@ -39,7 +41,7 @@ ImageHeight:
 
 ; TODO: This should probably be moved elsewhere,
 ; particularly if it is made of 2x2 character blocks.
-TileMapCollisionCodes:
+_TileMapCollisionCodes:
   .res SCREEN_CHAR_SIZE
 
 .segment "ZEROPAGE"
@@ -48,14 +50,26 @@ TileMapCollisionCodes:
 
 ;------------------------------------------------------------------
 _InitializeVideo:
-  lda #COLOR_BLACK
-  sta EXTCOL ; TODO: Temporary border black.
-  sta _PrintColor
+  ; Disable video.
+  lda SCROLX
+  ora #%00100000
+  sta SCROLX
   
+  lda #COLOR_BLACK
+  sta EXTCOL
+  sta BGCOL0
+  
+  sta _PrintColor
   jsr _ClearScreen
 
   jsr InitializeCharacterGraphics
+  jsr _ClearTileMapCollisionCodes
   jsr InitializeSprites
+
+  ; Enable video.
+  lda SCROLX
+  and #%11011111
+  sta SCROLX
 
   rts
 
@@ -486,7 +500,7 @@ ScreenColorLineOffsetTableHi:
 ;------------------------------------------------------------------
 ; Preprocessed table of collision map addresses for each start of a line.
 TileMapCollisionOffsetTableLo:
-  sloTable TileMapCollisionCodes, 0
+  sloTable _TileMapCollisionCodes, 0
 
 TileMapCollisionOffsetTableHi:
-  sloTable TileMapCollisionCodes, 1
+  sloTable _TileMapCollisionCodes, 1

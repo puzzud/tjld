@@ -73,6 +73,11 @@ _InverseNthBitFlags:
 Reset:
   sei
 
+  ; Swap out Kernal & BASIC ROMs for RAM.
+  ; Keep IO.
+  lda #%00110101
+  sta R6510
+
   lda #%01111111
   sta CIAICR
   sta CI2ICR
@@ -99,11 +104,6 @@ Reset:
   sta $fffb
   sta $fffd
   sta $ffff
-  
-  ; Swap out Kernal & BASIC ROMs for RAM.
-  ; Keep IO.
-  lda #%00110101
-  sta R6510
 
   ; Set parameter stack pointer.
   lda #<(__BSS_LAST__+__STACKSIZE__-1)

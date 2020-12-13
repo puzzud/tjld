@@ -3,6 +3,7 @@
 .export _GetTileMapShapeCode
 .export _GetTileMapColorCode
 .export _GetTileMapCellCollisionCode
+.export GetTileMapCellCollisionCode
 .export _SetTileMapCellShape
 .export _SetTileMapCellColor
 .export _SetTileMapCellCollisionCode
@@ -93,22 +94,39 @@ _GetTileMapCellCollisionCode:
   ; y coordinate.
   tax
 
+  ; x coordinate.
+  ldy #0
+  lda (sp),y
+  tay
+
+  jsr GetTileMapCellCollisionCode
+
+  ; Set up return values.
+  ; a is already set from routine.
+  ldx #0 ; Returning a byte requires zeroing x.
+
+  jmp incsp1
+
+;------------------------------------------------------------------
+; inputs:
+;  - x: y, x coordinate.
+;  - y: x, y coordinate.
+; outputs:
+;  - return: a, collision code at this coordinate.
+;  - flags: n, z.
+; notes:
+;  - Squashes a, ptr1, ptr+1.
+;  - Intended for calls from assembly.
+GetTileMapCellCollisionCode:
   ; Get memory collision row start.
   lda TileMapCollisionOffsetTableLo,x
   sta ptr1
   lda TileMapCollisionOffsetTableHi,x
   sta ptr1+1
 
-  ; x coordinate.
-  ldy #0
-  lda (sp),y
-  tay
-
-  ; Set up return values.
-  ldx #0 ; Returning a byte requires zeroing x.
   lda (ptr1),y
 
-  jmp incsp1
+  rts
 
 ;------------------------------------------------------------------
 ; inputs:

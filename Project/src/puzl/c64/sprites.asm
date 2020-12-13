@@ -20,7 +20,10 @@
 
 .importzp mathOperandLo1, mathOperandHi1
 .importzp mathOperandLo2, mathOperandHi2
+.importzp mathTmp1, mathTmp2
 .import AddSignedByteToSignedWord
+
+.import GetTileMapCellCollisionCode
 
 .import _NthBitFlags
 .import _InverseNthBitFlags
@@ -40,6 +43,18 @@ TempSpritePositionX:
 
 TempSpritePositionY:
   .res 2
+
+UpperLeftSpriteTileX:
+  .res 1
+
+UpperLeftSpriteTileY:
+  .res 1
+
+LowerRightSpriteTileX:
+  .res 1
+
+LowerRightSpriteTileY:
+  .res 1
 
 .segment "CODE"
 
@@ -321,43 +336,156 @@ _MoveSprite:
 ;
 ; inputs:
 ;  - spriteIndex: tmp1, which sprite to move.
-;  - y, word offset of spriteIndex.
+;  - y, tmp2 word offset of spriteIndex.
+;  - TempSpritePositionX+1/TempSpritePositionX
+;  - TempSpritePositionY+1/TempSpritePositionY
 ; outputs:
 ;  - TempSpritePositionX+1/TempSpritePositionX
 ;  - TempSpritePositionY+1/TempSpritePositionY
 CheckSpriteCollision:
-  lda tmp1
-  tax
+  jsr GetCornerTiles
 
 @checkX:
+  ldx tmp1
   lda _SpriteVelocitiesX,x
   beq @afterCheckX
   bpl @xVelocityPositive
 
 @xVelocityNegative:
-  nop
+  ldy UpperLeftSpriteTileX
+  ldx UpperLeftSpriteTileY
+  jsr GetTileMapCellCollisionCode
+  beq @afterCheckX
+  ldx LowerRightSpriteTileY
+  jsr GetTileMapCellCollisionCode
+  beq @afterCheckX
+
+@resetPositionX:
+  ldy tmp2
+  lda _SpritePositionsX,y
+  sta TempSpritePositionX
+  lda _SpritePositionsX+1,y
+  sta TempSpritePositionX+1
 
   jmp @afterCheckX
 
 @xVelocityPositive:
-  nop
+  ldy LowerRightSpriteTileX
+  ldx UpperLeftSpriteTileY
+  jsr GetTileMapCellCollisionCode
+  beq @afterCheckX
+  ldx LowerRightSpriteTileY
+  jsr GetTileMapCellCollisionCode
+  bne @resetPositionX ; NOTE: Not beq.
 @afterCheckX:
 
 @checkY:
+  ldx tmp1
   lda _SpriteVelocitiesY,x
   beq @afterCheckY
   bpl @yVelocityPositive
 
 @yVelocityNegative:
-  nop
+  ldy UpperLeftSpriteTileX
+  ldx UpperLeftSpriteTileY
+  jsr GetTileMapCellCollisionCode
+  beq @afterCheckY
+  ldy LowerRightSpriteTileX
+  jsr GetTileMapCellCollisionCode
+  beq @afterCheckY
+
+@resetPositionY:
+  ldy tmp2
+  lda _SpritePositionsY,y
+  sta TempSpritePositionY
+  lda _SpritePositionsY+1,y
+  sta TempSpritePositionY+1
 
   jmp @afterCheckY
 
 @yVelocityPositive:
-  nop
+  ldy UpperLeftSpriteTileX
+  ldx LowerRightSpriteTileY
+  jsr GetTileMapCellCollisionCode
+  beq @afterCheckY
+  ldy LowerRightSpriteTileX
+  jsr GetTileMapCellCollisionCode
+  bne @resetPositionY ; NOTE: Not beq.
 @afterCheckY:
 
 @done:
+  rts
+
+;------------------------------------------------------------------
+; Gets collision map cell coordinates for the top left and bottom right
+; points of a sprite through TempSpritePositionX/Y.
+; Assumes sprite dimensions of 16x16.
+;
+; inputs:
+;  - TempSpritePositionX+1/TempSpritePositionX
+;  - TempSpritePositionY+1/TempSpritePositionY
+; outputs:
+;  - UpperLeftSpriteTileX
+;  - UpperLeftSpriteTileY
+;  - LowerRightSpriteTileX
+;  - LowerRightSpriteTileY
+; notes:
+;  - Squashes a, mathOperandLo2, mathOperandLo1, mathOperandHi1.
+GetCornerTiles:
+  ; Upper left X.
+  lda #0
+  sta mathOperandLo2
+  lda TempSpritePositionX
+  sta mathOperandLo1
+  lda TempSpritePositionX+1
+  sta mathOperandHi1
+  jsr GetTileIndexFromPosition
+  sta UpperLeftSpriteTileX
+
+  ; Lower right X.
+  lda #(16-1)
+  sta mathOperandLo2
+  jsr GetTileIndexFromPosition
+  sta LowerRightSpriteTileX
+
+  ; Upper left Y.
+  lda #0
+  sta mathOperandLo2
+  lda TempSpritePositionY
+  sta mathOperandLo1
+  lda TempSpritePositionY+1
+  sta mathOperandHi1
+  jsr GetTileIndexFromPosition
+  sta UpperLeftSpriteTileY
+
+  ; Lower right Y.
+  lda #(16-1)
+  sta mathOperandLo2
+  jsr GetTileIndexFromPosition
+  sta LowerRightSpriteTileY
+
+  rts
+
+;------------------------------------------------------------------
+; inputs:
+;  - offset: mathOperandLo2, offset applied to position.
+;  - mathOperandHi1/mathOperandLo1, position to convert.
+; outputs:
+;  - a, tile offset (X or Y).
+GetTileIndexFromPosition:
+  jsr AddSignedByteToSignedWord
+
+  sta mathTmp1 ; Low
+  stx mathTmp2 ; High
+
+  lsr mathTmp2
+  ror mathTmp1
+  lsr mathTmp2
+  ror mathTmp1
+  lsr mathTmp2
+  lda mathTmp1
+  ror
+
   rts
 
 ;------------------------------------------------------------------

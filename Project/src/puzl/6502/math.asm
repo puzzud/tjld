@@ -4,6 +4,7 @@
   
 .exportzp mathOperandLo1, mathOperandHi1
 .exportzp mathOperandLo2, mathOperandHi2
+.exportzp mathTmp1, mathTmp2
 .export AddSignedByteToSignedWord
 
 .segment "ZEROPAGE"
@@ -18,6 +19,12 @@ mathOperandLo2:
   .res 1
 
 mathOperandHi2:
+  .res 1
+
+mathTmp1:
+  .res 1
+
+mathTmp2:
   .res 1
 
 .segment "CODE"

@@ -25,3 +25,13 @@ void SetSpritePosition(byte spriteIndex, signed short x, signed short y)
 	SetSpritePositionX(spriteIndex, x);
 	SetSpritePositionY(spriteIndex, y);
 }
+
+void ClearTileMapCollisionCodes(void)
+{
+	unsigned int index;
+
+	for (index = 0; index < SCREEN_CHAR_SIZE; ++index)
+	{
+		TileMapCollisionCodes[index] = 0;
+	}
+}

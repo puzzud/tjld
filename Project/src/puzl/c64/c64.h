@@ -167,7 +167,9 @@
 
 // -----------
 // Color codes
-
+// TODO: Temporary hiding until color between platforms
+// and main engine can be abstracted better.
+/*
 #define COLOR_BLACK                    0
 #define COLOR_WHITE                    1
 #define COLOR_RED                      2
@@ -184,7 +186,7 @@
 #define COLOR_LIGHT_GREEN              13
 #define COLOR_LIGHT_BLUE               14
 #define COLOR_LIGHT_GREY               15
-
+*/
 // ---------------------------------------------------------------------------
 // Additional defines (not stolen from Elite128).
 

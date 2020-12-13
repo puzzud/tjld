@@ -74,7 +74,7 @@ void Process(void)
 	LoopIndex = 2;
 	do
 	{
-		if (IntendedDirection.x | IntendedDirection.y != 0)
+		if ((IntendedDirection.x | IntendedDirection.y) != 0)
 		{
 			if (IsMoving(SpriteSpeedPatternIndex) != 0)
 			{

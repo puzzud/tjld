@@ -35,6 +35,12 @@
 
 .segment "ZEROPAGE"
 
+TempSpritePositionX:
+  .res 2
+
+TempSpritePositionY:
+  .res 2
+
 .segment "CODE"
 
 ;------------------------------------------------------------------
@@ -88,7 +94,6 @@ _SetSpritePositionX:
   
   tya
   lsr
-  tay
   jsr UpdateSpritePositionX
 
   jmp incsp1
@@ -98,8 +103,11 @@ _SetSpritePositionX:
 ;
 ; inputs:
 ;  - spriteIndex: a, which sprite to update position x.
+; notes:
+;  - Squashes a, x, y.
 UpdateSpritePositionX:
   ; spriteIndex * 2, as y register offset.
+  tax ; Cache spriteIndex.
   asl
   tay
 
@@ -115,13 +123,13 @@ UpdateSpritePositionX:
   bcc @before256
 
 @after255:
-  lda _NthBitFlags,y
+  lda _NthBitFlags,x
   ora MSIGX
 
   jmp @done
 
 @before256:
-  lda _InverseNthBitFlags,y
+  lda _InverseNthBitFlags,x
   and MSIGX
 
 @done:
@@ -139,7 +147,6 @@ _SetSpritePositionY:
   ; spriteIndex * 2, as y register offset.
   ldy #0
   lda (sp),y
-
   asl
   tay
 
@@ -150,7 +157,6 @@ _SetSpritePositionY:
   
   tya
   lsr
-  tay
   jsr UpdateSpritePositionY
 
   jmp incsp1
@@ -224,11 +230,9 @@ _SetSpriteVelocity:
   lda (sp),y
   tax
 
-  ; spriteIndex * 2, as y register offset.
+  ; spriteIndex, as y register offset.
   iny
   lda (sp),y
-
-  asl
   tay
 
   txa
@@ -248,10 +252,11 @@ _MoveSprite:
 
   asl
   tay
+  sta tmp2 ; Cache spriteIndex word offset.
 
 @setX:
   lda _SpriteVelocitiesX,x
-  beq @afterSetX
+  ;beq @afterSetX
 
   sta mathOperandLo2
   lda _SpritePositionsX,y
@@ -260,19 +265,14 @@ _MoveSprite:
   sta mathOperandHi1
   jsr AddSignedByteToSignedWord
 
-  sta _SpritePositionsX,y
-  txa
-  sta _SpritePositionsX+1,y
-
-  lda tmp1
-  jsr UpdateSpritePositionX
+  sta TempSpritePositionX
+  stx TempSpritePositionX+1
 
 @afterSetX:
-
 @setY:
   ldx tmp1
   lda _SpriteVelocitiesY,x
-  beq @afterSetY
+  ;beq @afterSetY
 
   sta mathOperandLo2
   lda _SpritePositionsY,y
@@ -281,22 +281,51 @@ _MoveSprite:
   sta mathOperandHi1
   jsr AddSignedByteToSignedWord
 
+  sta TempSpritePositionY
+  stx TempSpritePositionY+1
+
+@afterSetY:
+  
+  ; TODO: Make collision map optional.
+  lda #0
+  beq @afterCollisionChecking
+
+  jsr CheckSpriteCollision
+@afterCollisionChecking:
+
+@updateSpritePosition:
+  ldy tmp2
+
+  lda TempSpritePositionX
+  sta _SpritePositionsX,y
+  lda TempSpritePositionX+1
+  sta _SpritePositionsX+1,y
+
+  lda TempSpritePositionY
   sta _SpritePositionsY,y
-  txa
+  lda TempSpritePositionY+1
   sta _SpritePositionsY+1,y
 
   lda tmp1
+  pha
+  jsr UpdateSpritePositionX
+  pla
   jsr UpdateSpritePositionY
-
-@afterSetY:
 
   rts
 
 ;------------------------------------------------------------------
+; Checks for collision map overlap with temporary sprite position.
+; Adjusts this position to original X or Y position, depending on velocity.
+; Assumes sprite dimensions of 16x16.
+;
 ; inputs:
 ;  - spriteIndex: a, tmp1, which sprite to move.
 ;  - y, word offset of spriteIndex.
-MoveSpriteWithCollision:
+; outputs:
+;  - TempSpritePositionX+1/TempSpritePositionX
+;  - TempSpritePositionY+1/TempSpritePositionY
+CheckSpriteCollision:
   rts
 
 ;------------------------------------------------------------------

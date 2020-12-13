@@ -29,7 +29,7 @@ mathOperandHi2:
 ; outputs:
 ;  - return: x/a, resulting signed word.
 ; notes:
-;  - Squashes a, mathOperandHi2
+;  - Squashes a, x, mathOperandHi2
 AddSignedByteToSignedWord:
   lda #0
   sta mathOperandHi2 ; Initial velocity high byte.

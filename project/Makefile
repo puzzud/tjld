@@ -17,6 +17,8 @@ SRC := src
 SDIR := ./$(SRC)
 PUZLDIR := $(SDIR)/$(PUZL)
 
+TOOLSDIR := ../resources/Tools
+
 #ASMS := $(wildcard $(SDIR)/*.asm)
 ASMS := $(foreach LIB,$(LIBS),$(wildcard $(SDIR)/$(LIB)/*.asm))
 #SRCS := $(wildcard $(SDIR)/*.c)
@@ -172,7 +174,7 @@ $(BTDIR)/%_c.asm: $(SDIR)/%.c
 
 .PHONY: transfer
 transfer: | $(EXECUTABLE)
-	../Resources/Tools/TransferToUltimate.sh $(EXECUTABLE)
+	$(TOOLSDIR)/TransferToUltimate.sh $(EXECUTABLE)
 
 .PHONY: play_real
 play_real: | transfer

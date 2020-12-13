@@ -8,13 +8,6 @@
 
 #include <color.h>
 
-// TODO: Should probably clear these values.
-signed short SpritePositionsX[NUMBER_OF_SPRITES];
-signed short SpritePositionsY[NUMBER_OF_SPRITES];
-
-signed char SpriteVelocitiesX[NUMBER_OF_SPRITES];
-signed char SpriteVelocitiesY[NUMBER_OF_SPRITES];
-
 void SetBackgroundColor(byte color)
 {
 	SET_MEMORY_BYTE(BGCOL0, color);

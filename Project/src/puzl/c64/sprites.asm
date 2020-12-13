@@ -34,9 +34,31 @@
 
 .include "c64.asm"
 
+; TODO: Need to figure how to get this number from puzl/video.h.
+NUMBER_OF_SPRITES = NUMBER_OF_HARDWARE_SPRITES
+
 .segment "BSS"
 
 .segment "ZEROPAGE"
+
+; TODO: Should probably clear these values.
+SpritePositionsXLo:
+  .res NUMBER_OF_SPRITES
+
+SpritePositionsXHi:
+  .res NUMBER_OF_SPRITES
+
+SpritePositionsYLo:
+  .res NUMBER_OF_SPRITES
+
+SpritePositionsYHi:
+  .res NUMBER_OF_SPRITES
+
+SpriteVelocitiesX:
+  .res NUMBER_OF_SPRITES
+
+SpriteVelocitiesY:
+  .res NUMBER_OF_SPRITES
 
 TempSpritePositionX:
   .res 2
@@ -95,20 +117,17 @@ _EnableSprite:
 _SetSpritePositionX:
   pha
 
-  ; spriteIndex * 2, as y register offset.
+  ; spriteIndex, as y register offset.
   ldy #0
   lda (sp),y
-
-  asl
   tay
 
   pla
-  sta _SpritePositionsX,y ; Cache low byte first.
+  sta SpritePositionsXLo,y ; Cache low byte first.
   txa
-  sta _SpritePositionsX+1,y ; Cache high byte. 
+  sta SpritePositionsXHi,y ; Cache high byte. 
   
   tya
-  lsr
   jsr UpdateSpritePositionX
 
   jmp incsp1
@@ -121,18 +140,18 @@ _SetSpritePositionX:
 ; notes:
 ;  - Squashes a, x, y.
 UpdateSpritePositionX:
-  ; spriteIndex * 2, as y register offset.
   tax ; Cache spriteIndex.
+  ; spriteIndex * 2, as y register offset.
   asl
   tay
 
-  lda _SpritePositionsX,y
+  lda SpritePositionsXLo,x
 
   clc
   adc #SCREEN_BORDER_THICKNESS_X
   sta SP0X,y
   lda #0
-  adc _SpritePositionsX+1,y
+  adc SpritePositionsXHi,x
   cmp #0
   beq @before256
   bcc @before256
@@ -159,19 +178,17 @@ UpdateSpritePositionX:
 _SetSpritePositionY:
   pha
 
-  ; spriteIndex * 2, as y register offset.
+  ; spriteIndex, as y register offset.
   ldy #0
   lda (sp),y
-  asl
   tay
 
   pla
-  sta _SpritePositionsY,y ; Cache low byte first.
+  sta SpritePositionsYLo,y ; Cache low byte first.
   txa
-  sta _SpritePositionsY+1,y ; Cache high byte. 
+  sta SpritePositionsYHi,y ; Cache high byte. 
   
   tya
-  lsr
   jsr UpdateSpritePositionY
 
   jmp incsp1
@@ -182,11 +199,12 @@ _SetSpritePositionY:
 ; inputs:
 ;  - spriteIndex: a, which sprite to update position y.
 UpdateSpritePositionY:
+  tax ; Cache spriteIndex.
   ; spriteIndex * 2, as y register offset.
   asl
   tay
 
-  lda _SpritePositionsY,y
+  lda SpritePositionsYLo,x
 
   ; NOTE: Only low byte is necessary (no x, no 16 bit addition).
   clc
@@ -201,15 +219,14 @@ UpdateSpritePositionY:
 ; outputs:
 ;  - return: x/a, sprite position y.
 _GetSpritePositionX:
-  asl
   tay
   
   ; x, high byte.
-  lda _SpritePositionsX+1,y
+  lda SpritePositionsXHi,y
   tax
 
   ; a, low byte.
-  lda _SpritePositionsX,y
+  lda SpritePositionsXLo,y
 
   rts
 
@@ -219,15 +236,14 @@ _GetSpritePositionX:
 ; outputs:
 ;  - return: x/a, sprite position y.
 _GetSpritePositionY:
-  asl
   tay
   
   ; x, high byte.
-  lda _SpritePositionsY+1,y
+  lda SpritePositionsYHi,y
   tax
 
   ; a, low byte.
-  lda _SpritePositionsY,y
+  lda SpritePositionsYLo,y
 
   rts
 
@@ -251,10 +267,10 @@ _SetSpriteVelocity:
   tay
 
   txa
-  sta _SpriteVelocitiesX,y
+  sta SpriteVelocitiesX,y
 
   pla
-  sta _SpriteVelocitiesY,y
+  sta SpriteVelocitiesY,y
 
   jmp incsp2
 
@@ -265,18 +281,14 @@ _MoveSprite:
   tax ; Cache spriteIndex.
   stx tmp1
 
-  asl
-  tay
-  sta tmp2 ; Cache spriteIndex word offset.
-
 @setX:
-  lda _SpriteVelocitiesX,x
+  lda SpriteVelocitiesX,x
   ;beq @afterSetX
 
   sta mathOperandLo2
-  lda _SpritePositionsX,y
+  lda SpritePositionsXLo,x
   sta mathOperandLo1
-  lda _SpritePositionsX+1,y
+  lda SpritePositionsXHi,x
   sta mathOperandHi1
   jsr AddSignedByteToSignedWord
 
@@ -286,13 +298,13 @@ _MoveSprite:
 @afterSetX:
 @setY:
   ldx tmp1
-  lda _SpriteVelocitiesY,x
+  lda SpriteVelocitiesY,x
   ;beq @afterSetY
 
   sta mathOperandLo2
-  lda _SpritePositionsY,y
+  lda SpritePositionsYLo,x
   sta mathOperandLo1
-  lda _SpritePositionsY+1,y
+  lda SpritePositionsYHi,x
   sta mathOperandHi1
   jsr AddSignedByteToSignedWord
 
@@ -309,17 +321,16 @@ _MoveSprite:
 @afterCollisionChecking:
 
 @updateSpritePosition:
-  ldy tmp2
-
+  ldx tmp1
   lda TempSpritePositionX
-  sta _SpritePositionsX,y
+  sta SpritePositionsXLo,x
   lda TempSpritePositionX+1
-  sta _SpritePositionsX+1,y
+  sta SpritePositionsXHi,x
 
   lda TempSpritePositionY
-  sta _SpritePositionsY,y
+  sta SpritePositionsYLo,x
   lda TempSpritePositionY+1
-  sta _SpritePositionsY+1,y
+  sta SpritePositionsYHi,x
 
   lda tmp1
   pha
@@ -336,7 +347,6 @@ _MoveSprite:
 ;
 ; inputs:
 ;  - spriteIndex: tmp1, which sprite to move.
-;  - y, tmp2 word offset of spriteIndex.
 ;  - TempSpritePositionX+1/TempSpritePositionX
 ;  - TempSpritePositionY+1/TempSpritePositionY
 ; outputs:
@@ -347,7 +357,7 @@ CheckSpriteCollision:
 
 @checkX:
   ldx tmp1
-  lda _SpriteVelocitiesX,x
+  lda SpriteVelocitiesX,x
   beq @afterCheckX
   bpl @xVelocityPositive
 
@@ -361,10 +371,10 @@ CheckSpriteCollision:
   beq @afterCheckX
 
 @resetPositionX:
-  ldy tmp2
-  lda _SpritePositionsX,y
+  ldx tmp1
+  lda SpritePositionsXLo,x
   sta TempSpritePositionX
-  lda _SpritePositionsX+1,y
+  lda SpritePositionsXHi,x
   sta TempSpritePositionX+1
 
   jmp @afterCheckX
@@ -381,7 +391,7 @@ CheckSpriteCollision:
 
 @checkY:
   ldx tmp1
-  lda _SpriteVelocitiesY,x
+  lda SpriteVelocitiesY,x
   beq @afterCheckY
   bpl @yVelocityPositive
 
@@ -395,10 +405,10 @@ CheckSpriteCollision:
   beq @afterCheckY
 
 @resetPositionY:
-  ldy tmp2
-  lda _SpritePositionsY,y
+  ldx tmp1
+  lda SpritePositionsYLo,x
   sta TempSpritePositionY
-  lda _SpritePositionsY+1,y
+  lda SpritePositionsYHi,x
   sta TempSpritePositionY+1
 
   jmp @afterCheckY

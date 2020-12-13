@@ -160,7 +160,8 @@ UpdateSpritePositionX:
   lda _NthBitFlags,x
   ora MSIGX
 
-  jmp @done
+  ;jmp @done
+  bne @done ; NOTE: Assumption is that A has at least one bit set.
 
 @before256:
   lda _InverseNthBitFlags,x

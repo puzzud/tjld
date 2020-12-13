@@ -287,8 +287,8 @@ _MoveSprite:
 @afterSetY:
   
   ; TODO: Make collision map optional.
-  lda #0
-  beq @afterCollisionChecking
+  ;lda #1
+  ;beq @afterCollisionChecking
 
   jsr CheckSpriteCollision
 @afterCollisionChecking:
@@ -320,12 +320,44 @@ _MoveSprite:
 ; Assumes sprite dimensions of 16x16.
 ;
 ; inputs:
-;  - spriteIndex: a, tmp1, which sprite to move.
+;  - spriteIndex: tmp1, which sprite to move.
 ;  - y, word offset of spriteIndex.
 ; outputs:
 ;  - TempSpritePositionX+1/TempSpritePositionX
 ;  - TempSpritePositionY+1/TempSpritePositionY
 CheckSpriteCollision:
+  lda tmp1
+  tax
+
+@checkX:
+  lda _SpriteVelocitiesX,x
+  beq @afterCheckX
+  bpl @xVelocityPositive
+
+@xVelocityNegative:
+  nop
+
+  jmp @afterCheckX
+
+@xVelocityPositive:
+  nop
+@afterCheckX:
+
+@checkY:
+  lda _SpriteVelocitiesY,x
+  beq @afterCheckY
+  bpl @yVelocityPositive
+
+@yVelocityNegative:
+  nop
+
+  jmp @afterCheckY
+
+@yVelocityPositive:
+  nop
+@afterCheckY:
+
+@done:
   rts
 
 ;------------------------------------------------------------------

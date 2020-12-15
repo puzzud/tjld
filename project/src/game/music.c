@@ -4,8 +4,6 @@ extern const byte Voice1Start[];
 extern const byte Voice2Start[];
 extern const byte PickupSound[];
 
-#pragma rodata-name ("RODATA")
-
 // Marche aux Flambeaux by F. S. Clark, 1869.
 const byte Voice1Start[] =
 {

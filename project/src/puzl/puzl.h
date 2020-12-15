@@ -21,6 +21,8 @@ typedef unsigned short word;
 #endif
 
 #ifdef __CC65__
+#pragma rodata-name ("RODATA")
+
 #include <c64/core.h>
 #include <c64/video.h>
 #include <color.h>

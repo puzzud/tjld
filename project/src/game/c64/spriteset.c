@@ -1,8 +1,6 @@
 #include <puzl.h>
 #include <video.h>
 
-#pragma data-name ("DATA")
-
 const byte SpriteSet[NUMBER_OF_SPRITE_FRAMES][64] =
 {
 	{

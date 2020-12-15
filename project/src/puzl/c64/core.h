@@ -3,6 +3,7 @@
 
 #include <core.h>
 
+extern byte Running;
 #pragma zpsym ("Running"); // TODO: Will cause compilation warning if used in C.
 
 extern byte SpeedBitPatternByteTimer;

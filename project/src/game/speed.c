@@ -2,14 +2,9 @@
 
 // TODO: Hide this pragma from common code.
 #pragma bss-name (push,"ZEROPAGE")
-
 byte SpeedBitPatternByteTimer;
 byte SpeedBitFlag;
-
-#pragma zpsym ("SpeedBitPatternByteTimer");
-#pragma zpsym ("SpeedBitFlag");
-
-#pragma rodata-name ("RODATA")
+#pragma bss-name (pop)
 
 // NOTE: End bytes are reversed to get the same pattern as shown in comments.
 const byte SpeedBitPatterns[9][NUMBER_OF_SPEED_BIT_PATTERN_BYTES] =

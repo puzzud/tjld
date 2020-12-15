@@ -1,9 +1,6 @@
 #include <puzl.h>
 #include <video.h>
 
-// TODO: Hide this pragma from common code.
-#pragma rodata-name ("RODATA")
-
 const byte CharacterSet[NUMBER_OF_CHARACTERS][CHARACTER_HEIGHT] =
 {
 	{

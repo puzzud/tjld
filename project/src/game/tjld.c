@@ -8,12 +8,15 @@
 
 #define PLAYER_SPRITE_INDEX 1
 
+// TODO: Hide this pragma from common code.
+#pragma bss-name (push,"ZEROPAGE")
 byte LoopIndex;
 
 Vector2d IntendedDirection;
 
 byte SpriteSpeedPatternIndex;
 Vector2d SpriteTilePosition;
+#pragma bss-name (pop)
 
 int Score;
 

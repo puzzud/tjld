@@ -9,7 +9,6 @@
 .exportzp MusicEngineVoiceStatus
 
 .export MusicEngineVoiceMusicStart
-.export MusicEngineVoiceMusicEnd
 
 .export MusicEngineVoiceTimeToRelease
 
@@ -24,9 +23,6 @@
 .segment "BSS"
 
 MusicEngineVoiceMusicStart:
-  .res 2 * NUMBER_OF_VOICES
-
-MusicEngineVoiceMusicEnd:
   .res 2 * NUMBER_OF_VOICES
 
 MusicEngineVoiceTimeToRelease:
@@ -331,9 +327,6 @@ _PlayAudioPattern:
 StartAudioPattern:
   sta MusicEngineVoiceLooping,x
   
-  ; Calculate these rather than setting them.
-  jsr CalculateMusicVoiceEnd
-  
   ; TODO: Perhaps it's possible to integrate
   ; release time better with NES voice timed envelopes?
   lda #$1e
@@ -373,62 +366,6 @@ _StopAudioPattern:
   ; TODO: Need to translate this function.
   ;jsr _SoundKillAll
 
-  rts
-
-;---------------------------------------
-; CalculateMusicVoiceEnd
-; Populate the corresponding MusicEngineV*MusicEnd
-; pointer from its current starting point.
-;
-; inputs:
-;  - voiceIndex: X, indicates which music voice to calculate.
-;  - MusicEngineVoiceMusicStart + (2 * voiceIndex): start of music pointer should be set before calling.
-;
-; outputs:
-;  - MusicEnd: mePtr1, 
-CalculateMusicVoiceEnd:
-  ; Set the correct music start pointer according to voiceIndex.
-  txa
-  asl
-  tay
-
-  lda MusicEngineVoiceMusicStart,y
-  sta mePtr1
-  lda MusicEngineVoiceMusicStart+1,y
-  sta mePtr1+1
-
-@findNullMusicVoiceTerminator:
-  ldy #0
-@loop:
-  lda (mePtr1),y
-  beq @foundNullTerminator
-  
-  iny
-  bne @loop
-  
-  inc mePtr1+1
-  jmp @loop
-
-@foundNullTerminator:
-  ; Add current Y as offset to mePtr1.
-  clc
-  tya
-  adc mePtr1
-  sta mePtr1
-  bcc @endYOffset
-  inc mePtr1+1
-@endYOffset:
-  
-  txa
-  asl
-  tay
-  
-  lda mePtr1
-  sta MusicEngineVoiceMusicEnd,y
-  
-  lda mePtr1+1
-  sta MusicEngineVoiceMusicEnd+1,y
-  
   rts
 
 ;---------------------------------------
@@ -488,18 +425,22 @@ A_7276:
   rts
 
 FetchVoiceNotes:
+  ; Fetch current byte and cache for later analysis.
   lda meTmp1
   asl
   tay
 
-  ; Check if at end of pattern.
-  lda MusicEngineVoiceMusicEnd,y
-  cmp MusicEngineVoicePosition,y
-  bne @fetchPatternDatum
+  lda MusicEngineVoicePosition,y
+  sta mePtr1
+  lda MusicEngineVoicePosition+1,y
+  sta mePtr1+1
+  
+  ldy #0
+  lda (mePtr1),y
+  sta MusicEngineTempFetch
 
-  lda MusicEngineVoiceMusicEnd+1,y
-  cmp MusicEngineVoicePosition+1,y
-  bne @fetchPatternDatum
+  ; Check if at end of pattern.
+  bne @processPatternDatum
 
   lda MusicEngineVoiceLooping,x
   bne @resetMusicVectors
@@ -510,6 +451,10 @@ FetchVoiceNotes:
 
 ; Reset music engine vectors to currently set base music data vectors.
 @resetMusicVectors:
+  lda meTmp1
+  asl
+  tay
+
   lda MusicEngineVoiceMusicStart,y
   sta MusicEngineVoicePosition,y
   lda MusicEngineVoiceMusicStart+1,y
@@ -518,18 +463,10 @@ FetchVoiceNotes:
   lda #0
   sta MusicEngineVoiceActive,x
 
+  lda MusicEngineTempFetch
+
 ; Start music data processing (of voice).
-@fetchPatternDatum:
-  ; Fetch current byte and cache for later analysis.
-  lda MusicEngineVoicePosition,y
-  sta mePtr1
-  lda MusicEngineVoicePosition+1,y
-  sta mePtr1+1
-  
-  ldy #0
-  lda (mePtr1),y
-  sta MusicEngineTempFetch
-  
+@processPatternDatum:
   ; Cutoff bits 6 & 7.
   ; The first six bits of this byte are the music note index.
   and #%00111111

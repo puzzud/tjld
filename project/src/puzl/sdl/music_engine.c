@@ -168,9 +168,9 @@ void ProcessVoice(unsigned int voiceIndex)
 
 void FetchVoiceNotes(unsigned int voiceIndex)
 {
-	byte musicEngineTempFetch;
-
-	if (MusicEngineVoiceMusicStart[voiceIndex][MusicEngineVoicePosition[voiceIndex]] == 0)
+	// Fetch current byte and cache for later analysis.
+	byte musicEngineTempFetch = MusicEngineVoiceMusicStart[voiceIndex][MusicEngineVoicePosition[voiceIndex]];
+	if (musicEngineTempFetch == 0)
 	{
 		if (MusicEngineVoiceLooping[voiceIndex] == 0)
 		{
@@ -186,9 +186,7 @@ void FetchVoiceNotes(unsigned int voiceIndex)
 		}
 	}
 
-	// Process Voice.
-	// Fetch current byte and cache for later for later analysis.
-	musicEngineTempFetch = MusicEngineVoiceMusicStart[voiceIndex][MusicEngineVoicePosition[voiceIndex]];
+	// Process fetched data.
 
 	// Cutoff bits 6 & 7.
 	// The first six bits of this byte are the music note index.

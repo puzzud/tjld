@@ -8,22 +8,21 @@
 
 .exportzp MusicEngineVoiceStatus
 
-.export MusicEngineVoiceMusicStart
-
-.export MusicEngineVoiceTimeToRelease
-
 .autoimport on
   
-;.importzp sp, sreg, regsave, regbank
-;.importzp tmp1, tmp2, tmp3, tmp4, mePtr1, ptr2, ptr3, ptr4
-;.macpack longbranch
+.importzp sp, sreg, regsave, regbank
+.importzp tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
+.macpack longbranch
 
 .import _SoundKillAll
 
 .segment "BSS"
 
-MusicEngineVoiceMusicStart:
-  .res 2 * NUMBER_OF_VOICES
+MusicEngineVoiceMusicStartLo:
+  .res 1 * NUMBER_OF_VOICES
+
+MusicEngineVoiceMusicStartHi:
+  .res 1 * NUMBER_OF_VOICES
 
 MusicEngineVoiceTimeToRelease:
   .res 1 * NUMBER_OF_VOICES
@@ -36,14 +35,14 @@ MusicEngineVoiceLooping:
 mePtr1: ; NOTE: Not using ptr1, because this is expected to run in an interrupt.
   .res 2
 
-meTmp1: ; NOTE: Not using tmp1, because this is expected to run in an interrupt.
-  .res 1
-
 MusicEngineVoiceStatus:
   .res 1 * NUMBER_OF_VOICES
 
-MusicEngineVoicePosition:
-  .res 2 * NUMBER_OF_VOICES
+MusicEngineVoicePositionLo:
+  .res 1 * NUMBER_OF_VOICES
+
+MusicEngineVoicePositionHi:
+  .res 1 * NUMBER_OF_VOICES
 
 MusicEngineVoiceDuration:
   .res 1 * NUMBER_OF_VOICES
@@ -300,20 +299,10 @@ _PlayAudioPattern:
 
   dey
   lda (sp),y
-  pha
+  sta MusicEngineVoiceMusicStartHi,x
   dey
   lda (sp),y
-  pha
-
-  ; voiceIndex as word offset.
-  txa
-  asl
-  tay
-
-  pla
-  sta MusicEngineVoiceMusicStart,y
-  pla
-  sta MusicEngineVoiceMusicStart+1,y
+  sta MusicEngineVoiceMusicStartLo,x
   
   pla
   jsr StartAudioPattern
@@ -333,14 +322,10 @@ StartAudioPattern:
   sta MusicEngineVoiceTimeToRelease,x
   
   ; Load music vectors into music engine voice music data vector (counters).
-  txa
-  asl
-  tay
-
-  lda MusicEngineVoiceMusicStart,y
-  sta MusicEngineVoicePosition,y
-  lda MusicEngineVoiceMusicStart+1,y
-  sta MusicEngineVoicePosition+1,y
+  lda MusicEngineVoiceMusicStartLo,x
+  sta MusicEngineVoicePositionLo,x
+  lda MusicEngineVoiceMusicStartHi,x
+  sta MusicEngineVoicePositionHi,x
 
   ; Disable all voice music processing.
   lda #0
@@ -387,9 +372,10 @@ ProcessMusic:
 @done:
   rts
 
+;---------------------------------------
+; inputs:
+;  - voiceIndex: x, which voice to process music.
 ProcessVoice:
-  stx meTmp1 ; Cache voiceIndex.
-
   lda MusicEngineVoiceActive,x
   bne @processMusicDurAndRel
 
@@ -424,15 +410,14 @@ A_7276:
   
   rts
 
+;---------------------------------------
+; inputs:
+;  - voiceIndex: x, which voice to fetch and process music from.
 FetchVoiceNotes:
   ; Fetch current byte and cache for later analysis.
-  lda meTmp1
-  asl
-  tay
-
-  lda MusicEngineVoicePosition,y
+  lda MusicEngineVoicePositionLo,x
   sta mePtr1
-  lda MusicEngineVoicePosition+1,y
+  lda MusicEngineVoicePositionHi,x
   sta mePtr1+1
   
   ldy #0
@@ -451,14 +436,10 @@ FetchVoiceNotes:
 
 ; Reset music engine vectors to currently set base music data vectors.
 @resetMusicVectors:
-  lda meTmp1
-  asl
-  tay
-
-  lda MusicEngineVoiceMusicStart,y
-  sta MusicEngineVoicePosition,y
-  lda MusicEngineVoiceMusicStart+1,y
-  sta MusicEngineVoicePosition+1,y
+  lda MusicEngineVoiceMusicStartLo,x
+  sta MusicEngineVoicePositionLo,x
+  lda MusicEngineVoiceMusicStartHi,x
+  sta MusicEngineVoicePositionHi,x
 
   lda #0
   sta MusicEngineVoiceActive,x
@@ -492,13 +473,10 @@ A_7180:
   bne @skip2ndIncrementCarry
   inc mePtr1+1
 @skip2ndIncrementCarry:
-  lda meTmp1
-  asl
-  tay
   lda mePtr1
-  sta MusicEngineVoicePosition,y
+  sta MusicEngineVoicePositionLo,x
   lda mePtr1+1
-  sta MusicEngineVoicePosition+1,y
+  sta MusicEngineVoicePositionHi,x
 
   ; Now check bit 6.
 A_7186:

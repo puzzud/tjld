@@ -2,12 +2,7 @@
 
 .autoimport on
 
-.importzp sp, sreg, regsave, regbank
-;.importzp tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
-.macpack longbranch
-
 .importzp VoiceControlCache
-
 .import VoiceRegisterSidOffset
 
 .include "c64.asm"
@@ -91,10 +86,15 @@ NOTE_FREQ_6_B  = 32407 ; B-6
 ;------------------------------------------------------------------
 ; inputs:
 ;  - noteIndex: a, indicates an entry from the note frequency table.
-;  - voiceIndex: x, meTmp1, which voice to change note frequency (preserved).
+;  - voiceIndex: x, which voice to change note frequency (preserved).
+; notes:
+;  - Squashes a, y.
 .macro SetVoiceFrequency
   ; Macro for voice frequency load.
   tay
+  
+  txa ; Cache x on stack.
+  pha
 
   lda VoiceRegisterSidOffset,x
   tax
@@ -104,14 +104,15 @@ NOTE_FREQ_6_B  = 32407 ; B-6
   lda MusicEngineNoteFreqTableHi1C,y
   sta FREHI1,x
 
-  ldx meTmp1
+  pla ; Restore x.
+  tax
 .endmacro
 
 ;------------------------------------------------------------------
 ; inputs:
 ;  - voiceIndex: x, which voice to change note frequency (preserved).
 ; notes:
-;  - squashes y.
+;  - squashes a, y.
 .macro DisableVoice
   ; Disable Voice.
   lda VoiceRegisterSidOffset,x
@@ -127,7 +128,7 @@ NOTE_FREQ_6_B  = 32407 ; B-6
 ; inputs:
 ;  - voiceIndex: x, which voice to change note frequency (preserved).
 ; notes:
-;  - squashes y.
+;  - squashes a, y.
 .macro EnableVoice
   ; Gate Voice.
   lda VoiceRegisterSidOffset,x

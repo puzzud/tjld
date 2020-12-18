@@ -438,13 +438,17 @@ FetchVoiceNotes:
 @resetMusicVectors:
   lda MusicEngineVoiceMusicStartLo,x
   sta MusicEngineVoicePositionLo,x
+  sta mePtr1
   lda MusicEngineVoiceMusicStartHi,x
   sta MusicEngineVoicePositionHi,x
+  sta mePtr1+1
 
   lda #0
   sta MusicEngineVoiceActive,x
-
-  lda MusicEngineTempFetch
+  
+  ; Fetch first byte after reset (NOTE: mePtr1 reset above).
+  lda (mePtr1),y
+  sta MusicEngineTempFetch
 
 ; Start music data processing (of voice).
 @processPatternDatum:

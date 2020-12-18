@@ -181,8 +181,9 @@ void FetchVoiceNotes(unsigned int voiceIndex)
 		else
 		{
 			// Reset music engine vectors to currently set base music data vectors.
-			MusicEngineVoicePosition[voiceIndex] = 0;
 			MusicEngineVoiceActive[voiceIndex] = 0;
+			MusicEngineVoicePosition[voiceIndex] = 0;
+			musicEngineTempFetch = MusicEngineVoiceMusicStart[voiceIndex][MusicEngineVoicePosition[voiceIndex]];
 		}
 	}
 

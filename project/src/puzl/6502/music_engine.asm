@@ -24,9 +24,6 @@ MusicEngineVoiceMusicStartLo:
 MusicEngineVoiceMusicStartHi:
   .res 1 * NUMBER_OF_VOICES
 
-MusicEngineVoiceTimeToRelease:
-  .res 1 * NUMBER_OF_VOICES
-
 MusicEngineVoiceLooping:
   .res 1 * NUMBER_OF_VOICES
 
@@ -48,9 +45,6 @@ MusicEngineVoiceDuration:
   .res 1 * NUMBER_OF_VOICES
 
 MusicEngineVoiceActive:
-  .res 1 * NUMBER_OF_VOICES
-
-MusicEngineVoiceTimeToReleaseCounter:
   .res 1 * NUMBER_OF_VOICES
 
 MusicEngineVoiceDurationCounter:
@@ -316,11 +310,6 @@ _PlayAudioPattern:
 StartAudioPattern:
   sta MusicEngineVoiceLooping,x
   
-  ; TODO: Perhaps it's possible to integrate
-  ; release time better with NES voice timed envelopes?
-  lda #$1e
-  sta MusicEngineVoiceTimeToRelease,x
-  
   ; Load music vectors into music engine voice music data vector (counters).
   lda MusicEngineVoiceMusicStartLo,x
   sta MusicEngineVoicePositionLo,x
@@ -383,17 +372,6 @@ ProcessVoice:
 
 ; Process music engine voice time to release and duration.
 @processMusicDurAndRel:
-  lda MusicEngineVoiceTimeToReleaseCounter,x
-  bne A_7266
-
-  DisableVoice ; macro, squashes y.
-  
-  jmp A_7269
-  
-A_7266:
-  dec MusicEngineVoiceTimeToReleaseCounter,x
-
-A_7269:
   lda MusicEngineVoiceDurationCounter,x
   cmp #1
   beq A_7276
@@ -496,9 +474,6 @@ A_7192:
   EnableVoice ; macro, squashes y.
   
 A_7197:
-  lda MusicEngineVoiceTimeToRelease,x
-  sta MusicEngineVoiceTimeToReleaseCounter,x
-
   lda MusicEngineVoiceDuration,x
   sta MusicEngineVoiceDurationCounter,x
 

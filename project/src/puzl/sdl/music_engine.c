@@ -15,14 +15,12 @@ void EnableVoice(unsigned int voiceIndex);
 void DisableVoice(unsigned int voiceIndex);
 
 const byte* MusicEngineVoiceMusicStart[NUMBER_OF_VOICES];
-byte MusicEngineVoiceTimeToRelease[NUMBER_OF_VOICES];
 byte MusicEngineVoiceLooping[NUMBER_OF_VOICES];
 
 byte MusicEngineVoiceStatus[NUMBER_OF_VOICES];
 unsigned int MusicEngineVoicePosition[NUMBER_OF_VOICES];
 byte MusicEngineVoiceDuration[NUMBER_OF_VOICES];
 byte MusicEngineVoiceActive[NUMBER_OF_VOICES];
-byte MusicEngineVoiceTimeToReleaseCounter[NUMBER_OF_VOICES];
 byte MusicEngineVoiceDurationCounter[NUMBER_OF_VOICES];
 
 // MULE music engine.
@@ -91,10 +89,6 @@ void PlayAudioPattern(byte voiceIndex, const byte* voiceStart, byte looping)
 {
 	MusicEngineVoiceMusicStart[voiceIndex] = voiceStart;
 
-	// TODO: Perhaps it's possible to integrate
-	// release time better with NES voice timed envelopes?
-	MusicEngineVoiceTimeToRelease[voiceIndex] = 0x1e;
-
 	// TODO: These zeroing could be consolidated with reset that happens during ProcessMusic.
 	MusicEngineVoicePosition[voiceIndex] = 0;
 
@@ -140,17 +134,6 @@ void ProcessVoice(unsigned int voiceIndex)
 	if (MusicEngineVoiceActive[voiceIndex] == 0)
 	{
 		FetchVoiceNotes(voiceIndex);
-	}
-
-	// Process music engine voice time to release and duration.
-	if (MusicEngineVoiceTimeToReleaseCounter[voiceIndex] == 0)
-	{
-		// Disable Voice.
-		DisableVoice(voiceIndex);
-	}
-	else
-	{
-		--MusicEngineVoiceTimeToReleaseCounter[voiceIndex];
 	}
 	
 	if (MusicEngineVoiceDurationCounter[voiceIndex] != 1)
@@ -216,7 +199,6 @@ void FetchVoiceNotes(unsigned int voiceIndex)
 		EnableVoice(voiceIndex);
 	}
 
-	MusicEngineVoiceTimeToReleaseCounter[voiceIndex] = MusicEngineVoiceTimeToRelease[voiceIndex];
 	MusicEngineVoiceDurationCounter[voiceIndex] = MusicEngineVoiceDuration[voiceIndex];
 
 	MusicEngineVoiceActive[voiceIndex] = 1;	

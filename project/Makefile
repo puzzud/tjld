@@ -52,6 +52,23 @@ EXECUTE := $(EXECUTABLE)
 endif
 
 #---------------------------------------
+# Raspberry Pi
+#---------------------------------------
+ifeq ($(TARGET),rpi)
+CC := g++
+CC_FAMILY := $(CC)
+
+PLATFORM := sdl
+
+CFLAGS := `sdl2-config --cflags` -g $(CFLAGS)
+LFLAGS := `sdl2-config --libs`
+
+EXECUTABLE := $(BTDIR)/$(PROJECT_NAME)_$(TARGET)
+
+EXECUTE := $(EXECUTABLE)
+endif
+
+#---------------------------------------
 # Windows
 #---------------------------------------
 ifeq ($(TARGET),win)

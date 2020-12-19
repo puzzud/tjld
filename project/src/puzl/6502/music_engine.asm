@@ -44,9 +44,6 @@ MusicEngineVoicePositionHi:
 MusicEngineVoiceDuration:
   .res 1 * NUMBER_OF_VOICES
 
-MusicEngineVoiceActive:
-  .res 1 * NUMBER_OF_VOICES
-
 MusicEngineVoiceDurationCounter:
   .res 1 * NUMBER_OF_VOICES
 
@@ -318,7 +315,7 @@ StartAudioPattern:
 
   ; Disable all voice music processing.
   lda #0
-  sta MusicEngineVoiceActive,x
+  sta MusicEngineVoiceDurationCounter,x
 
   tay
   dey
@@ -334,7 +331,7 @@ _StopAudioPattern:
   tax
 
   lda #0
-  sta MusicEngineVoiceActive,x
+  sta MusicEngineVoiceDurationCounter,x
   sta MusicEngineVoiceStatus,x
   
   ; TODO: Need to translate this function.
@@ -365,7 +362,7 @@ ProcessMusic:
 ; inputs:
 ;  - voiceIndex: x, which voice to process music.
 ProcessVoice:
-  lda MusicEngineVoiceActive,x
+  lda MusicEngineVoiceDurationCounter,x
   bne @processMusicDurAndRel
 
   jsr FetchVoiceNotes
@@ -374,17 +371,12 @@ ProcessVoice:
 @processMusicDurAndRel:
   lda MusicEngineVoiceDurationCounter,x
   cmp #1
-  beq A_7276
+  bne @decrementDurationCounter
 
-  dec MusicEngineVoiceDurationCounter,x
-
-  rts
-
-A_7276:
   DisableVoice ; macro, squashes y.
   
-  lda #0
-  sta MusicEngineVoiceActive,x
+@decrementDurationCounter:
+  dec MusicEngineVoiceDurationCounter,x
   
   rts
 
@@ -421,7 +413,7 @@ FetchVoiceNotes:
   sta mePtr1+1
 
   lda #0
-  sta MusicEngineVoiceActive,x
+  sta MusicEngineVoiceDurationCounter,x
   
   ; Fetch first byte after reset (NOTE: mePtr1 reset above).
   lda (mePtr1),y
@@ -475,8 +467,5 @@ A_7192:
 A_7197:
   lda MusicEngineVoiceDuration,x
   sta MusicEngineVoiceDurationCounter,x
-
-  lda #1
-  sta MusicEngineVoiceActive,x
 
   rts

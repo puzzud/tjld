@@ -20,7 +20,6 @@ byte MusicEngineVoiceLooping[NUMBER_OF_VOICES];
 byte MusicEngineVoiceStatus[NUMBER_OF_VOICES];
 unsigned int MusicEngineVoicePosition[NUMBER_OF_VOICES];
 byte MusicEngineVoiceDuration[NUMBER_OF_VOICES];
-byte MusicEngineVoiceActive[NUMBER_OF_VOICES];
 byte MusicEngineVoiceDurationCounter[NUMBER_OF_VOICES];
 
 // MULE music engine.
@@ -93,7 +92,7 @@ void PlayAudioPattern(byte voiceIndex, const byte* voiceStart, byte looping)
 	MusicEngineVoicePosition[voiceIndex] = 0;
 
 	// Disable all voice music processing.
-	MusicEngineVoiceActive[voiceIndex] = 0;
+	MusicEngineVoiceDurationCounter[voiceIndex] = 0;
 
 	MusicEngineVoiceStatus[voiceIndex] = -1; // 0xff
 
@@ -106,7 +105,7 @@ void StopAudioPattern(byte voiceIndex)
 	// Disable all voice music processing.
 	for (voiceIndex = 0; voiceIndex < NUMBER_OF_VOICES; ++voiceIndex)
 	{
-		MusicEngineVoiceActive[voiceIndex] = 0;
+		MusicEngineVoiceDurationCounter[voiceIndex] = 0;
 		MusicEngineVoiceStatus[voiceIndex] = 0;
 	}
 
@@ -131,7 +130,7 @@ void ProcessMusic(void)
 
 void ProcessVoice(unsigned int voiceIndex)
 {
-	if (MusicEngineVoiceActive[voiceIndex] == 0)
+	if (MusicEngineVoiceDurationCounter[voiceIndex] == 0)
 	{
 		FetchVoiceNotes(voiceIndex);
 	}
@@ -145,7 +144,7 @@ void ProcessVoice(unsigned int voiceIndex)
 		// Disable Voice.
 		DisableVoice(voiceIndex);
 
-		MusicEngineVoiceActive[voiceIndex] = 0;
+		MusicEngineVoiceDurationCounter[voiceIndex] = 0;
 	}
 }
 
@@ -163,8 +162,8 @@ void FetchVoiceNotes(unsigned int voiceIndex)
 		else
 		{
 			// Reset music engine vectors to currently set base music data vectors.
-			MusicEngineVoiceActive[voiceIndex] = 0;
 			MusicEngineVoicePosition[voiceIndex] = 0;
+			MusicEngineVoiceDurationCounter[voiceIndex] = 0;
 			musicEngineTempFetch = MusicEngineVoiceMusicStart[voiceIndex][MusicEngineVoicePosition[voiceIndex]];
 		}
 	}
@@ -199,8 +198,6 @@ void FetchVoiceNotes(unsigned int voiceIndex)
 	}
 
 	MusicEngineVoiceDurationCounter[voiceIndex] = MusicEngineVoiceDuration[voiceIndex];
-
-	MusicEngineVoiceActive[voiceIndex] = 1;	
 }
 
 // SDL Specific.

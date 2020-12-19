@@ -158,7 +158,6 @@ void FetchVoiceNotes(unsigned int voiceIndex)
 		if (MusicEngineVoiceLooping[voiceIndex] == 0)
 		{
 			// No looping, so do no fetching.
-			MusicEngineVoiceActive[voiceIndex] = 1;
 			return;
 		}
 		else

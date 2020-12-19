@@ -409,7 +409,6 @@ FetchVoiceNotes:
   bne @resetMusicVectors
 
   ; No looping, so do no fetching.
-  sta MusicEngineVoiceActive,x ; a should be 0.
   rts
 
 ; Reset music engine vectors to currently set base music data vectors.

@@ -10,6 +10,7 @@ void ProcessMusic(void);
 void ProcessVoice(unsigned int voiceIndex);
 void FetchVoiceNotes(unsigned int voiceIndex);
 
+void ProcessFetchedDatum(unsigned int voiceIndex, byte musicEngineTempFetch);
 void SetVoiceFrequency(unsigned int voiceIndex, unsigned int frequencyIndex);
 void EnableVoice(unsigned int voiceIndex);
 void DisableVoice(unsigned int voiceIndex);
@@ -168,8 +169,13 @@ void FetchVoiceNotes(unsigned int voiceIndex)
 		}
 	}
 
-	// Process fetched data.
+	ProcessFetchedDatum(voiceIndex, musicEngineTempFetch);
 
+	++MusicEngineVoicePosition[voiceIndex];
+}
+
+void ProcessFetchedDatum(unsigned int voiceIndex, byte musicEngineTempFetch)
+{
 	// Cutoff bits 6 & 7.
 	// The first six bits of this byte are the music note index.
 	// Load Voice Frequency.
@@ -182,8 +188,6 @@ void FetchVoiceNotes(unsigned int voiceIndex)
 		// Increase music pointer.
 		MusicEngineVoiceDuration[voiceIndex] = MusicEngineVoiceMusicStart[voiceIndex][++MusicEngineVoicePosition[voiceIndex]];
 	}
-
-	++MusicEngineVoicePosition[voiceIndex];
 
 	// Now check bit 6.
 	if ((musicEngineTempFetch & 0x40) != 0) // %01000000

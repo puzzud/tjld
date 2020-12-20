@@ -12,6 +12,32 @@ unsigned int SequencePosition[NUMBER_OF_SEQUENCES];
 byte SequenceSegmentDuration[NUMBER_OF_SEQUENCES];
 byte SequenceSegmentDurationCounter[NUMBER_OF_SEQUENCES];
 
+SequenceType SequenceTypes[NUMBER_OF_SEQUENCES] =
+{
+	SEQUENCE_TYPE_MUSIC,
+	SEQUENCE_TYPE_MUSIC,
+	SEQUENCE_TYPE_MUSIC
+};
+
+unsigned int SequenceChannelIds[NUMBER_OF_SEQUENCES] =
+{
+	0,
+	1,
+	2
+};
+
+void (*ProcessSequenceDatum[NUMBER_OF_SEQUENCE_TYPES])(unsigned int channelId, byte sequenceFetchDatum) =
+{
+	NULL,
+	NULL
+};
+
+void (*OnSequenceSegmentEnd[NUMBER_OF_SEQUENCE_TYPES])(unsigned int channelId) =
+{
+	NULL,
+	NULL
+};
+
 void ProcessSequence(unsigned int sequenceIndex);
 void ProcessSequenceData(unsigned int sequenceIndex);
 
@@ -81,8 +107,7 @@ void ProcessSequence(unsigned int sequenceIndex)
 	}
 	else
 	{
-		// TODO: Abstract this hook, as it pretty much only applies to audio.
-		DisableVoice(sequenceIndex);
+		OnSequenceSegmentEnd[SequenceTypes[sequenceIndex]](sequenceIndex);
 
 		SequenceSegmentDurationCounter[sequenceIndex] = 0;
 	}
@@ -110,7 +135,7 @@ void ProcessSequenceData(unsigned int sequenceIndex)
 		}
 	}
 
-	ProcessSequenceDatum(sequenceIndex, sequenceFetchDatum);
+	ProcessSequenceDatum[SequenceTypes[sequenceIndex]](SequenceChannelIds[sequenceIndex], sequenceFetchDatum);
 
 	++SequencePosition[sequenceIndex];
 }

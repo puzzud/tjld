@@ -64,6 +64,7 @@ int Initialize(void)
 	InitializeAudio();
 
 	InitializeSequencer();
+	InitializeMusicEngine();
 
 	InitalizeSpeed();
 	InitializeNodeTree();

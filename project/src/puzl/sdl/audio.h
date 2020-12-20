@@ -12,6 +12,7 @@ extern word VoicePitch[NUMBER_OF_VOICES];
 
 extern void UpdateAudio(void);
 
+void InitializeMusicEngine(void);
 extern void PlayAudioPattern(byte voiceIndex, const byte* voiceStart, byte looping);
 extern void StopAudioPattern(byte voiceIndex);
 

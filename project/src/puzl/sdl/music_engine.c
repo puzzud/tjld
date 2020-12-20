@@ -54,6 +54,14 @@
 #define NUMBER_OF_NOTES_IN_OCTAVE 12
 #define OCTAVE NUMBER_OF_NOTES_IN_OCTAVE
 
+void ProcessAudioDatum(unsigned int sequenceIndex, byte sequenceFetchDatum);
+
+void InitializeMusicEngine(void)
+{
+	ProcessSequenceDatum[SEQUENCE_TYPE_MUSIC] = &ProcessAudioDatum;
+	OnSequenceSegmentEnd[SEQUENCE_TYPE_MUSIC] = &DisableVoice;
+}
+
 void PlayAudioPattern(byte voiceIndex, const byte* voiceStart, byte looping)
 {
 	PlaySequence(voiceIndex, voiceStart, looping);
@@ -64,7 +72,7 @@ void StopAudioPattern(byte voiceIndex)
 	StopSequence(voiceIndex);
 }
 
-void ProcessSequenceDatum(unsigned int sequenceIndex, byte sequenceFetchDatum)
+void ProcessAudioDatum(unsigned int sequenceIndex, byte sequenceFetchDatum)
 {
 	// Cutoff bits 6 & 7.
 	// The first six bits of this byte are the music note index.

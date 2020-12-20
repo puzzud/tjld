@@ -219,7 +219,7 @@ void AddNewPickup(void)
 	{
 		// TODO: Use of rand in cc65 C64 is warning about initialized data in BSS.
 		randomTile.x = rand() % TILEMAP_WIDTH;
-		randomTile.y = (rand() % (TILEMAP_HEIGHT - 1)) + 1;
+		randomTile.y = TILEMAP_HEIGHT - 2;
 	}
 	while (GetTileMapShapeCode(randomTile.x, randomTile.y) == CHARACTER_BLOCK);
 

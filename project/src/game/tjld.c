@@ -4,6 +4,8 @@
 
 #include <puzl.h>
 
+#include <dwarf.h>
+
 #define CHARACTER_BLOCK 219
 
 #define PLAYER_SPRITE_INDEX 1
@@ -61,8 +63,9 @@ void InitializeNodeTree(void)
 
 	EnableSprite(PLAYER_SPRITE_INDEX, 1);
 	SetSpritePosition(PLAYER_SPRITE_INDEX, 8 + 0, SCREEN_HEIGHT - SPRITE_HEIGHT - TILE_HEIGHT);
-	SetSpriteFrameIndex(PLAYER_SPRITE_INDEX, 0);
+	SetSpriteFrameIndex(PLAYER_SPRITE_INDEX, 1);
 	SetSpriteColor(PLAYER_SPRITE_INDEX, COLOR_RED);
+	PlaySpriteAnimation(PLAYER_SPRITE_INDEX, DwarfWalkRightAnimation, 1);
 
 	CheckSpriteTile();
 
@@ -157,22 +160,9 @@ void CheckSpriteTile(void)
 			case COLOR_YELLOW:
 			{
 				Score += 1;
-				if (Score >= 8)
-				{
-					Running = 0;
-				}
-				else
-				{
-					AddNewPickup();
 
-					SetTileMapCellShape(SpriteTilePosition.x, SpriteTilePosition.y, 0);
-				}
-
-				#ifndef __CC65__
-				// TODO: Figure this out.
-				printf("Score: %d", Score);
-				printf("\n");
-				#endif
+				AddNewPickup();
+				SetTileMapCellShape(SpriteTilePosition.x, SpriteTilePosition.y, 0);
 
 				SetBackgroundColor(COLOR_GREY_1);
 

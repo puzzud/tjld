@@ -16,14 +16,30 @@ SequenceType SequenceTypes[NUMBER_OF_SEQUENCES] =
 {
 	SEQUENCE_TYPE_MUSIC,
 	SEQUENCE_TYPE_MUSIC,
-	SEQUENCE_TYPE_MUSIC
+	SEQUENCE_TYPE_MUSIC,
+	SEQUENCE_TYPE_ANIMATION,
+	SEQUENCE_TYPE_ANIMATION,
+	SEQUENCE_TYPE_ANIMATION,
+	SEQUENCE_TYPE_ANIMATION,
+	SEQUENCE_TYPE_ANIMATION,
+	SEQUENCE_TYPE_ANIMATION,
+	SEQUENCE_TYPE_ANIMATION,
+	SEQUENCE_TYPE_ANIMATION
 };
 
 unsigned int SequenceChannelIds[NUMBER_OF_SEQUENCES] =
 {
 	0,
 	1,
-	2
+	2,
+	0,
+	1,
+	2,
+	3,
+	4,
+	5,
+	6,
+	7
 };
 
 void (*ProcessSequenceDatum[NUMBER_OF_SEQUENCE_TYPES])(unsigned int channelId, byte sequenceFetchDatum) =
@@ -71,12 +87,8 @@ void PlaySequence(byte sequenceIndex, const byte* sequenceStart, byte looping)
 // ---------------------------------------
 void StopSequence(byte sequenceIndex)
 {
-	// Disable all sequence processing.
-	for (sequenceIndex = 0; sequenceIndex < NUMBER_OF_SEQUENCES; ++sequenceIndex)
-	{
-		SequenceSegmentDurationCounter[sequenceIndex] = 0;
-		SequenceStatus[sequenceIndex] = 0;
-	}
+	SequenceSegmentDurationCounter[sequenceIndex] = 0;
+	SequenceStatus[sequenceIndex] = 0;
 }
 
 // Start of sequence processing.
@@ -96,6 +108,8 @@ void ProcessSequences(void)
 
 void ProcessSequence(unsigned int sequenceIndex)
 {
+	void (*onSequenceSegmentEnd)(unsigned int channelId);
+
 	if (SequenceSegmentDurationCounter[sequenceIndex] == 0)
 	{
 		ProcessSequenceData(sequenceIndex);
@@ -107,7 +121,11 @@ void ProcessSequence(unsigned int sequenceIndex)
 	}
 	else
 	{
-		OnSequenceSegmentEnd[SequenceTypes[sequenceIndex]](SequenceChannelIds[sequenceIndex]);
+		onSequenceSegmentEnd = OnSequenceSegmentEnd[SequenceTypes[sequenceIndex]];
+		if (onSequenceSegmentEnd != NULL)
+		{
+			onSequenceSegmentEnd(SequenceChannelIds[sequenceIndex]);
+		}
 
 		SequenceSegmentDurationCounter[sequenceIndex] = 0;
 	}

@@ -3,6 +3,7 @@
 
 #include <core.h>
 #include <sdl/audio.h>
+#include <sdl/video.h>
 
 typedef enum
 {
@@ -12,7 +13,7 @@ typedef enum
 	NUMBER_OF_SEQUENCE_TYPES
 } SequenceType;
 
-#define NUMBER_OF_SEQUENCES  (NUMBER_OF_VOICES)
+#define NUMBER_OF_SEQUENCES (NUMBER_OF_VOICES + NUMBER_OF_SPRITES)
 
 extern const byte* SequenceStart[NUMBER_OF_SEQUENCES];
 

@@ -4,6 +4,7 @@
 
 #include <puzl.h>
 #include <sdl/color.h>
+#include <sdl/sequencer.h>
 
 SDL_Texture* SpriteSetTextures[NUMBER_OF_SPRITE_COLORS];
 
@@ -20,6 +21,8 @@ void PopulateSpriteSurfaceFromSprite(SDL_Surface* spriteSurface, unsigned int sp
 
 void DrawSpriteFrame(int x, int y, unsigned int spriteFrameIndex, byte primaryColorCode);
 
+void ProcessSpriteAnimationDatum(unsigned int sequenceIndex, byte sequenceFetchDatum);
+
 void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition);
 
 void InitializeSprites(void)
@@ -28,6 +31,10 @@ void InitializeSprites(void)
 
 	// Sprite controls.
 	memset(Sprites, 0, NUMBER_OF_SPRITES * sizeof(Sprite));
+
+	// Initialize animation.
+	ProcessSequenceDatum[SEQUENCE_TYPE_ANIMATION] = &ProcessSpriteAnimationDatum;
+	OnSequenceSegmentEnd[SEQUENCE_TYPE_ANIMATION] = NULL;
 }
 
 void ShutdownSprites(void)
@@ -317,4 +324,34 @@ void SetSpriteSeconaryColor(byte colorCode)
 void SetSpriteTertiaryColor(byte colorCode)
 {
 	SpriteNonPrimaryColorCodes[1] = colorCode;
+}
+
+void PlaySpriteAnimation(byte spriteIndex, const byte* animationStart, byte looping)
+{
+	// TODO: Properly determine sequence from sprite index.
+	PlaySequence(spriteIndex + 3, animationStart, looping);
+}
+
+void StopSpriteAnimation(byte spriteIndex)
+{
+	StopSequence(spriteIndex);
+}
+
+void ProcessSpriteAnimationDatum(unsigned int sequenceIndex, byte sequenceFetchDatum)
+{
+	byte spriteIndex = sequenceIndex - 3; // TODO: Properly determine sprite index from sequence index.
+
+	// Cutoff bit 7.
+	// The first seven bits of this byte are the animation frame index.
+	SetSpriteFrameIndex(spriteIndex, sequenceFetchDatum & 0x7f); // %01111111
+
+	// Now check bit 7.
+	if ((sequenceFetchDatum & 0x80) != 0) // %10000000
+	{
+		// Fetch and store next byte.
+		// Increase music pointer.
+		SequenceSegmentDuration[sequenceIndex] = SequenceStart[sequenceIndex][++SequencePosition[sequenceIndex]];
+	}
+
+	SequenceSegmentDurationCounter[sequenceIndex] = SequenceSegmentDuration[sequenceIndex];
 }

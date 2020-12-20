@@ -28,3 +28,13 @@ void ClearTileMapCollisionCodes(void)
 		TileMapCollisionCodes[index] = 0;
 	}
 }
+
+void PlaySpriteAnimation(byte spriteIndex, const byte* animationStart, byte looping)
+{
+	
+}
+
+void StopSpriteAnimation(byte spriteIndex)
+{
+
+}

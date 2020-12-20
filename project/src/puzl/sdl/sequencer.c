@@ -107,7 +107,7 @@ void ProcessSequence(unsigned int sequenceIndex)
 	}
 	else
 	{
-		OnSequenceSegmentEnd[SequenceTypes[sequenceIndex]](sequenceIndex);
+		OnSequenceSegmentEnd[SequenceTypes[sequenceIndex]](SequenceChannelIds[sequenceIndex]);
 
 		SequenceSegmentDurationCounter[sequenceIndex] = 0;
 	}
@@ -135,7 +135,7 @@ void ProcessSequenceData(unsigned int sequenceIndex)
 		}
 	}
 
-	ProcessSequenceDatum[SequenceTypes[sequenceIndex]](SequenceChannelIds[sequenceIndex], sequenceFetchDatum);
+	ProcessSequenceDatum[SequenceTypes[sequenceIndex]](sequenceIndex, sequenceFetchDatum);
 
 	++SequencePosition[sequenceIndex];
 }

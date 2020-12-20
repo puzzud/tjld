@@ -74,10 +74,12 @@ void StopAudioPattern(byte voiceIndex)
 
 void ProcessAudioDatum(unsigned int sequenceIndex, byte sequenceFetchDatum)
 {
+	unsigned int voiceIndex = SequenceChannelIds[sequenceIndex];
+
 	// Cutoff bits 6 & 7.
 	// The first six bits of this byte are the music note index.
 	// Load Voice Frequency.
-	SetVoiceFrequency(sequenceIndex, sequenceFetchDatum & 0x3f); // %00111111
+	SetVoiceFrequency(voiceIndex, sequenceFetchDatum & 0x3f); // %00111111
 
 	// Now check bit 7.
 	if ((sequenceFetchDatum & 0x80) != 0) // %10000000
@@ -91,12 +93,12 @@ void ProcessAudioDatum(unsigned int sequenceIndex, byte sequenceFetchDatum)
 	if ((sequenceFetchDatum & 0x40) != 0) // %01000000
 	{
 		// Disable Voice.
-		DisableVoice(sequenceIndex);
+		DisableVoice(voiceIndex);
 	}
 	else
 	{
 		// Gate Voice.
-		EnableVoice(sequenceIndex);
+		EnableVoice(voiceIndex);
 	}
 
 	SequenceSegmentDurationCounter[sequenceIndex] = SequenceSegmentDuration[sequenceIndex];

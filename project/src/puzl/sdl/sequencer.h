@@ -20,6 +20,8 @@ extern unsigned int SequencePosition[NUMBER_OF_SEQUENCES];
 extern byte SequenceSegmentDuration[NUMBER_OF_SEQUENCES];
 extern byte SequenceSegmentDurationCounter[NUMBER_OF_SEQUENCES];
 
+extern unsigned int SequenceChannelIds[NUMBER_OF_SEQUENCES];
+
 extern void (*ProcessSequenceDatum[NUMBER_OF_SEQUENCE_TYPES])(unsigned int channelId, byte sequenceFetchDatum);
 extern void (*OnSequenceSegmentEnd[NUMBER_OF_SEQUENCE_TYPES])(unsigned int channelId);
 

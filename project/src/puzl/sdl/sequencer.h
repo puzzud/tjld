@@ -32,8 +32,4 @@ extern void ProcessSequences(void);
 extern void PlaySequence(byte sequenceIndex, const byte* sequenceStart, byte looping);
 extern void StopSequence(byte sequenceIndex);
 
-extern void SetVoiceFrequency(unsigned int voiceIndex, unsigned int frequencyIndex);
-extern void EnableVoice(unsigned int voiceIndex);
-extern void DisableVoice(unsigned int voiceIndex);
-
 #endif

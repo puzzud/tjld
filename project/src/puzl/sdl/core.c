@@ -59,12 +59,11 @@ int Initialize(void)
 		return 1;
   }
 
+	InitializeSequencer();
+
 	InitializeInput();
 	InitializeVideo();
 	InitializeAudio();
-
-	InitializeSequencer();
-	InitializeMusicEngine();
 
 	InitalizeSpeed();
 	InitializeNodeTree();

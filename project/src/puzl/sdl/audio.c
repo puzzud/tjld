@@ -68,6 +68,8 @@ void InitializeAudio(void)
 	Volume = 15;
 
 	SDL_PauseAudioDevice(AudioDeviceId, 0);
+
+	InitializeMusicEngine();
 }
 
 void ShutdownAudio(void)

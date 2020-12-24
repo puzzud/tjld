@@ -293,12 +293,13 @@ _StopAudioPattern:
 ;---------------------------------------
 ; inputs:
 ;  - voiceIndex: x, which voice to fetch and process music from.
-;  - sequenceTempFetch: SequenceTempFetch, a, current datum just read.
+;  - sequenceTempFetch: SequenceTempFetch, current datum just read.
 ;  - sequencerPosition: sPtr1+1/sPtr1, where sequencer is looking at in sequence.
 ProcessAudioDatum:
   ; Cutoff bits 6 & 7.
   ; The first six bits of this byte are the music note index.
   ; TODO: Make this literal use flag constants.
+  lda SequenceTempFetch
   and #%00111111
   
   ; Load Voice Frequency.

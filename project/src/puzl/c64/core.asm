@@ -113,12 +113,11 @@ Reset:
   lda #>(__BSS_LAST__+__STACKSIZE__-1)
   sta sp+1
 
+  jsr InitializeSequencer
+
   jsr _InitializeVideo
   jsr _InitializeInput
   jsr InitializeAudio
-
-  jsr InitializeSequencer
-  jsr InitializeMusicEngine
   
   jsr _InitalizeSpeed
   jsr _InitializeNodeTree

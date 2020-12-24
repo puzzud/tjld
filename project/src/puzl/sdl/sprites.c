@@ -33,6 +33,7 @@ void InitializeSprites(void)
 	memset(Sprites, 0, NUMBER_OF_SPRITES * sizeof(Sprite));
 
 	// Initialize animation.
+	// NOTE: This could just be referenced in an array at compile time.
 	ProcessSequenceDatum[SEQUENCE_TYPE_ANIMATION] = &ProcessSpriteAnimationDatum;
 	OnSequenceSegmentEnd[SEQUENCE_TYPE_ANIMATION] = NULL;
 }
@@ -334,7 +335,8 @@ void PlaySpriteAnimation(byte spriteIndex, const byte* animationStart, byte loop
 
 void StopSpriteAnimation(byte spriteIndex)
 {
-	StopSequence(spriteIndex);
+	// TODO: Properly determine sequence from sprite index.
+	StopSequence(spriteIndex + 3);
 }
 
 void ProcessSpriteAnimationDatum(unsigned int sequenceIndex, byte sequenceFetchDatum)

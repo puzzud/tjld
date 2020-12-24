@@ -115,12 +115,11 @@ InitializeSequencer:
 
   ; Clear sequence type callbacks.
   lda #0
+  ldx #((2*2)-1) ; Word / pointer size minus 1.
 @clearCallbacksLoop:
-  ldx #2-1 ; Word / pointer size minus 1.
   sta ProcessSequenceDatum,x
   sta OnSequenceSegmentEnd,x
 
-  dex
   dex
   bpl @clearCallbacksLoop
 
@@ -180,12 +179,8 @@ StopSequence:
 
 ;---------------------------------------
 ; Start of all voice/music processing.
-; inputs:
-;  - sequenceIndex: x, which voice to operate on.
 ProcessSequences:
-  ; TODO: Temporarily limit sequences to process.
-  ;ldx #NUMBER_OF_SEQUENCES-1
-  ldx #3-1
+  ldx #NUMBER_OF_SEQUENCES-1
 @loop:
   lda SequenceStatus,x
   beq @afterProcessSequence
@@ -215,7 +210,9 @@ ProcessSequence:
   bne @decrementDurationCounter
 
   ; Check and JSR OnSequenceSegmentEnd hook.
-  ldy #0 ; TODO: Get this from sequence type.
+  lda SequenceTypes,x
+  asl
+  tay
   lda OnSequenceSegmentEnd,y
   sta sPtr2
   lda OnSequenceSegmentEnd+1,y
@@ -277,7 +274,9 @@ ProcessSequenceData:
 ; Start sequence data processing.
 @processPatternDatum:
   ; Check and JSR ProcessSequenceDatum hook.
-  ldy #0 ; TODO: Get this from sequence type.
+  lda SequenceTypes,x
+  asl
+  tay
   lda ProcessSequenceDatum,y
   sta sPtr2
   lda ProcessSequenceDatum+1,y
@@ -289,7 +288,6 @@ ProcessSequenceData:
   pha
   lda #<(@afterProcessSequenceDatum-1)
   pha
-  lda SequenceTempFetch ; Need to load back a register right before.
   jmp (sPtr2) ; 
 @afterProcessSequenceDatum:
 

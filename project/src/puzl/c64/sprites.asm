@@ -1,5 +1,6 @@
 ; c64 sprites.asm
 
+.export InitializeSpritesAnimation
 .export _EnableSprite
 .export _GetSpritePositionX
 .export _GetSpritePositionY
@@ -11,6 +12,8 @@
 .export _SetSpriteColor
 .export _SetSpriteSeconaryColor
 .export _SetSpriteTertiaryColor
+.export _PlaySpriteAnimation
+.export _StopSpriteAnimation
 
 .autoimport on
   
@@ -24,6 +27,13 @@
 .import AddSignedByteToSignedWord
 
 .import GetTileMapCellCollisionCode
+
+.importzp sPtr1
+.importzp SequencePositionLo
+.importzp SequencePositionHi
+.importzp SequenceSegmentDuration
+.importzp SequenceSegmentDurationCounter
+.importzp SequenceTempFetch
 
 .import _NthBitFlags
 .import _InverseNthBitFlags
@@ -79,6 +89,22 @@ LowerRightSpriteTileY:
   .res 1
 
 .segment "CODE"
+
+;------------------------------------------------------------------
+InitializeSpritesAnimation:
+  ; NOTE: This could just be assembled in a sequence of data.
+  ; TODO: SEQUENCE_TYPE_ANIMATION = 1, need to source this value and in theory use indexing.
+  lda #<ProcessSpriteAnimationDatum
+  sta ProcessSequenceDatum+(1*2)
+  lda #>ProcessSpriteAnimationDatum
+  sta ProcessSequenceDatum+(1*2)+1
+
+  ; NOTE: OnSequenceSegmentEnd should already be null (saving space here).
+  ;lda #0
+  ;sta OnSequenceSegmentEnd+(1*2)
+  ;sta OnSequenceSegmentEnd+(1*2)+1
+
+  rts
 
 ;------------------------------------------------------------------
 ; inputs:
@@ -503,19 +529,32 @@ GetTileIndexFromPosition:
 ; inputs:
 ;  - spriteIndex: sp[0], which sprite to assign frame index.
 ;  - frameIndex: a, index of graphic frame.
+; notes:
+;  - Intended call from C.
 _SetSpriteFrameIndex:
-  tax
+  pha
 
   ldy #0
   lda (sp),y
-  tay
+  tax
 
-  txa
-  clc
-  adc #64 ; TODO: Need to investigate why 64 is a base.
-  sta SPRITE_POINTER_BASE,y
+  pla
+  jsr SetSpriteFrameIndex
 
   jmp incsp1
+
+;------------------------------------------------------------------
+; inputs:
+;  - spriteIndex: x, which sprite to assign frame index.
+;  - frameIndex: a, index of graphic frame.
+; notes:
+;  - Intended call from assembly.
+SetSpriteFrameIndex:
+  clc
+  adc #64 ; TODO: Need to investigate why 64 is a base.
+  sta SPRITE_POINTER_BASE,x
+
+  rts
 
 ;------------------------------------------------------------------
 ; inputs:
@@ -546,5 +585,99 @@ _SetSpriteSeconaryColor:
 ;  - colorCode: a, color code.
 _SetSpriteTertiaryColor:
   sta SPMC1
+
+  rts
+
+;---------------------------------------
+; inputs:
+;  - spriteIndex: sp[2], which sprite to play this animation with.
+;  - animationStart: sp[1]/sp[0], address of animation data to play.
+;  - looping: a, indicate whether animation should loop.
+_PlaySpriteAnimation:
+  pha
+
+  ; spriteIndex
+  ldy #2 
+  lda (sp),y
+  ; TODO: Properly determine sequence from sprite index.
+  clc
+  adc #3
+  tax ; Cache normal offset for call to PlaySequence.
+  
+  dey
+  lda (sp),y
+  sta sPtr1+1
+  dey
+  lda (sp),y
+  sta sPtr1
+
+  pla
+  jsr PlaySequence
+
+  jmp incsp3
+
+;---------------------------------------
+; inputs:
+;  - spriteIndex: a, index of which voice to stop.
+_StopSpriteAnimation:
+  ; TODO: Properly determine sequence from sprite index.
+  clc
+  adc #3
+  tax
+  jmp StopSequence
+  ;rts
+
+;---------------------------------------
+; inputs:
+;  - sequenceIndex: x, which sequence to fetch and process data from.
+;  - sequenceTempFetch: SequenceTempFetch, current datum just read.
+;  - sequencerPosition: sPtr1+1/sPtr1, where sequencer is looking at in sequence.
+; notes:
+;  - Preserves x.
+ProcessSpriteAnimationDatum:
+  ; Cutoff bits 7.
+  ; The first seven bits of this byte are the animation frame index.
+  txa
+  pha ; Cache x.
+
+  ; For SetSpriteFrameIndex, set x temporarily to
+  ; voiceIndex from sequenceIndex.
+  sec
+  sbc #3
+  tax
+
+  lda SequenceTempFetch
+  ; TODO: Make this literal use flag constants.
+  and #%01111111
+  
+  ; TODO: Translate to sequence channel ID.
+  jsr SetSpriteFrameIndex
+  
+  ; Restore x.
+  pla
+  tax
+
+  ; Now check bit 7.
+  bit SequenceTempFetch
+  bpl @updateDuration
+
+  ; Increase sequence pointer.
+  inc sPtr1
+  bne @skipIncrementCarry
+  inc sPtr1+1
+@skipIncrementCarry:
+  lda sPtr1
+  sta SequencePositionLo,x
+  lda sPtr1+1
+  sta SequencePositionHi,x
+
+  ; Fetch and store next byte.
+  ldy #0
+  lda (sPtr1),y
+  sta SequenceSegmentDuration,x
+
+@updateDuration:
+  lda SequenceSegmentDuration,x
+  sta SequenceSegmentDurationCounter,x
 
   rts

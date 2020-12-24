@@ -26,6 +26,8 @@
 
 .import _ClearTileMapCollisionCodes
 
+.import InitializeSpritesAnimation
+
 .include "c64.asm"
 
 .segment "BSS"
@@ -157,6 +159,8 @@ InitializeSprites:
   ; Restore ROMs.
   pla
   sta R6510
+
+  jsr InitializeSpritesAnimation
 
   rts
 

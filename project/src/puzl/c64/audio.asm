@@ -1,10 +1,8 @@
 ; c64 audio.asm
 
 .import InitializeMusicEngine
-.import ProcessMusic
 
 .export InitializeAudio
-.export UpdateAudio
 
 .export _SoundKillAll
 
@@ -42,12 +40,6 @@ VoiceRegisterSidOffset:
 InitializeAudio:
   jsr InitializeVoices
   jsr InitializeMusicEngine
-
-  rts
-
-;------------------------------------------------------------------
-UpdateAudio:
-  jsr ProcessMusic
 
   rts
 

@@ -4,57 +4,35 @@
 .export InitializeMusicEngine
 .export _PlayAudioPattern
 .export _StopAudioPattern
-.export ProcessMusic
+.export ProcessAudioDatum
 
-.exportzp MusicEngineVoiceStatus
+.import PlaySequence
+.import StopSequence
+
+.importzp sPtr1
+.importzp SequencePositionLo
+.importzp SequencePositionHi
+.importzp SequenceSegmentDuration
+.importzp SequenceSegmentDurationCounter
+.importzp SequenceTempFetch
+
+.import ProcessSequenceDatum
+.import OnSequenceSegmentEnd
 
 .autoimport on
   
 .importzp sp, sreg, regsave, regbank
-.importzp tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
+;.importzp tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
 .macpack longbranch
-
-.import _SoundKillAll
 
 .segment "BSS"
 
-MusicEngineVoiceMusicStartLo:
-  .res 1 * NUMBER_OF_VOICES
-
-MusicEngineVoiceMusicStartHi:
-  .res 1 * NUMBER_OF_VOICES
-
-MusicEngineVoiceLooping:
-  .res 1 * NUMBER_OF_VOICES
-
 .segment "ZEROPAGE"
-
-mePtr1: ; NOTE: Not using ptr1, because this is expected to run in an interrupt.
-  .res 2
-
-MusicEngineVoiceStatus:
-  .res 1 * NUMBER_OF_VOICES
-
-MusicEngineVoicePositionLo:
-  .res 1 * NUMBER_OF_VOICES
-
-MusicEngineVoicePositionHi:
-  .res 1 * NUMBER_OF_VOICES
-
-MusicEngineVoiceDuration:
-  .res 1 * NUMBER_OF_VOICES
-
-MusicEngineVoiceDurationCounter:
-  .res 1 * NUMBER_OF_VOICES
-
-MusicEngineTempFetch:
-  .res 1
 
 ; MULE music engine.
 ;
 ; It provides the following major routines:
-; _InitializeMusic
-; _ProcessMusic
+; InitializeMusicEngine
 
 ; The encoding for the music is as follows:
 ; - The first byte fetched will always contain an index to a note table, based on the lower 6 bits.
@@ -266,12 +244,16 @@ MusicEngineNoteFreqTableLo6C = MusicEngineNoteFreqTableLo1C + (NUMBER_OF_NOTES_I
 ;
 ; inputs:
 InitializeMusicEngine:
-  ldx #NUMBER_OF_VOICES-1
-@loop:
-  jsr _StopAudioPattern
+  ; TODO: SEQUENCE_TYPE_MUSIC = 0, need to source this value and in theory use indexing.
+  lda #<ProcessAudioDatum
+  sta ProcessSequenceDatum
+  lda #>ProcessAudioDatum
+  sta ProcessSequenceDatum+1
 
-  dex
-  bpl @loop
+  lda #<_DisableVoice
+  sta OnSequenceSegmentEnd
+  lda #>_DisableVoice
+  sta OnSequenceSegmentEnd+1
 
   rts
 
@@ -286,186 +268,86 @@ _PlayAudioPattern:
   ; voiceIndex
   ldy #2 
   lda (sp),y
-  tax ; Cache normal offset for call to StartAudioPattern.
+  tax ; Cache normal offset for call to PlaySequence.
 
   dey
   lda (sp),y
-  sta MusicEngineVoiceMusicStartHi,x
+  sta sPtr1+1
   dey
   lda (sp),y
-  sta MusicEngineVoiceMusicStartLo,x
-  
+  sta sPtr1
+
   pla
-  jsr StartAudioPattern
+  jsr PlaySequence
 
   jmp incsp3
-
-;---------------------------------------
-; inputs:
-;  - voiceIndex: x, which voice to start.
-;  - looping: a, indicate whether pattern should loop.
-StartAudioPattern:
-  sta MusicEngineVoiceLooping,x
-  
-  ; Load music vectors into music engine voice music data vector (counters).
-  lda MusicEngineVoiceMusicStartLo,x
-  sta MusicEngineVoicePositionLo,x
-  lda MusicEngineVoiceMusicStartHi,x
-  sta MusicEngineVoicePositionHi,x
-
-  ; Disable all voice music processing.
-  lda #0
-  sta MusicEngineVoiceDurationCounter,x
-
-  tay
-  dey
-  tya
-  sta MusicEngineVoiceStatus,x
-
-  rts
 
 ;---------------------------------------
 ; inputs:
 ;  - voiceIndex: a, index of which voice to stop.
 _StopAudioPattern:
   tax
-
-  lda #0
-  sta MusicEngineVoiceDurationCounter,x
-  sta MusicEngineVoiceStatus,x
-  
-  ; TODO: Need to translate this function.
-  ;jsr _SoundKillAll
-
-  rts
-
-;---------------------------------------
-; Start of all voice/music processing.
-; inputs:
-;  - voiceIndex: x, which voice to operate on.
-ProcessMusic:
-  ldx #NUMBER_OF_VOICES-1
-@loop:
-  lda MusicEngineVoiceStatus,x
-  beq @afterProcessVoice
-
-  jsr ProcessVoice
-
-@afterProcessVoice:
-  dex
-  bpl @loop
-
-@done:
-  rts
-
-;---------------------------------------
-; inputs:
-;  - voiceIndex: x, which voice to process music.
-ProcessVoice:
-  lda MusicEngineVoiceDurationCounter,x
-  bne @processMusicDurAndRel
-
-  jsr FetchVoiceNotes
-
-; Process music engine voice time to release and duration.
-@processMusicDurAndRel:
-  lda MusicEngineVoiceDurationCounter,x
-  cmp #1
-  bne @decrementDurationCounter
-
-  DisableVoice ; macro, squashes y.
-  
-@decrementDurationCounter:
-  dec MusicEngineVoiceDurationCounter,x
-  
-  rts
+  jmp StopSequence
+  ;rts
 
 ;---------------------------------------
 ; inputs:
 ;  - voiceIndex: x, which voice to fetch and process music from.
-FetchVoiceNotes:
-  ; Fetch current byte and cache for later analysis.
-  lda MusicEngineVoicePositionLo,x
-  sta mePtr1
-  lda MusicEngineVoicePositionHi,x
-  sta mePtr1+1
-  
-  ldy #0
-  lda (mePtr1),y
-  sta MusicEngineTempFetch
-
-  ; Check if at end of pattern.
-  bne @processPatternDatum
-
-  lda MusicEngineVoiceLooping,x
-  bne @resetMusicVectors
-
-  ; No looping, so do no fetching.
-  rts
-
-; Reset music engine vectors to currently set base music data vectors.
-@resetMusicVectors:
-  lda MusicEngineVoiceMusicStartLo,x
-  sta MusicEngineVoicePositionLo,x
-  sta mePtr1
-  lda MusicEngineVoiceMusicStartHi,x
-  sta MusicEngineVoicePositionHi,x
-  sta mePtr1+1
-
-  lda #0
-  sta MusicEngineVoiceDurationCounter,x
-  
-  ; Fetch first byte after reset (NOTE: mePtr1 reset above).
-  lda (mePtr1),y
-  sta MusicEngineTempFetch
-
-; Start music data processing (of voice).
-@processPatternDatum:
+;  - sequenceTempFetch: SequenceTempFetch, a, current datum just read.
+;  - sequencerPosition: sPtr1+1/sPtr1, where sequencer is looking at in sequence.
+ProcessAudioDatum:
   ; Cutoff bits 6 & 7.
   ; The first six bits of this byte are the music note index.
+  ; TODO: Make this literal use flag constants.
   and #%00111111
   
   ; Load Voice Frequency.
+  ; TODO: Translate to sequence channel ID.
   SetVoiceFrequency ; macro
   
   ; Now check bit 7.
-  bit MusicEngineTempFetch
-  bpl A_7180
+  bit SequenceTempFetch
+  bpl @checkGate
+
+  ; Increase sequence pointer.
+  inc sPtr1
+  bne @skipIncrementCarry
+  inc sPtr1+1
+@skipIncrementCarry:
+  lda sPtr1
+  sta SequencePositionLo,x
+  lda sPtr1+1
+  sta SequencePositionHi,x
 
   ; Fetch and store next byte.
-  ldy #1
-  lda (mePtr1),y
-  sta MusicEngineVoiceDuration,x
-
-  ; Increase music pointer.
-  inc mePtr1
-  bne A_7180
-  inc mePtr1+1
-A_7180:
-  inc mePtr1
-  bne @skip2ndIncrementCarry
-  inc mePtr1+1
-@skip2ndIncrementCarry:
-  lda mePtr1
-  sta MusicEngineVoicePositionLo,x
-  lda mePtr1+1
-  sta MusicEngineVoicePositionHi,x
+  ldy #0
+  lda (sPtr1),y
+  sta SequenceSegmentDuration,x
 
   ; Now check bit 6.
-A_7186:
-  bit MusicEngineTempFetch
-  bvc A_7192
+@checkGate:
+  bit SequenceTempFetch
+  bvc @A_7192
 
   DisableVoice ; macro
   
-  jmp A_7197
+  jmp @A_7197
 
-A_7192:
+@A_7192:
   ; Gate Voice.
   EnableVoice ; macro, squashes y.
   
-A_7197:
-  lda MusicEngineVoiceDuration,x
-  sta MusicEngineVoiceDurationCounter,x
+@A_7197:
+  lda SequenceSegmentDuration,x
+  sta SequenceSegmentDurationCounter,x
 
+  rts
+
+;---------------------------------------
+; Routine call to DisableVoice macro.
+;
+; inputs:
+;  - voiceIndex: x, which voice disable.
+_DisableVoice:
+  DisableVoice ; macro
   rts

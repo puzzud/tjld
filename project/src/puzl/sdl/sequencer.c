@@ -60,11 +60,17 @@ void ProcessSequenceData(unsigned int sequenceIndex);
 // ---------------------------------------
 void InitializeSequencer(void)
 {
-	unsigned int sequenceIndex;
+	unsigned int index;
 
-	for (sequenceIndex = 0; sequenceIndex < NUMBER_OF_SEQUENCES; ++sequenceIndex)
+	for (index = 0; index < NUMBER_OF_SEQUENCES; ++index)
 	{
-		StopSequence(sequenceIndex);
+		StopSequence(index);
+	}
+
+	for (index = 0; index < NUMBER_OF_SEQUENCE_TYPES; ++index)
+	{
+		ProcessSequenceDatum[index] = NULL;
+		OnSequenceSegmentEnd[index] = NULL;
 	}
 }
 

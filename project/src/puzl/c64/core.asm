@@ -4,6 +4,8 @@
 
 .import _UpdateInput
 
+.import ProcessSequences
+
 .import _InitalizeSpeed
 .import _InitializeNodeTree
 .import _Process
@@ -114,6 +116,9 @@ Reset:
   jsr _InitializeVideo
   jsr _InitializeInput
   jsr InitializeAudio
+
+  jsr InitializeSequencer
+  jsr InitializeMusicEngine
   
   jsr _InitalizeSpeed
   jsr _InitializeNodeTree
@@ -161,7 +166,7 @@ DefaultInterrupt:
   tya
   pha
   
-  jsr UpdateAudio
+  jsr ProcessSequences
   
   lda #$ff
   sta VICIRQ

@@ -19,6 +19,8 @@ typedef struct
 	byte enabled;
 	ScreenPoint position;
 	byte frameIndex;
+	const byte** animationSet;
+	byte animationId;
 	byte colorCode;
 	Vector2d velocity;
 } Sprite;

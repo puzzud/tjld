@@ -327,10 +327,29 @@ void SetSpriteTertiaryColor(byte colorCode)
 	SpriteNonPrimaryColorCodes[1] = colorCode;
 }
 
-void PlaySpriteAnimation(byte spriteIndex, const byte* animationStart, byte looping)
+void SetSpriteAnimationSet(byte spriteIndex, const byte** animationSet)
 {
+	Sprites[spriteIndex].animationSet = animationSet;
+}
+
+void PlaySpriteAnimation(byte spriteIndex, byte animationId, byte looping)
+{
+	const byte* animationStart;
+
+	if (Sprites[spriteIndex].animationSet != NULL)
+	{
+		if (Sprites[spriteIndex].animationId == animationId)
+		{
+			return;
+		}
+	}
+
+	animationStart = Sprites[spriteIndex].animationSet[animationId];
+
 	// TODO: Properly determine sequence from sprite index.
 	PlaySequence(spriteIndex + 3, animationStart, looping);
+
+	Sprites[spriteIndex].animationId = animationId;
 }
 
 void StopSpriteAnimation(byte spriteIndex)

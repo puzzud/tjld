@@ -32,9 +32,9 @@ void FASTCALL GenerateHWall(byte x, byte y, byte width);
 void FASTCALL GenerateVWall(byte x, byte y, byte height);
 
 void UpdateIntendedDirection(void);
+void UpdateSpriteAnimation(void);
 byte GetSpriteTilePositionX(void);
 byte GetSpriteTilePositionY(void);
-byte GetTileOffsetFromPoint(char point);
 void CheckSpriteTile(void);
 
 void AddNewPickup(void);
@@ -65,7 +65,7 @@ void InitializeNodeTree(void)
 	SetSpritePosition(PLAYER_SPRITE_INDEX, 8 + 0, SCREEN_HEIGHT - SPRITE_HEIGHT - TILE_HEIGHT);
 	SetSpriteFrameIndex(PLAYER_SPRITE_INDEX, 1);
 	SetSpriteColor(PLAYER_SPRITE_INDEX, COLOR_RED);
-	PlaySpriteAnimation(PLAYER_SPRITE_INDEX, DwarfWalkRightAnimation, 1);
+	SetSpriteAnimationSet(PLAYER_SPRITE_INDEX, DwarfAnimationSet);
 
 	CheckSpriteTile();
 
@@ -84,7 +84,7 @@ void Process(void)
 		{
 			if (IsMoving(SpriteSpeedPatternIndex) != 0)
 			{
-				SetSpriteVelocity(PLAYER_SPRITE_INDEX, IntendedDirection.x, IntendedDirection.y);
+				SetSpriteVelocity(PLAYER_SPRITE_INDEX, IntendedDirection.x, 0);//IntendedDirection.y);
 
 				MoveSprite(PLAYER_SPRITE_INDEX);
 
@@ -95,6 +95,8 @@ void Process(void)
 		CycleSpeedBit();
 	}
 	while (--LoopIndex != 0);
+
+	UpdateSpriteAnimation();
 }
 
 void GenerateHWall(byte x, byte y, byte width)
@@ -148,6 +150,27 @@ void UpdateIntendedDirection(void)
 	#endif
 }
 
+void UpdateSpriteAnimation(void)
+{
+	signed char intendedDirectionX = IntendedDirection.x;
+
+	if (intendedDirectionX != 0)
+	{
+		if (intendedDirectionX < 0)
+		{
+			PlaySpriteAnimation(PLAYER_SPRITE_INDEX, DWARF_ANIMATION_ID_LEFT_WALK, 1);
+		}
+		else if (intendedDirectionX > 0)
+		{
+			PlaySpriteAnimation(PLAYER_SPRITE_INDEX, DWARF_ANIMATION_ID_RIGHT_WALK, 1);
+		}
+	}
+	else
+	{
+		PlaySpriteAnimation(PLAYER_SPRITE_INDEX, DWARF_ANIMATION_ID_FRONT_IDLE, 1);
+	}
+}
+
 void CheckSpriteTile(void)
 {
 	SpriteTilePosition.x = GetSpriteTilePositionX();
@@ -172,11 +195,6 @@ void CheckSpriteTile(void)
 			}
 		}
 	}
-}
-
-byte GetTileOffsetFromPoint(char point)
-{
-	return point << 3;
 }
 
 byte GetSpriteTilePositionX(void)

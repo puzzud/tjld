@@ -19,6 +19,7 @@
 .autoimport on
 
 .importzp sp, sreg, regsave, regbank  
+.importzp ptr1
 .macpack longbranch
 
 ; TODO: Properly source these constants.
@@ -128,14 +129,14 @@ InitializeSequencer:
 ;---------------------------------------
 ; inputs:
 ;  - sequenceIndex: x, which voice to play this pattern with.
-;  - voiceStart: sPtr1+1/sPtr1, address of audio pattern data to play.
+;  - voiceStart: ptr1+1/ptr1, address of audio pattern data to play.
 ;  - looping: a, indicate whether pattern should loop.
 PlaySequence:
   pha
 
-  lda sPtr1+1
+  lda ptr1+1
   sta SequenceStartHi,x
-  lda sPtr1
+  lda ptr1
   sta SequenceStartLo,x
   
   pla

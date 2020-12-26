@@ -61,6 +61,10 @@ const byte DwarfSpriteAnimationRightJump[] =
 	0x00
 };
 
+#ifndef __CC65__
+// NOTE: cc65 seems to have a bug where it's not populating
+// this array of pointers correctly.
+// Therefore, this array needs to be defined in cc65 / 6502 implementation.
 const byte* DwarfAnimationSet[] =
 {
 	DwarfSpriteAnimationLeftIdle,  // DWARF_ANIMATION_ID_LEFT_IDLE
@@ -73,3 +77,4 @@ const byte* DwarfAnimationSet[] =
 	DwarfSpriteAnimationFrontJump, // DWARF_ANIMATION_ID_FRONT_JUMP
 	DwarfSpriteAnimationRightJump  // DWARF_ANIMATION_ID_RIGHT_JUMP
 };
+#endif

@@ -12,6 +12,7 @@
 .export _SetSpriteColor
 .export _SetSpriteSeconaryColor
 .export _SetSpriteTertiaryColor
+.export _SetSpriteAnimationSet
 .export _PlaySpriteAnimation
 .export _StopSpriteAnimation
 
@@ -49,6 +50,12 @@ NUMBER_OF_SPRITES = NUMBER_OF_HARDWARE_SPRITES
 
 .segment "BSS"
 
+SpriteAnimationSetsLo:
+  .res NUMBER_OF_SPRITES
+
+SpriteAnimationSetsHi:
+  .res NUMBER_OF_SPRITES
+
 .segment "ZEROPAGE"
 
 ; TODO: Should probably clear these values.
@@ -68,6 +75,9 @@ SpriteVelocitiesX:
   .res NUMBER_OF_SPRITES
 
 SpriteVelocitiesY:
+  .res NUMBER_OF_SPRITES
+
+SpriteAnimationIds:
   .res NUMBER_OF_SPRITES
 
 TempSpritePositionX:
@@ -103,6 +113,18 @@ InitializeSpritesAnimation:
   ;lda #0
   ;sta OnSequenceSegmentEnd+(1*2)
   ;sta OnSequenceSegmentEnd+(1*2)+1
+
+  ; Set all sprite animation IDs to -1.
+  ldx #NUMBER_OF_SPRITES-1
+@resetSpriteAnimationsLoop:
+  lda #$ff
+  sta SpriteAnimationIds,x
+  lda #$00
+  sta SpriteAnimationSetsLo,x
+  sta SpriteAnimationSetsHi,x
+
+  dex
+  bpl @resetSpriteAnimationsLoop
 
   rts
 
@@ -590,31 +612,69 @@ _SetSpriteTertiaryColor:
 
 ;---------------------------------------
 ; inputs:
-;  - spriteIndex: sp[2], which sprite to play this animation with.
-;  - animationStart: sp[1]/sp[0], address of animation data to play.
-;  - looping: a, indicate whether animation should loop.
-_PlaySpriteAnimation:
+;  - spriteIndex: sp[0], which sprite to play this animation with.
+;  - animationSet: x/a, address of animation data to play.
+_SetSpriteAnimationSet:
+  pha
+  txa
   pha
 
   ; spriteIndex
-  ldy #2 
+  ldy #0
   lda (sp),y
+  tax
+
+  pla
+  sta SpriteAnimationSetsHi,x
+
+  pla
+  sta SpriteAnimationSetsLo,x
+
+  jmp incsp1
+
+;---------------------------------------
+; inputs:
+;  - spriteIndex: sp[1], which sprite to play this animation with.
+;  - animationId: sp[0], id entry in animation set for animation data to play.
+;  - looping: a, indicate whether animation should loop.
+_PlaySpriteAnimation:
+  sta tmp1
+  
+  ldy #1
+  lda (sp),y
+  tax
+
+  dey ; y=0
+  lda (sp),y
+  cmp SpriteAnimationIds,x
+  beq @done
+
+  sta SpriteAnimationIds,x
+  asl
+  tay
+
+  lda SpriteAnimationSetsLo,x
+  sta ptr2
+  lda SpriteAnimationSetsHi,x
+  sta ptr2+1
+
+  lda (ptr2),y
+  sta ptr1
+  iny
+  lda (ptr2),y
+  sta ptr1+1
+
   ; TODO: Properly determine sequence from sprite index.
+  txa
   clc
   adc #3
   tax ; Cache normal offset for call to PlaySequence.
-  
-  dey
-  lda (sp),y
-  sta sPtr1+1
-  dey
-  lda (sp),y
-  sta sPtr1
 
-  pla
+  lda tmp1
   jsr PlaySequence
 
-  jmp incsp3
+@done:
+  jmp incsp2
 
 ;---------------------------------------
 ; inputs:

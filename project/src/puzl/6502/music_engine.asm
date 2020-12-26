@@ -23,6 +23,7 @@
   
 .importzp sp, sreg, regsave, regbank
 ;.importzp tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
+.importzp ptr1
 .macpack longbranch
 
 .segment "BSS"
@@ -272,10 +273,10 @@ _PlayAudioPattern:
 
   dey
   lda (sp),y
-  sta sPtr1+1
+  sta ptr1+1
   dey
   lda (sp),y
-  sta sPtr1
+  sta ptr1
 
   pla
   jsr PlaySequence

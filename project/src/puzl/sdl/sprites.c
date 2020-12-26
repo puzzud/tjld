@@ -27,6 +27,8 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition);
 
 void InitializeSprites(void)
 {
+	unsigned int index;
+
 	InitializeSpriteTextures();
 
 	// Sprite controls.
@@ -36,6 +38,15 @@ void InitializeSprites(void)
 	// NOTE: This could just be referenced in an array at compile time.
 	ProcessSequenceDatum[SEQUENCE_TYPE_ANIMATION] = &ProcessSpriteAnimationDatum;
 	OnSequenceSegmentEnd[SEQUENCE_TYPE_ANIMATION] = NULL;
+
+	// Set all sprite animation IDs to -1.
+	// NOTE: Hacky way to indicate initial unset
+	// values for animation IDs, but it's fairly efficient
+	// for 8 bit platform implementations.
+	for (index = 0; index < NUMBER_OF_SPRITES; ++index)
+	{
+		Sprites[index].animationId = -1;
+	}
 }
 
 void ShutdownSprites(void)
@@ -336,20 +347,17 @@ void PlaySpriteAnimation(byte spriteIndex, byte animationId, byte looping)
 {
 	const byte* animationStart;
 
-	if (Sprites[spriteIndex].animationSet != NULL)
+	if (Sprites[spriteIndex].animationId == animationId)
 	{
-		if (Sprites[spriteIndex].animationId == animationId)
-		{
-			return;
-		}
+		return;
 	}
+
+	Sprites[spriteIndex].animationId = animationId;
 
 	animationStart = Sprites[spriteIndex].animationSet[animationId];
 
 	// TODO: Properly determine sequence from sprite index.
 	PlaySequence(spriteIndex + 3, animationStart, looping);
-
-	Sprites[spriteIndex].animationId = animationId;
 }
 
 void StopSpriteAnimation(byte spriteIndex)

@@ -15,6 +15,7 @@
 #include <sdl/color.h>
 #include <sdl/input.h>
 #include <sdl/audio.h>
+#include <sdl/sequencer.h>
 
 #define FRAMES_PER_SECOND	60
 #define USE_PERFORMANCE_COUNTER 1
@@ -57,6 +58,8 @@ int Initialize(void)
 
 		return 1;
   }
+
+	InitializeSequencer();
 
 	InitializeInput();
 	InitializeVideo();
@@ -123,7 +126,7 @@ inline void MainLoopIteration(void)
 	Process();
 
 	Draw();
-	UpdateAudio();
+	ProcessSequences();
 
 #ifndef __EMSCRIPTEN__
 	// Cap to 60 FPS.

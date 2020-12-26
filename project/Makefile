@@ -16,6 +16,7 @@ LIBS := $(PUZL) game
 SRC := src
 SDIR := ./$(SRC)
 PUZLDIR := $(SDIR)/$(PUZL)
+GAMEDIR := $(SDIR)/game
 
 TOOLSDIR := ../resources/Tools
 
@@ -28,7 +29,7 @@ BIN := bin
 BDIR := ./$(BIN)
 BTDIR := $(BDIR)/$(TARGET)
 
-CFLAGS := -I $(PUZLDIR)
+CFLAGS := -I $(PUZLDIR) -I $(GAMEDIR)
 
 ########################################
 # Target Specifics

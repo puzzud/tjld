@@ -4,6 +4,8 @@
 
 .import _UpdateInput
 
+.import ProcessSequences
+
 .import _InitalizeSpeed
 .import _InitializeNodeTree
 .import _Process
@@ -73,6 +75,10 @@ _InverseNthBitFlags:
 Reset:
   sei
 
+  ; Set the stack pointer to $ff.
+  ldx #$ff
+  txs
+
   ; Swap out Kernal & BASIC ROMs for RAM.
   ; Keep IO.
   lda #%00110101
@@ -110,6 +116,8 @@ Reset:
   sta sp
   lda #>(__BSS_LAST__+__STACKSIZE__-1)
   sta sp+1
+
+  jsr InitializeSequencer
 
   jsr _InitializeVideo
   jsr _InitializeInput
@@ -161,7 +169,7 @@ DefaultInterrupt:
   tya
   pha
   
-  jsr UpdateAudio
+  jsr ProcessSequences
   
   lda #$ff
   sta VICIRQ

@@ -6,6 +6,11 @@
 
 #include <puzl.h>
 
+// NOTE: Unfortunate solution for VS Code.
+#ifndef M_PI
+#define M_PI 3.14
+#endif
+
 SDL_AudioSpec AudioSpec;
 
 SDL_AudioDeviceID AudioDeviceId;
@@ -63,6 +68,8 @@ void InitializeAudio(void)
 	Volume = 15;
 
 	SDL_PauseAudioDevice(AudioDeviceId, 0);
+
+	InitializeMusicEngine();
 }
 
 void ShutdownAudio(void)
@@ -70,11 +77,6 @@ void ShutdownAudio(void)
 	SDL_CloseAudioDevice(AudioDeviceId);
 
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
-}
-
-void UpdateAudio(void)
-{
-	ProcessMusic();
 }
 
 void SoundKillAll(void)

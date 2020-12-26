@@ -50,5 +50,8 @@ void FASTCALL SetSpriteFrameIndex(byte spriteIndex, byte frameIndex);
 void FASTCALL SetSpriteColor(byte spriteIndex, byte colorCode);
 void FASTCALL SetSpriteSeconaryColor(byte colorCode);
 void FASTCALL SetSpriteTertiaryColor(byte colorCode);
+void FASTCALL SetSpriteAnimationSet(byte spriteIndex, const byte** animationSet);
+void FASTCALL PlaySpriteAnimation(byte spriteIndex, byte animationId, byte looping);
+void FASTCALL StopSpriteAnimation(byte spriteIndex);
 
 #endif

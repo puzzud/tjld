@@ -4,6 +4,8 @@
 
 #include <puzl.h>
 
+#include <dwarf.h>
+
 #define CHARACTER_BLOCK 219
 
 #define PLAYER_SPRITE_INDEX 1
@@ -30,9 +32,9 @@ void FASTCALL GenerateHWall(byte x, byte y, byte width);
 void FASTCALL GenerateVWall(byte x, byte y, byte height);
 
 void UpdateIntendedDirection(void);
+void UpdateSpriteAnimation(void);
 byte GetSpriteTilePositionX(void);
 byte GetSpriteTilePositionY(void);
-byte GetTileOffsetFromPoint(char point);
 void CheckSpriteTile(void);
 
 void AddNewPickup(void);
@@ -61,8 +63,9 @@ void InitializeNodeTree(void)
 
 	EnableSprite(PLAYER_SPRITE_INDEX, 1);
 	SetSpritePosition(PLAYER_SPRITE_INDEX, 8 + 0, SCREEN_HEIGHT - SPRITE_HEIGHT - TILE_HEIGHT);
-	SetSpriteFrameIndex(PLAYER_SPRITE_INDEX, 0);
+	SetSpriteFrameIndex(PLAYER_SPRITE_INDEX, 1);
 	SetSpriteColor(PLAYER_SPRITE_INDEX, COLOR_RED);
+	SetSpriteAnimationSet(PLAYER_SPRITE_INDEX, DwarfAnimationSet);
 
 	CheckSpriteTile();
 
@@ -81,7 +84,7 @@ void Process(void)
 		{
 			if (IsMoving(SpriteSpeedPatternIndex) != 0)
 			{
-				SetSpriteVelocity(PLAYER_SPRITE_INDEX, IntendedDirection.x, IntendedDirection.y);
+				SetSpriteVelocity(PLAYER_SPRITE_INDEX, IntendedDirection.x, 0);//IntendedDirection.y);
 
 				MoveSprite(PLAYER_SPRITE_INDEX);
 
@@ -92,6 +95,8 @@ void Process(void)
 		CycleSpeedBit();
 	}
 	while (--LoopIndex != 0);
+
+	UpdateSpriteAnimation();
 }
 
 void GenerateHWall(byte x, byte y, byte width)
@@ -145,6 +150,27 @@ void UpdateIntendedDirection(void)
 	#endif
 }
 
+void UpdateSpriteAnimation(void)
+{
+	signed char intendedDirectionX = IntendedDirection.x;
+
+	if (intendedDirectionX != 0)
+	{
+		if (intendedDirectionX < 0)
+		{
+			PlaySpriteAnimation(PLAYER_SPRITE_INDEX, DWARF_ANIMATION_ID_LEFT_WALK, 1);
+		}
+		else if (intendedDirectionX > 0)
+		{
+			PlaySpriteAnimation(PLAYER_SPRITE_INDEX, DWARF_ANIMATION_ID_RIGHT_WALK, 1);
+		}
+	}
+	else
+	{
+		PlaySpriteAnimation(PLAYER_SPRITE_INDEX, DWARF_ANIMATION_ID_FRONT_IDLE, 1);
+	}
+}
+
 void CheckSpriteTile(void)
 {
 	SpriteTilePosition.x = GetSpriteTilePositionX();
@@ -157,22 +183,9 @@ void CheckSpriteTile(void)
 			case COLOR_YELLOW:
 			{
 				Score += 1;
-				if (Score >= 8)
-				{
-					Running = 0;
-				}
-				else
-				{
-					AddNewPickup();
 
-					SetTileMapCellShape(SpriteTilePosition.x, SpriteTilePosition.y, 0);
-				}
-
-				#ifndef __CC65__
-				// TODO: Figure this out.
-				printf("Score: %d", Score);
-				printf("\n");
-				#endif
+				AddNewPickup();
+				SetTileMapCellShape(SpriteTilePosition.x, SpriteTilePosition.y, 0);
 
 				SetBackgroundColor(COLOR_GREY_1);
 
@@ -182,11 +195,6 @@ void CheckSpriteTile(void)
 			}
 		}
 	}
-}
-
-byte GetTileOffsetFromPoint(char point)
-{
-	return point << 3;
 }
 
 byte GetSpriteTilePositionX(void)

@@ -75,6 +75,10 @@ _InverseNthBitFlags:
 Reset:
   sei
 
+  ; Set the stack pointer to $ff.
+  ldx #$ff
+  txs
+
   ; Swap out Kernal & BASIC ROMs for RAM.
   ; Keep IO.
   lda #%00110101

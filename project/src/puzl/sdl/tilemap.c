@@ -13,6 +13,8 @@ byte* TileMapCollisionCodes;
 
 SDL_Texture* CharacterSetTexture;
 
+byte PrintColor;
+
 void PopulateCharacterSetSurfaceFromCharacterSet(SDL_Surface* characterSetSurface);
 void PopulateCharacterSurfaceFromCharacter(SDL_Surface* characterSurface, unsigned int characterIndex);
 
@@ -224,6 +226,7 @@ void PrintText(const char* text, byte x, byte y)
 		}
 
 		TileMapShapeCodes[tileMapOffset + charIndex] = characterCode;
+		TileMapColorCodes[tileMapOffset + charIndex] = PrintColor;
 
 		++charIndex;
 	}

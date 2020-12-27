@@ -16,7 +16,7 @@ void LoadLevel(void)
 	int blockIndex = 0;
 	byte color;
 
-	SetBackgroundColor(COLOR_GREY_1);
+	SetBackgroundColor(COLOR_BLACK);
 
 	GenerateHWall(0, TARGET_SCREEN_BLOCK_HEIGHT - 1, TARGET_SCREEN_BLOCK_WIDTH);
 	GenerateVWall(0, 0, TARGET_SCREEN_BLOCK_HEIGHT - 1);

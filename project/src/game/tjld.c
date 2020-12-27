@@ -40,6 +40,7 @@ void InitializeNodeTree(void)
 
 	SpriteSpeedPatternIndex = 8;
 
+	PrintColor = COLOR_WHITE;
 	PrintText(AuthorFirstName, TARGET_SCREEN_TILE_OFFSET_X + 0, 0);
 
 	SetSpriteSeconaryColor(COLOR_WHITE);

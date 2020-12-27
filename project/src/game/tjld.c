@@ -1,12 +1,10 @@
 // TJLD
 #include <stdio.h>
-#include <stdlib.h>
 
 #include <puzl.h>
 
+#include <level.h>
 #include <dwarf.h>
-
-#define CHARACTER_BLOCK 219
 
 #define PLAYER_SPRITE_INDEX 1
 
@@ -28,29 +26,15 @@ extern const byte Voice1Start[];
 extern const byte Voice2Start[];
 extern const byte PickupSound[];
 
-void FASTCALL GenerateHWall(byte x, byte y, byte width);
-void FASTCALL GenerateVWall(byte x, byte y, byte height);
-
 void UpdateIntendedDirection(void);
 void UpdateSpriteAnimation(void);
 byte GetSpriteTilePositionX(void);
 byte GetSpriteTilePositionY(void);
 void CheckSpriteTile(void);
 
-void AddNewPickup(void);
-
 void InitializeNodeTree(void)
 {
-	// TODO: Call out custom logic?
-	SetBackgroundColor(COLOR_BLACK);
-
-	GenerateHWall(0, 1, TILEMAP_WIDTH);
-	GenerateVWall(0, 2, TILEMAP_HEIGHT - 2);
-	GenerateVWall(TILEMAP_WIDTH - 1, 2, TILEMAP_HEIGHT - 2);
-	GenerateHWall(0, TILEMAP_HEIGHT - 1, TILEMAP_WIDTH);
-
-	SetTileMapCellShape(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT - 2, CHARACTER_BLOCK);
-	SetTileMapCellColor(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT - 2, COLOR_YELLOW);
+	LoadLevel();
 	
 	Score = 0;
 
@@ -97,32 +81,6 @@ void Process(void)
 	while (--LoopIndex != 0);
 
 	UpdateSpriteAnimation();
-}
-
-void GenerateHWall(byte x, byte y, byte width)
-{
-	do
-	{
-		SetTileMapCellColor(x, y, COLOR_WHITE);
-		SetTileMapCellShape(x, y, CHARACTER_BLOCK);
-		SetTileMapCellCollisionCode(x, y, 1);
-
-		++x;
-	}
-	while (--width > 0);
-}
-
-void GenerateVWall(byte x, byte y, byte height)
-{
-	do
-	{
-		SetTileMapCellColor(x, y, COLOR_WHITE);
-		SetTileMapCellShape(x, y, CHARACTER_BLOCK);
-		SetTileMapCellCollisionCode(x, y, 1);
-
-		++y;
-	}
-	while (--height > 0);
 }
 
 void UpdateIntendedDirection(void)
@@ -180,14 +138,12 @@ void CheckSpriteTile(void)
 	{
 		switch (GetTileMapColorCode(SpriteTilePosition.x, SpriteTilePosition.y))
 		{
-			case COLOR_YELLOW:
+			case PICKUP_BLOCK_COLOR:
 			{
 				Score += 1;
 
 				AddNewPickup();
 				SetTileMapCellShape(SpriteTilePosition.x, SpriteTilePosition.y, 0);
-
-				SetBackgroundColor(COLOR_GREY_1);
 
 				PlayAudioPattern(1, PickupSound, 0);
 
@@ -217,20 +173,4 @@ byte GetSpriteTilePositionY(void)
 	}
 
 	return SpriteTilePositionY;
-}
-
-void AddNewPickup(void)
-{
-	Vector2d randomTile;
-
-	do
-	{
-		// TODO: Use of rand in cc65 C64 is warning about initialized data in BSS.
-		randomTile.x = rand() % TILEMAP_WIDTH;
-		randomTile.y = TILEMAP_HEIGHT - 2;
-	}
-	while (GetTileMapShapeCode(randomTile.x, randomTile.y) == CHARACTER_BLOCK);
-
-	SetTileMapCellShape(randomTile.x, randomTile.y, CHARACTER_BLOCK);
-	SetTileMapCellColor(randomTile.x, randomTile.y, COLOR_YELLOW);
 }

@@ -1,33 +1,76 @@
 #include <level.h>
 
-#include <stdlib.h>
-
 #include <puzl.h>
 
+void FASTCALL GenerateBlock(byte x, byte y, byte shape, byte color, byte collision);
+void FASTCALL GeneratePlatformBlock(byte x, byte y);
+void FASTCALL GenerateLadderBlock(byte x, byte y);
 void FASTCALL GenerateHWall(byte x, byte y, byte width);
 void FASTCALL GenerateVWall(byte x, byte y, byte height);
 
+void FASTCALL GeneratePickup(byte x, byte y);
+
 void LoadLevel(void)
 {
-	// TODO: Call out custom logic?
-	SetBackgroundColor(COLOR_BLACK);
+	int x, y;
+	int blockIndex = 0;
+	byte color;
 
-	GenerateHWall(0, 1, TILEMAP_WIDTH);
-	GenerateVWall(0, 2, TILEMAP_HEIGHT - 2);
-	GenerateVWall(TILEMAP_WIDTH - 1, 2, TILEMAP_HEIGHT - 2);
-	GenerateHWall(0, TILEMAP_HEIGHT - 1, TILEMAP_WIDTH);
+	SetBackgroundColor(COLOR_GREY_1);
 
-	SetTileMapCellShape(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT - 2, PICKUP_BLOCK);
-	SetTileMapCellColor(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT - 2, PICKUP_BLOCK_COLOR);
+	GenerateHWall(0, TARGET_SCREEN_BLOCK_HEIGHT - 1, TARGET_SCREEN_BLOCK_WIDTH);
+	GenerateVWall(0, 0, TARGET_SCREEN_BLOCK_HEIGHT - 1);
+	GenerateVWall(TARGET_SCREEN_BLOCK_WIDTH - 1, 0, TARGET_SCREEN_BLOCK_HEIGHT - 1);
+
+	GenerateHWall(8, 8, 8);
+	GenerateLadderBlock(12, 8);
+	GenerateLadderBlock(12, 9);
+	GenerateLadderBlock(12, 10);
+
+	GeneratePickup(16, 21);
+	GeneratePickup(18, 15);
+}
+
+void FASTCALL GenerateBlock(byte x, byte y, byte shape, byte color, byte collision)
+{
+	byte blockX = (x * 2) + TARGET_SCREEN_TILE_OFFSET_X;
+	byte blockY = (y * 2) + TARGET_SCREEN_TILE_OFFSET_Y;
+
+	SetTileMapCellShape(blockX, blockY, shape);
+	SetTileMapCellColor(blockX, blockY, color);
+	SetTileMapCellCollisionCode(blockX, blockY, collision);
+
+	++blockX;
+	SetTileMapCellShape(blockX, blockY, shape);
+	SetTileMapCellColor(blockX, blockY, color);
+	SetTileMapCellCollisionCode(blockX, blockY, collision);
+
+	++blockY;
+	SetTileMapCellShape(blockX, blockY, shape);
+	SetTileMapCellColor(blockX, blockY, color);
+	SetTileMapCellCollisionCode(blockX, blockY, collision);
+
+	--blockX;
+	SetTileMapCellShape(blockX, blockY, shape);
+	SetTileMapCellColor(blockX, blockY, color);
+	SetTileMapCellCollisionCode(blockX, blockY, collision);
+}
+
+void FASTCALL GeneratePlatformBlock(byte x, byte y)
+{
+	GenerateBlock(x, y, OBSTACLE_BLOCK, OBSTACLE_BLOCK_COLOR, 1);
+}
+
+void GenerateLadderBlock(byte x, byte y)
+{
+	GenerateBlock(x, y, OBSTACLE_BLOCK, COLOR_PURPLE, 0);
 }
 
 void GenerateHWall(byte x, byte y, byte width)
 {
 	do
 	{
-		SetTileMapCellColor(x, y, OBSTACLE_BLOCK_COLOR);
-		SetTileMapCellShape(x, y, OBSTACLE_BLOCK);
-		SetTileMapCellCollisionCode(x, y, 1);
+		GeneratePlatformBlock(x, y);
 
 		++x;
 	}
@@ -38,27 +81,18 @@ void GenerateVWall(byte x, byte y, byte height)
 {
 	do
 	{
-		SetTileMapCellColor(x, y, OBSTACLE_BLOCK_COLOR);
-		SetTileMapCellShape(x, y, OBSTACLE_BLOCK);
-		SetTileMapCellCollisionCode(x, y, 1);
+		GeneratePlatformBlock(x, y);
 
 		++y;
 	}
 	while (--height > 0);
 }
 
-void AddNewPickup(void)
+void GeneratePickup(byte x, byte y)
 {
-	Vector2d randomTile;
+	byte blockX = x + TARGET_SCREEN_TILE_OFFSET_X;
+	byte blockY = y + TARGET_SCREEN_TILE_OFFSET_Y;
 
-	do
-	{
-		// TODO: Use of rand in cc65 C64 is warning about initialized data in BSS.
-		randomTile.x = rand() % TILEMAP_WIDTH;
-		randomTile.y = TILEMAP_HEIGHT - 2;
-	}
-	while (GetTileMapShapeCode(randomTile.x, randomTile.y) == OBSTACLE_BLOCK);
-
-	SetTileMapCellShape(randomTile.x, randomTile.y, PICKUP_BLOCK);
-	SetTileMapCellColor(randomTile.x, randomTile.y, PICKUP_BLOCK_COLOR);
+	SetTileMapCellShape(blockX, blockY, PICKUP_BLOCK);
+	SetTileMapCellColor(blockX, blockY, PICKUP_BLOCK_COLOR);
 }

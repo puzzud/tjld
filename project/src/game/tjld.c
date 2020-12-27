@@ -40,13 +40,13 @@ void InitializeNodeTree(void)
 
 	SpriteSpeedPatternIndex = 8;
 
-	PrintText(AuthorFirstName, 0, 0);
+	PrintText(AuthorFirstName, TARGET_SCREEN_TILE_OFFSET_X + 0, 0);
 
 	SetSpriteSeconaryColor(COLOR_WHITE);
 	SetSpriteTertiaryColor(COLOR_LIGHT_RED);
 
 	EnableSprite(PLAYER_SPRITE_INDEX, 1);
-	SetSpritePosition(PLAYER_SPRITE_INDEX, 8 + 0, SCREEN_HEIGHT - SPRITE_HEIGHT - TILE_HEIGHT);
+	SetSpritePosition(PLAYER_SPRITE_INDEX, 48, SCREEN_HEIGHT - SPRITE_HEIGHT - (TILE_HEIGHT * 2));
 	SetSpriteFrameIndex(PLAYER_SPRITE_INDEX, 1);
 	SetSpriteColor(PLAYER_SPRITE_INDEX, COLOR_RED);
 	SetSpriteAnimationSet(PLAYER_SPRITE_INDEX, DwarfAnimationSet);
@@ -141,8 +141,7 @@ void CheckSpriteTile(void)
 			case PICKUP_BLOCK_COLOR:
 			{
 				Score += 1;
-
-				AddNewPickup();
+				
 				SetTileMapCellShape(SpriteTilePosition.x, SpriteTilePosition.y, 0);
 
 				PlayAudioPattern(1, PickupSound, 0);

@@ -33,6 +33,7 @@ void UpdateSpriteAnimation(void);
 byte GetSpriteTilePositionX(void);
 byte GetSpriteTilePositionY(void);
 void CheckSpriteTile(void);
+void CheckSpriteClimbing(void);
 
 void InitializeNodeTree(void)
 {
@@ -74,32 +75,7 @@ void Process(void)
 		{
 			if (IsMoving(SpriteSpeedPatternIndex) != 0)
 			{
-				if (IntendedDirection.y != 0)
-				{
-					if (SpriteClimbing == 0)
-					{
-						if ((SpriteCollisions[PLAYER_SPRITE_INDEX] & COLLISION_FLAG_LADDER) != 0)
-						{
-							// Moving up or down while touching ladder.
-							SpriteClimbing = 1;
-							//SpriteCollisionMasks[PLAYER_SPRITE_INDEX] &= ~COLLISION_FLAG_OBSTACLE;
-							IntendedDirection.x = 0;
-						}
-						else
-						{
-							IntendedDirection.y = 0;
-						}
-					}
-					else
-					{
-						if ((SpriteCollisions[PLAYER_SPRITE_INDEX] & COLLISION_FLAG_LADDER) == 0)
-						{
-							SpriteClimbing = 0;
-							//SpriteCollisionMasks[PLAYER_SPRITE_INDEX] |= COLLISION_FLAG_OBSTACLE;
-							IntendedDirection.y = 0;
-						}
-					}
-				}
+				CheckSpriteClimbing();
 
 				SetSpriteVelocity(PLAYER_SPRITE_INDEX, IntendedDirection.x, IntendedDirection.y);
 
@@ -220,4 +196,51 @@ byte GetSpriteTilePositionY(void)
 	}
 
 	return SpriteTilePositionY;
+}
+
+void CheckSpriteClimbing(void)
+{
+	if (IntendedDirection.y < 0)
+	{
+		// Pressing up.
+
+		// Check if sprite is touching a ladder.
+		if ((SpriteCollisions[PLAYER_SPRITE_INDEX] & COLLISION_FLAG_LADDER) != 0)
+		{
+			// Touching a ladder.
+
+			SpriteClimbing = 1;
+			IntendedDirection.x = 0;
+		}
+		else
+		{
+			SpriteClimbing = 0;
+			IntendedDirection.y = 0;
+		}
+	}
+	else if (IntendedDirection.y > 0)
+	{
+		// Pressing down.
+
+		byte belowTileCollision = GetTileMapCellCollisionCode(SpriteTilePosition.x, SpriteTilePosition.y + 1);
+		if ((belowTileCollision & COLLISION_FLAG_OBSTACLE) != 0)
+		{
+			// Pressing down into a platform.
+			SpriteClimbing = 0;
+		}
+		else if ((belowTileCollision & COLLISION_FLAG_LADDER) != 0)
+		{
+			// Pressing down with ladder below.
+
+			SpriteClimbing = 1;
+			IntendedDirection.x = 0;
+		}
+	}
+
+	if (SpriteClimbing == 1)
+	{
+		// When climbing, don't allow sprite to intentionally move horizontally.
+		// Instead, move it horizontally to align with the ladder block.
+		IntendedDirection.x = 0;
+	}
 }

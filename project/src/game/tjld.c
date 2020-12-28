@@ -235,6 +235,11 @@ void CheckSpriteClimbing(void)
 			SpriteClimbing = 1;
 			IntendedDirection.x = 0;
 		}
+		else
+		{
+			SpriteClimbing = 0;
+			IntendedDirection.y = 0;
+		}
 	}
 
 	if (SpriteClimbing == 1)

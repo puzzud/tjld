@@ -16,6 +16,9 @@
 .export _PlaySpriteAnimation
 .export _StopSpriteAnimation
 
+.export _SpriteCollisionMasks
+.export _SpriteCollisions
+
 .autoimport on
   
 .importzp sp, sreg, regsave, regbank
@@ -98,6 +101,12 @@ LowerRightSpriteTileX:
 LowerRightSpriteTileY:
   .res 1
 
+_SpriteCollisionMasks:
+  .res NUMBER_OF_SPRITES
+
+_SpriteCollisions:
+  .res NUMBER_OF_SPRITES
+
 .segment "CODE"
 
 ;------------------------------------------------------------------
@@ -122,6 +131,8 @@ InitializeSpritesAnimation:
   lda #$00
   sta SpriteAnimationSetsLo,x
   sta SpriteAnimationSetsHi,x
+  sta _SpriteCollisionMasks,x
+  sta _SpriteCollisions,x
 
   dex
   bpl @resetSpriteAnimationsLoop

@@ -16,6 +16,8 @@ Vector2d IntendedDirection;
 
 byte SpriteSpeedPatternIndex;
 Vector2d SpriteTilePosition;
+
+byte SpriteClimbing;
 #pragma bss-name (pop)
 
 int Score;
@@ -37,6 +39,7 @@ void InitializeNodeTree(void)
 	LoadLevel();
 	
 	Score = 0;
+	SpriteClimbing = 0;
 
 	SpriteSpeedPatternIndex = 8;
 
@@ -51,6 +54,8 @@ void InitializeNodeTree(void)
 	SetSpriteFrameIndex(PLAYER_SPRITE_INDEX, 1);
 	SetSpriteColor(PLAYER_SPRITE_INDEX, COLOR_RED);
 	SetSpriteAnimationSet(PLAYER_SPRITE_INDEX, DwarfAnimationSet);
+
+	SpriteCollisionMasks[PLAYER_SPRITE_INDEX] = COLLISION_FLAG_OBSTACLE | COLLISION_FLAG_LADDER;
 
 	CheckSpriteTile();
 
@@ -69,7 +74,34 @@ void Process(void)
 		{
 			if (IsMoving(SpriteSpeedPatternIndex) != 0)
 			{
-				SetSpriteVelocity(PLAYER_SPRITE_INDEX, IntendedDirection.x, 0);//IntendedDirection.y);
+				if (IntendedDirection.y != 0)
+				{
+					if (SpriteClimbing == 0)
+					{
+						if ((SpriteCollisions[PLAYER_SPRITE_INDEX] & COLLISION_FLAG_LADDER) != 0)
+						{
+							// Moving up or down while touching ladder.
+							SpriteClimbing = 1;
+							//SpriteCollisionMasks[PLAYER_SPRITE_INDEX] &= ~COLLISION_FLAG_OBSTACLE;
+							IntendedDirection.x = 0;
+						}
+						else
+						{
+							IntendedDirection.y = 0;
+						}
+					}
+					else
+					{
+						if ((SpriteCollisions[PLAYER_SPRITE_INDEX] & COLLISION_FLAG_LADDER) == 0)
+						{
+							SpriteClimbing = 0;
+							//SpriteCollisionMasks[PLAYER_SPRITE_INDEX] |= COLLISION_FLAG_OBSTACLE;
+							IntendedDirection.y = 0;
+						}
+					}
+				}
+
+				SetSpriteVelocity(PLAYER_SPRITE_INDEX, IntendedDirection.x, IntendedDirection.y);
 
 				MoveSprite(PLAYER_SPRITE_INDEX);
 
@@ -112,6 +144,7 @@ void UpdateIntendedDirection(void)
 void UpdateSpriteAnimation(void)
 {
 	signed char intendedDirectionX = IntendedDirection.x;
+	signed char intendedDirectionY = IntendedDirection.y;
 
 	if (intendedDirectionX != 0)
 	{
@@ -126,7 +159,21 @@ void UpdateSpriteAnimation(void)
 	}
 	else
 	{
-		PlaySpriteAnimation(PLAYER_SPRITE_INDEX, DWARF_ANIMATION_ID_FRONT_IDLE, 1);
+		if (SpriteClimbing != 0)
+		{
+			if (intendedDirectionY != 0)
+			{
+				PlaySpriteAnimation(PLAYER_SPRITE_INDEX, DWARF_ANIMATION_ID_BACK_CLIMB, 1);
+			}
+			else
+			{
+				//StopSpriteAnimation(PLAYER_SPRITE_INDEX);
+			}
+		}
+		else
+		{
+			PlaySpriteAnimation(PLAYER_SPRITE_INDEX, DWARF_ANIMATION_ID_FRONT_IDLE, 1);
+		}
 	}
 }
 

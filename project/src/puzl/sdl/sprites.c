@@ -9,6 +9,8 @@
 SDL_Texture* SpriteSetTextures[NUMBER_OF_SPRITE_COLORS];
 
 Sprite Sprites[NUMBER_OF_SPRITES];
+byte SpriteCollisionMasks[NUMBER_OF_SPRITES];
+byte SpriteCollisions[NUMBER_OF_SPRITES];
 byte SpriteNonPrimaryColorCodes[NUMBER_OF_SPRITE_COLORS - 1];
 
 void InitializeSprites(void);
@@ -39,13 +41,17 @@ void InitializeSprites(void)
 	ProcessSequenceDatum[SEQUENCE_TYPE_ANIMATION] = &ProcessSpriteAnimationDatum;
 	OnSequenceSegmentEnd[SEQUENCE_TYPE_ANIMATION] = NULL;
 
-	// Set all sprite animation IDs to -1.
-	// NOTE: Hacky way to indicate initial unset
-	// values for animation IDs, but it's fairly efficient
-	// for 8 bit platform implementations.
 	for (index = 0; index < NUMBER_OF_SPRITES; ++index)
 	{
+		// Set all sprite animation IDs to -1.
+		// NOTE: Hacky way to indicate initial unset
+		// values for animation IDs, but it's fairly efficient
+		// for 8 bit platform implementations.
 		Sprites[index].animationId = -1;
+
+		// Collision data.
+		SpriteCollisionMasks[index] = 0;
+		SpriteCollisions[index] = 0;
 	}
 }
 
@@ -245,8 +251,7 @@ void MoveSprite(byte spriteIndex)
 	tempSpritePosition.x = spritePosition->x + spriteVelocity->x;
 	tempSpritePosition.y = spritePosition->y + spriteVelocity->y;
 	
-	// TODO: Make collision map optional.
-	//if (1)
+	if (SpriteCollisionMasks[spriteIndex] != 0)
 	{
 		CheckSpriteCollision(spriteIndex, &tempSpritePosition);
 	}
@@ -268,52 +273,74 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 	Vector2d upperLeftSpriteTile;
 	Vector2d lowerRightSpriteTile;
 
+	SpriteCollisions[spriteIndex] = 0;
+
 	upperLeftSpriteTile.x = tempSpritePosition->x / TILE_WIDTH;
 	upperLeftSpriteTile.y = tempSpritePosition->y / TILE_HEIGHT;
 
 	// TODO: Need way to track sprite dimensions.
-	lowerRightSpriteTile.x = (tempSpritePosition->x + 16 - 1) / TILE_WIDTH;
-	lowerRightSpriteTile.y = (tempSpritePosition->y + 16 - 1) / TILE_HEIGHT;
+	lowerRightSpriteTile.x = (tempSpritePosition->x + SPRITE_WIDTH - 1) / TILE_WIDTH;
+	lowerRightSpriteTile.y = (tempSpritePosition->y + SPRITE_HEIGHT - 1) / TILE_HEIGHT;
 
-	if (spriteVelocity->x < 0)
+	if ((SpriteCollisionMasks[spriteIndex] & COLLISION_FLAG_OBSTACLE) != 0)
 	{
-		// Upper left.
-		// Lower left.
-		if ((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, upperLeftSpriteTile.y) != 0) ||
-			 ((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, lowerRightSpriteTile.y) != 0)))
+		if (spriteVelocity->x < 0)
 		{
-			tempSpritePosition->x = spritePosition->x;
+			// Upper left.
+			// Lower left.
+			if (((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, upperLeftSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0) ||
+				(((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, lowerRightSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0)))
+			{
+				tempSpritePosition->x = spritePosition->x;
+				SpriteCollisions[spriteIndex] |= COLLISION_FLAG_OBSTACLE;
+			}
 		}
-	}
-	else if (spriteVelocity->x > 0)
-	{
-		// Upper right.
-		// Lower right.
-		if ((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, upperLeftSpriteTile.y) != 0) ||
-			 ((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, lowerRightSpriteTile.y) != 0)))
+		else if (spriteVelocity->x > 0)
 		{
-			tempSpritePosition->x = spritePosition->x;
+			// Upper right.
+			// Lower right.
+			if (((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, upperLeftSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0) ||
+				(((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, lowerRightSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0)))
+			{
+				tempSpritePosition->x = spritePosition->x;
+				SpriteCollisions[spriteIndex] |= COLLISION_FLAG_OBSTACLE;
+			}
+		}
+
+		if (spriteVelocity->y < 0)
+		{
+			// Upper left.
+			// Upper right.
+			if (((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, upperLeftSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0) ||
+				(((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, upperLeftSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0)))
+			{
+				tempSpritePosition->y = spritePosition->y;
+				SpriteCollisions[spriteIndex] |= COLLISION_FLAG_OBSTACLE;
+			}
+		}
+		else if (spriteVelocity->y > 0)
+		{
+			// Lower left.
+			// Lower right.
+			if (((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, lowerRightSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0) ||
+				(((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, lowerRightSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0)))
+			{
+				tempSpritePosition->y = spritePosition->y;
+				SpriteCollisions[spriteIndex] |= COLLISION_FLAG_OBSTACLE;
+			}
 		}
 	}
 
-	if (spriteVelocity->y < 0)
+	if ((SpriteCollisionMasks[spriteIndex] & ~COLLISION_FLAG_OBSTACLE) != 0)
 	{
-		// Upper left.
-		// Upper right.
-		if ((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, upperLeftSpriteTile.y) != 0) ||
-			 ((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, upperLeftSpriteTile.y) != 0)))
+		// Cycle through all overlapped tiles and imprint their collision flags on
+		// this sprite's collisions.
+		for (int y = upperLeftSpriteTile.y; y <= lowerRightSpriteTile.y; ++y)
 		{
-			tempSpritePosition->y = spritePosition->y;
-		}
-	}
-	else if (spriteVelocity->y > 0)
-	{
-		// Lower left.
-		// Lower right.
-		if ((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, lowerRightSpriteTile.y) != 0) ||
-			 ((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, lowerRightSpriteTile.y) != 0)))
-		{
-			tempSpritePosition->y = spritePosition->y;
+			for (int x = upperLeftSpriteTile.x; x <= lowerRightSpriteTile.x; ++x)
+			{
+				SpriteCollisions[spriteIndex] |= GetTileMapCellCollisionCode(x, y);
+			}	
 		}
 	}
 }

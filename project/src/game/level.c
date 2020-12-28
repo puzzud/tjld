@@ -58,12 +58,12 @@ void FASTCALL GenerateBlock(byte x, byte y, byte shape, byte color, byte collisi
 
 void FASTCALL GeneratePlatformBlock(byte x, byte y)
 {
-	GenerateBlock(x, y, OBSTACLE_BLOCK, OBSTACLE_BLOCK_COLOR, 1);
+	GenerateBlock(x, y, OBSTACLE_BLOCK, OBSTACLE_BLOCK_COLOR, COLLISION_FLAG_OBSTACLE);
 }
 
 void GenerateLadderBlock(byte x, byte y)
 {
-	GenerateBlock(x, y, OBSTACLE_BLOCK, COLOR_PURPLE, 0);
+	GenerateBlock(x, y, OBSTACLE_BLOCK, COLOR_PURPLE, COLLISION_FLAG_LADDER);
 }
 
 void GenerateHWall(byte x, byte y, byte width)

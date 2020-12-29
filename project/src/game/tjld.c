@@ -35,8 +35,8 @@ byte GetSpriteTilePositionY(void);
 void CheckSpriteTile(void);
 
 void CheckSpriteClimbing(void);
-void AlignLadderTouching(void);
-void AlignLadderNotTouching(void);
+void SpriteClimbingAlignLadderTouching(void);
+void SpriteClimbingAlignLadderAbove(void);
 
 void InitializeNodeTree(void)
 {
@@ -215,7 +215,7 @@ void CheckSpriteClimbing(void)
 			SpriteClimbing = 1;
 			//IntendedDirection.x = 0;
 
-			AlignLadderTouching();
+			SpriteClimbingAlignLadderTouching();
 		}
 		else
 		{
@@ -238,7 +238,7 @@ void CheckSpriteClimbing(void)
 			// Pressing down with ladder below.
 
 			SpriteClimbing = 1;
-			AlignLadderNotTouching();
+			SpriteClimbingAlignLadderAbove();
 		}
 		else
 		{
@@ -252,7 +252,7 @@ void CheckSpriteClimbing(void)
 	}
 }
 
-void AlignLadderTouching(void)
+void SpriteClimbingAlignLadderTouching(void)
 {
 	// When climbing, don't allow sprite to intentionally move horizontally.
 	// Instead, move it horizontally to align with the ladder block.
@@ -265,10 +265,11 @@ void AlignLadderTouching(void)
 	// Otherwise, set X direction to 0.
 
 	word spriteX = GetSpritePositionX(PLAYER_SPRITE_INDEX);
-	
+	word spriteY;
+
 	if ((spriteX % 16) != 0)
 	{
-		word spriteY = GetSpritePositionY(PLAYER_SPRITE_INDEX);
+		spriteY = GetSpritePositionY(PLAYER_SPRITE_INDEX);
 
 		if ((GetTileMapCellCollisionCode(spriteX / 8, spriteY / 8) & COLLISION_FLAG_LADDER) != 0)
 		{
@@ -285,7 +286,7 @@ void AlignLadderTouching(void)
 	}
 }
 
-void AlignLadderNotTouching(void)
+void SpriteClimbingAlignLadderAbove(void)
 {
 	word spriteX = GetSpritePositionX(PLAYER_SPRITE_INDEX);
 	

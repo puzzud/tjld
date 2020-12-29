@@ -33,7 +33,10 @@ void UpdateSpriteAnimation(void);
 byte GetSpriteTilePositionX(void);
 byte GetSpriteTilePositionY(void);
 void CheckSpriteTile(void);
+
 void CheckSpriteClimbing(void);
+void AlignLadderTouching(void);
+void AlignLadderNotTouching(void);
 
 void InitializeNodeTree(void)
 {
@@ -210,7 +213,9 @@ void CheckSpriteClimbing(void)
 			// Touching a ladder.
 
 			SpriteClimbing = 1;
-			IntendedDirection.x = 0;
+			//IntendedDirection.x = 0;
+
+			AlignLadderTouching();
 		}
 		else
 		{
@@ -233,7 +238,7 @@ void CheckSpriteClimbing(void)
 			// Pressing down with ladder below.
 
 			SpriteClimbing = 1;
-			IntendedDirection.x = 0;
+			AlignLadderNotTouching();
 		}
 		else
 		{
@@ -241,11 +246,62 @@ void CheckSpriteClimbing(void)
 			IntendedDirection.y = 0;
 		}
 	}
-
-	if (SpriteClimbing == 1)
+	else if (SpriteClimbing != 0)
 	{
-		// When climbing, don't allow sprite to intentionally move horizontally.
-		// Instead, move it horizontally to align with the ladder block.
+		IntendedDirection.x = 0;
+	}
+}
+
+void AlignLadderTouching(void)
+{
+	// When climbing, don't allow sprite to intentionally move horizontally.
+	// Instead, move it horizontally to align with the ladder block.
+
+	// Get direction from sprite to ladder.
+
+	// If sprite does not line up evenly with 16x16 ladder block,
+	// move it in the direction to that block.
+
+	// Otherwise, set X direction to 0.
+
+	word spriteX = GetSpritePositionX(PLAYER_SPRITE_INDEX);
+	
+	if ((spriteX % 16) != 0)
+	{
+		word spriteY = GetSpritePositionY(PLAYER_SPRITE_INDEX);
+
+		if ((GetTileMapCellCollisionCode(spriteX / 8, spriteY / 8) & COLLISION_FLAG_LADDER) != 0)
+		{
+			IntendedDirection.x = -1;
+		}
+		else
+		{
+			IntendedDirection.x = 1;
+		}
+	}
+	else
+	{
+		IntendedDirection.x = 0;
+	}
+}
+
+void AlignLadderNotTouching(void)
+{
+	word spriteX = GetSpritePositionX(PLAYER_SPRITE_INDEX);
+	
+	if ((spriteX % 16) != 0)
+	{
+		if ((GetTileMapCellCollisionCode(spriteX / 8, SpriteTilePosition.y + 1) & COLLISION_FLAG_LADDER) != 0)
+		{
+			IntendedDirection.x = -1;
+		}
+		else
+		{
+			IntendedDirection.x = 1;
+		}
+	}
+	else
+	{
 		IntendedDirection.x = 0;
 	}
 }

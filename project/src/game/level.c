@@ -12,10 +12,6 @@ void FASTCALL GeneratePickup(byte x, byte y);
 
 void LoadLevel(void)
 {
-	int x, y;
-	int blockIndex = 0;
-	byte color;
-
 	SetBackgroundColor(COLOR_BLACK);
 
 	GenerateHWall(0, TARGET_SCREEN_BLOCK_HEIGHT - 1, TARGET_SCREEN_BLOCK_WIDTH);

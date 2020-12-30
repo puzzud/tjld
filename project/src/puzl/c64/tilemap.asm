@@ -90,6 +90,9 @@ _GetTileMapColorCode:
 ;  - y: a, y coordinate.
 ; outputs:
 ;  - return: x/a, collision code at this coordinate.
+; notes:
+;  - Squashes a, x, y.
+;  - Squashes ptr1, ptr+1 (by proxy).
 _GetTileMapCellCollisionCode:
   ; y coordinate.
   tax

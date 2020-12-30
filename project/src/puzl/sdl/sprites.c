@@ -26,6 +26,7 @@ void DrawSpriteFrame(int x, int y, unsigned int spriteFrameIndex, byte primaryCo
 void ProcessSpriteAnimationDatum(unsigned int sequenceIndex, byte sequenceFetchDatum);
 
 void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition);
+void CalculateSpriteTileCorners(ScreenPoint* spritePosition, Vector2d* upperLeftSpriteTile, Vector2d* lowerRightSpriteTile);
 
 void InitializeSprites(void)
 {
@@ -273,14 +274,9 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 	Vector2d upperLeftSpriteTile;
 	Vector2d lowerRightSpriteTile;
 
+	CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
+
 	SpriteCollisions[spriteIndex] = 0;
-
-	upperLeftSpriteTile.x = tempSpritePosition->x / TILE_WIDTH;
-	upperLeftSpriteTile.y = tempSpritePosition->y / TILE_HEIGHT;
-
-	// TODO: Need way to track sprite dimensions.
-	lowerRightSpriteTile.x = (tempSpritePosition->x + SPRITE_WIDTH - 1) / TILE_WIDTH;
-	lowerRightSpriteTile.y = (tempSpritePosition->y + SPRITE_HEIGHT - 1) / TILE_HEIGHT;
 
 	if ((SpriteCollisionMasks[spriteIndex] & COLLISION_FLAG_OBSTACLE) != 0)
 	{
@@ -292,7 +288,7 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 				(((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, lowerRightSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0)))
 			{
 				tempSpritePosition->x = spritePosition->x;
-				SpriteCollisions[spriteIndex] |= COLLISION_FLAG_OBSTACLE;
+				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
 			}
 		}
 		else if (spriteVelocity->x > 0)
@@ -303,9 +299,12 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 				(((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, lowerRightSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0)))
 			{
 				tempSpritePosition->x = spritePosition->x;
-				SpriteCollisions[spriteIndex] |= COLLISION_FLAG_OBSTACLE;
+				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
 			}
 		}
+
+		// TODO: Should be updated, but apparently doesn't matter much.
+		//CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
 
 		if (spriteVelocity->y < 0)
 		{
@@ -315,7 +314,7 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 				(((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, upperLeftSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0)))
 			{
 				tempSpritePosition->y = spritePosition->y;
-				SpriteCollisions[spriteIndex] |= COLLISION_FLAG_OBSTACLE;
+				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
 			}
 		}
 		else if (spriteVelocity->y > 0)
@@ -326,13 +325,16 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 				(((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, lowerRightSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0)))
 			{
 				tempSpritePosition->y = spritePosition->y;
-				SpriteCollisions[spriteIndex] |= COLLISION_FLAG_OBSTACLE;
+				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
 			}
 		}
 	}
 
 	if ((SpriteCollisionMasks[spriteIndex] & ~COLLISION_FLAG_OBSTACLE) != 0)
 	{
+		// TODO: Should be updated, but apparently doesn't matter much.
+		//CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
+
 		// Cycle through all overlapped tiles and imprint their collision flags on
 		// this sprite's collisions.
 		for (int y = upperLeftSpriteTile.y; y <= lowerRightSpriteTile.y; ++y)
@@ -343,6 +345,16 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 			}	
 		}
 	}
+}
+
+void CalculateSpriteTileCorners(ScreenPoint* spritePosition, Vector2d* upperLeftSpriteTile, Vector2d* lowerRightSpriteTile)
+{
+	upperLeftSpriteTile->x = spritePosition->x / TILE_WIDTH;
+	upperLeftSpriteTile->y = spritePosition->y / TILE_HEIGHT;
+
+	// TODO: Need way to track sprite dimensions.
+	lowerRightSpriteTile->x = (spritePosition->x + SPRITE_WIDTH - 1) / TILE_WIDTH;
+	lowerRightSpriteTile->y = (spritePosition->y + SPRITE_HEIGHT - 1) / TILE_HEIGHT;	
 }
 
 void SetSpriteFrameIndex(byte spriteIndex, byte frameIndex)

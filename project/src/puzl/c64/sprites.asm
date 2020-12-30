@@ -48,8 +48,13 @@
 
 .include "c64.asm"
 
+SPRITE_WIDTH = 16
+SPRITE_HEIGHT = 16
+
 ; TODO: Need to figure how to get this number from puzl/video.h.
 NUMBER_OF_SPRITES = NUMBER_OF_HARDWARE_SPRITES
+
+COLLISION_FLAG_OBSTACLE = $80
 
 .segment "BSS"
 
@@ -372,10 +377,11 @@ _MoveSprite:
   stx TempSpritePositionY+1
 
 @afterSetY:
-  
+
   ; TODO: Make collision map optional.
-  ;lda #1
-  ;beq @afterCollisionChecking
+  ldx tmp1
+  lda _SpriteCollisionMasks,x
+  beq @afterCollisionChecking
 
   jsr CheckSpriteCollision
 @afterCollisionChecking:
@@ -407,14 +413,27 @@ _MoveSprite:
 ;
 ; inputs:
 ;  - spriteIndex: tmp1, which sprite to move.
+;  - spriteCollisionMask: a, which layers this sprite collides with.
 ;  - TempSpritePositionX+1/TempSpritePositionX
 ;  - TempSpritePositionY+1/TempSpritePositionY
 ; outputs:
 ;  - TempSpritePositionX+1/TempSpritePositionX
 ;  - TempSpritePositionY+1/TempSpritePositionY
+; notes:
+;  - Squashes a, x, y, tmp2, tmp3.
+;  - Squashes ptr1, ptr1+1 (by proxy).
 CheckSpriteCollision:
-  jsr GetCornerTiles
+  sta tmp2 ; Cache spriteCollisionMask.
 
+  lda #0
+  sta tmp3 ; Temporary cache for setting _SpriteCollisions,x.
+
+  lda tmp2
+  bpl @afterObstacleCollisionCheck; spriteCollisionMask & COLLISION_FLAG_OBSTACLE
+
+  jsr CalculateSpriteTileCorners
+
+@obstacleCollisionCheck:
 @checkX:
   ldx tmp1
   lda SpriteVelocitiesX,x
@@ -425,12 +444,15 @@ CheckSpriteCollision:
   ldy UpperLeftSpriteTileX
   ldx UpperLeftSpriteTileY
   jsr GetTileMapCellCollisionCode
-  beq @afterCheckX
+  bpl @afterCheckX
   ldx LowerRightSpriteTileY
   jsr GetTileMapCellCollisionCode
-  beq @afterCheckX
+  bpl @afterCheckX
 
 @resetPositionX:
+  ;lda #COLLISION_FLAG_OBSTACLE
+  sta tmp3 ; NOTE: Assumed first set, OR not needed.
+
   ldx tmp1
   lda SpritePositionsXLo,x
   sta TempSpritePositionX
@@ -443,10 +465,10 @@ CheckSpriteCollision:
   ldy LowerRightSpriteTileX
   ldx UpperLeftSpriteTileY
   jsr GetTileMapCellCollisionCode
-  beq @afterCheckX
+  bpl @afterCheckX
   ldx LowerRightSpriteTileY
   jsr GetTileMapCellCollisionCode
-  bne @resetPositionX ; NOTE: Not beq.
+  bmi @resetPositionX ; NOTE: Not bpl.
 @afterCheckX:
 
 @checkY:
@@ -459,12 +481,15 @@ CheckSpriteCollision:
   ldy UpperLeftSpriteTileX
   ldx UpperLeftSpriteTileY
   jsr GetTileMapCellCollisionCode
-  beq @afterCheckY
+  bpl @afterCheckY
   ldy LowerRightSpriteTileX
   jsr GetTileMapCellCollisionCode
-  beq @afterCheckY
+  bpl @afterCheckY
 
 @resetPositionY:
+  ;lda #COLLISION_FLAG_OBSTACLE
+  sta tmp3 ; NOTE: Assumed first set, OR not needed.
+
   ldx tmp1
   lda SpritePositionsYLo,x
   sta TempSpritePositionY
@@ -477,11 +502,55 @@ CheckSpriteCollision:
   ldy UpperLeftSpriteTileX
   ldx LowerRightSpriteTileY
   jsr GetTileMapCellCollisionCode
-  beq @afterCheckY
+  bpl @afterCheckY
   ldy LowerRightSpriteTileX
   jsr GetTileMapCellCollisionCode
-  bne @resetPositionY ; NOTE: Not beq.
+  bmi @resetPositionY ; NOTE: Not bpl.
 @afterCheckY:
+
+@afterObstacleCollisionCheck:
+@otherCollisionCheck:
+  lda tmp2
+  and #$7f
+  beq @afterOtherCollisionCheck; spriteCollisionMask & ~COLLISION_FLAG_OBSTACLE
+
+  ; Cycle through all overlapped tiles and imprint their collision flags on
+	; this sprite's collisions.
+
+  ldx UpperLeftSpriteTileY
+@yLoop:
+
+  ldy UpperLeftSpriteTileX
+@xLoop:
+  tya
+  pha
+  txa
+  pha
+
+  jsr GetTileMapCellCollisionCode
+  ora tmp3 ; Update _SpriteCollisions.
+  sta tmp3
+
+  pla
+  tax
+  pla
+  tay
+
+  iny
+  cpy LowerRightSpriteTileX
+  bcc @xLoop
+  beq @xLoop ; TODO: This check shouldn't be necessary!
+
+  inx
+  cpx LowerRightSpriteTileY
+  bcc @yLoop
+  beq @yLoop ; TODO: This check shouldn't be necessary!
+@afterOtherCollisionCheck:
+
+@setSpriteCollisions:
+  ldx tmp1
+  lda tmp3
+  sta _SpriteCollisions,x
 
 @done:
   rts
@@ -501,7 +570,7 @@ CheckSpriteCollision:
 ;  - LowerRightSpriteTileY
 ; notes:
 ;  - Squashes a, mathOperandLo2, mathOperandLo1, mathOperandHi1.
-GetCornerTiles:
+CalculateSpriteTileCorners:
   ; Upper left X.
   lda #0
   sta mathOperandLo2
@@ -513,7 +582,7 @@ GetCornerTiles:
   sta UpperLeftSpriteTileX
 
   ; Lower right X.
-  lda #(16-1)
+  lda #(SPRITE_WIDTH-1)
   sta mathOperandLo2
   jsr GetTileIndexFromPosition
   sta LowerRightSpriteTileX
@@ -529,7 +598,7 @@ GetCornerTiles:
   sta UpperLeftSpriteTileY
 
   ; Lower right Y.
-  lda #(16-1)
+  lda #(SPRITE_HEIGHT-1)
   sta mathOperandLo2
   jsr GetTileIndexFromPosition
   sta LowerRightSpriteTileY

@@ -407,6 +407,57 @@ _MoveSprite:
   rts
 
 ;------------------------------------------------------------------
+; Gets collision map cell coordinates for the top left and bottom right
+; points of a sprite through TempSpritePositionX/Y.
+; Assumes sprite dimensions of 16x16.
+;
+; inputs:
+;  - TempSpritePositionX+1/TempSpritePositionX
+;  - TempSpritePositionY+1/TempSpritePositionY
+; outputs:
+;  - UpperLeftSpriteTileX
+;  - UpperLeftSpriteTileY
+;  - LowerRightSpriteTileX
+;  - LowerRightSpriteTileY
+; notes:
+;  - Squashes a, mathOperandLo2, mathOperandLo1, mathOperandHi1.
+.macro CalculateSpriteTileCorners
+  ; Upper left X.
+  lda #0
+  sta mathOperandLo2
+  lda TempSpritePositionX
+  sta mathOperandLo1
+  lda TempSpritePositionX+1
+  sta mathOperandHi1
+  jsr GetTileIndexFromPosition
+  sta UpperLeftSpriteTileX
+
+  ; Lower right X.
+  lda #(SPRITE_WIDTH-1)
+  sta mathOperandLo2
+  jsr GetTileIndexFromPosition
+  sta LowerRightSpriteTileX
+
+  ; Upper left Y.
+  lda #0
+  sta mathOperandLo2
+  lda TempSpritePositionY
+  sta mathOperandLo1
+  lda TempSpritePositionY+1
+  sta mathOperandHi1
+  jsr GetTileIndexFromPosition
+  sta UpperLeftSpriteTileY
+
+  ; Lower right Y.
+  lda #(SPRITE_HEIGHT-1)
+  sta mathOperandLo2
+  jsr GetTileIndexFromPosition
+  sta LowerRightSpriteTileY
+
+;  rts
+.endmacro
+
+;------------------------------------------------------------------
 ; Checks for collision map overlap with temporary sprite position.
 ; Adjusts this position to original X or Y position, depending on velocity.
 ; Assumes sprite dimensions of 16x16.
@@ -429,9 +480,11 @@ CheckSpriteCollision:
   sta tmp3 ; Temporary cache for setting _SpriteCollisions,x.
 
   lda tmp2
-  bpl @afterObstacleCollisionCheck; spriteCollisionMask & COLLISION_FLAG_OBSTACLE
+  bmi @calculateSpriteTileCorners; spriteCollisionMask & COLLISION_FLAG_OBSTACLE
+  jmp @otherCollisionCheckMaskLoaded
 
-  jsr CalculateSpriteTileCorners
+@calculateSpriteTileCorners:
+  CalculateSpriteTileCorners ; macro
 
 @obstacleCollisionCheck:
 @checkX:
@@ -507,10 +560,11 @@ CheckSpriteCollision:
   jsr GetTileMapCellCollisionCode
   bmi @resetPositionY ; NOTE: Not bpl.
 @afterCheckY:
-
 @afterObstacleCollisionCheck:
+
 @otherCollisionCheck:
   lda tmp2
+@otherCollisionCheckMaskLoaded:
   and #$7f
   beq @afterOtherCollisionCheck; spriteCollisionMask & ~COLLISION_FLAG_OBSTACLE
 
@@ -553,56 +607,6 @@ CheckSpriteCollision:
   sta _SpriteCollisions,x
 
 @done:
-  rts
-
-;------------------------------------------------------------------
-; Gets collision map cell coordinates for the top left and bottom right
-; points of a sprite through TempSpritePositionX/Y.
-; Assumes sprite dimensions of 16x16.
-;
-; inputs:
-;  - TempSpritePositionX+1/TempSpritePositionX
-;  - TempSpritePositionY+1/TempSpritePositionY
-; outputs:
-;  - UpperLeftSpriteTileX
-;  - UpperLeftSpriteTileY
-;  - LowerRightSpriteTileX
-;  - LowerRightSpriteTileY
-; notes:
-;  - Squashes a, mathOperandLo2, mathOperandLo1, mathOperandHi1.
-CalculateSpriteTileCorners:
-  ; Upper left X.
-  lda #0
-  sta mathOperandLo2
-  lda TempSpritePositionX
-  sta mathOperandLo1
-  lda TempSpritePositionX+1
-  sta mathOperandHi1
-  jsr GetTileIndexFromPosition
-  sta UpperLeftSpriteTileX
-
-  ; Lower right X.
-  lda #(SPRITE_WIDTH-1)
-  sta mathOperandLo2
-  jsr GetTileIndexFromPosition
-  sta LowerRightSpriteTileX
-
-  ; Upper left Y.
-  lda #0
-  sta mathOperandLo2
-  lda TempSpritePositionY
-  sta mathOperandLo1
-  lda TempSpritePositionY+1
-  sta mathOperandHi1
-  jsr GetTileIndexFromPosition
-  sta UpperLeftSpriteTileY
-
-  ; Lower right Y.
-  lda #(SPRITE_HEIGHT-1)
-  sta mathOperandLo2
-  jsr GetTileIndexFromPosition
-  sta LowerRightSpriteTileY
-
   rts
 
 ;------------------------------------------------------------------

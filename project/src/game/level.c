@@ -18,7 +18,7 @@ void LoadLevel(void)
 	GenerateVWall(0, 0, TARGET_SCREEN_BLOCK_HEIGHT - 1);
 	GenerateVWall(TARGET_SCREEN_BLOCK_WIDTH - 1, 0, TARGET_SCREEN_BLOCK_HEIGHT - 1);
 
-	GenerateHWall(8, 8, 8);
+	GenerateHWall(8, 8, 6);
 	GenerateLadderBlock(12, 8);
 	GenerateLadderBlock(12, 9);
 	GenerateLadderBlock(12, 10);

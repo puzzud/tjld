@@ -1,19 +1,10 @@
 #include <msdos/video.h>
 
 #include <i86.h>
-#include <conio.h>
 #include <stdio.h>
 #include <string.h>
 
 #include <puzl.h>
-
-#define VIDEO_INT          0x10
-
-#define SET_MODE           0x00
-#define WRITE_DOT          0x0c
-
-#define VGA_256_COLOR_MODE 0x13
-#define TEXT_MODE          0x03
 
 byte far* VideoBuffer = (byte far*)0xa0000l;
 
@@ -24,10 +15,17 @@ byte PrintColor;
 void SetGraphicsMode(int mode);
 void PlotPixel(word x, word y, byte color);
 void FillScreen(byte color);
+void ClearScreen(void);
+
+void DrawTileMap(void);
 
 void InitializeVideo(void)
 {
 	SetGraphicsMode(VGA_256_COLOR_MODE);
+
+	ClearScreen();
+
+	InitializeSprites();
 }
 
 void ShutdownVideo(void)
@@ -37,26 +35,10 @@ void ShutdownVideo(void)
 
 void Draw(void)
 {
-	unsigned int y;
-	unsigned int x;
+	//ClearScreen();
 
-	static unsigned int c = 0;
-
-	x = SCREEN_WIDTH / 2;
-	y = SCREEN_HEIGHT / 2;
-	VideoBuffer[((y * SCREEN_WIDTH) + x)] = ++c;
-
-	//printf("%d\n", sizeof(x));
-	/*
-	for (y = 0; y < 200; ++y)
-	{
-		for (x = 0; x < 320; ++x)
-		{
-			//VideoBuffer[((y * 320) + x)] = ++c;
-			//PlotPixel(x, y, ++c);
-		}
-	}
-	*/
+	DrawTileMap();
+	DrawSprites();
 }
 
 void SetGraphicsMode(int mode)
@@ -66,6 +48,7 @@ void SetGraphicsMode(int mode)
 	regs.h.al = mode;
 	int386(VIDEO_INT, &regs, &regs);
 }
+
 /*
 void PlotPixel(unsigned int x, unsigned int y, byte color)
 {
@@ -112,7 +95,12 @@ modify [es di ah cx];
 
 void FillScreen(byte color)
 {
-	memset(VideoBuffer, color, SCREEN_WIDTH * SCREEN_HEIGHT);
+	memset((void*)VideoBuffer, color, SCREEN_WIDTH * SCREEN_HEIGHT);
+}
+
+void ClearScreen(void)
+{
+	FillScreen(0);
 }
 
 void SetBackgroundColor(byte colorCode)
@@ -155,67 +143,7 @@ void FASTCALL PrintText(const char* text, byte x, byte y)
 
 }
 
-void FASTCALL EnableSprite(byte spriteIndex, byte enable)
+void DrawTileMap(void)
 {
 
-}
-
-signed short FASTCALL GetSpritePositionX(byte spriteIndex)
-{
-	return 0;
-}
-
-signed short FASTCALL GetSpritePositionY(byte spriteIndex)
-{
-	return 0;
-}
-
-void FASTCALL SetSpritePosition(byte spriteIndex, signed short x, signed short y)
-{
-	
-}
-
-void FASTCALL SetSpriteVelocity(byte spriteIndex, signed char x, signed char y)
-{
-	
-}
-
-void FASTCALL MoveSprite(byte spriteIndex)
-{
-	
-}
-
-void FASTCALL SetSpriteFrameIndex(byte spriteIndex, byte frameIndex)
-{
-	
-}
-
-void FASTCALL SetSpriteColor(byte spriteIndex, byte colorCode)
-{
-	
-}
-
-void FASTCALL SetSpriteSeconaryColor(byte colorCode)
-{
-	
-}
-
-void FASTCALL SetSpriteTertiaryColor(byte colorCode)
-{
-	
-}
-
-void FASTCALL SetSpriteAnimationSet(byte spriteIndex, const byte** animationSet)
-{
-	
-}
-
-void FASTCALL PlaySpriteAnimation(byte spriteIndex, byte animationId, byte looping)
-{
-	
-}
-
-void FASTCALL StopSpriteAnimation(byte spriteIndex)
-{
-	
 }

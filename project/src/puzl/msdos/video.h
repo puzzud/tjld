@@ -3,6 +3,14 @@
 
 #include <video.h>
 
+#define VIDEO_INT          0x10
+
+#define SET_MODE           0x00
+#define WRITE_DOT          0x0c
+
+#define VGA_256_COLOR_MODE 0x13
+#define TEXT_MODE          0x03
+
 #define SCREEN_WIDTH 320
 #define SCREEN_HEIGHT 200
 
@@ -12,9 +20,25 @@
 #define TILEMAP_WIDTH (SCREEN_WIDTH / TILE_WIDTH)
 #define TILEMAP_HEIGHT (SCREEN_HEIGHT / TILE_HEIGHT)
 
+typedef struct
+{
+	byte enabled;
+	ScreenPoint position;
+	byte frameIndex;
+	const byte** animationSet;
+	byte animationId;
+	byte colorCode;
+	Vector2d velocity;
+} Sprite;
+
+extern byte far* VideoBuffer;
+
 void InitializeVideo(void);
 void ShutdownVideo(void);
 
 void Draw(void);
+
+void InitializeSprites(void);
+void DrawSprites(void);
 
 #endif

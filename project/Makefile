@@ -128,7 +128,7 @@ PLATFORM := msdos
 #EDPATH # Environment variable should be set to $WATCOM/eddat.
 
 CFLAGS := -I=$(PUZLDIR) -I=$(GAMEDIR)
-CFLAGS := -I=$(WATCOM)/h $(CFLAGS) -zq -bt=dos -wx -ms
+CFLAGS := -I=$(WATCOM)/h $(CFLAGS) -zq -bt=dos -wx -ms -wcd=303
 LFLAGS := system dos4g libpath $(WATCOM)/lib386 libpath $(WATCOM)/lib386/dos option stack=8192
 
 EXECUTABLE := $(BTDIR)/$(PROJECT_NAME).exe

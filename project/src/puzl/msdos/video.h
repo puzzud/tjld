@@ -12,4 +12,9 @@
 #define TILEMAP_WIDTH (SCREEN_WIDTH / TILE_WIDTH)
 #define TILEMAP_HEIGHT (SCREEN_HEIGHT / TILE_HEIGHT)
 
+void InitializeVideo(void);
+void ShutdownVideo(void);
+
+void Draw(void);
+
 #endif

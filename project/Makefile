@@ -29,8 +29,6 @@ BIN := bin
 BDIR := ./$(BIN)
 BTDIR := $(BDIR)/$(TARGET)
 
-CFLAGS := -I $(PUZLDIR) -I $(GAMEDIR)
-
 ########################################
 # Target Specifics
 ########################################
@@ -44,6 +42,7 @@ CC_FAMILY := $(CC)
 
 PLATFORM := sdl
 
+CFLAGS := -I $(PUZLDIR) -I $(GAMEDIR)
 CFLAGS := `sdl2-config --cflags` -g $(CFLAGS)
 LFLAGS := `sdl2-config --libs`
 
@@ -61,6 +60,7 @@ CC_FAMILY := $(CC)
 
 PLATFORM := sdl
 
+CFLAGS := -I $(PUZLDIR) -I $(GAMEDIR)
 CFLAGS := `sdl2-config --cflags` -g $(CFLAGS)
 LFLAGS := `sdl2-config --libs`
 
@@ -84,6 +84,7 @@ PLATFORM := sdl
 WIN_SDL_INCLUDE := $(WIN_SDL_DEV_HOME)/include
 WIN_SDL_LIB := $(WIN_SDL_DEV_HOME)/lib
 
+CFLAGS := -I $(PUZLDIR) -I $(GAMEDIR)
 CFLAGS := -I $(WIN_SDL_INCLUDE) -I $(MINGW_INCLUDE) $(CFLAGS)
 LFLAGS := -L $(WIN_SDL_LIB) -mwindows -lmingw32 -lSDL2main -lSDL2
 
@@ -101,6 +102,7 @@ CC_FAMILY := g++
 
 PLATFORM := sdl
 
+CFLAGS := -I $(PUZLDIR) -I $(GAMEDIR)
 CFLAGS := -s USE_SDL=2 $(CFLAGS)
 LFLAGS := 
 
@@ -125,7 +127,6 @@ PLATFORM := msdos
 #WATCOM/binl and #WATCOM/binw need to be in system path (in this order).
 #EDPATH # Environment variable should be set to $WATCOM/eddat.
 
-# NOTE: CFLAGS previous value is being overwritten because watch has different include parameter format.
 CFLAGS := -I=$(PUZLDIR) -I=$(GAMEDIR)
 CFLAGS := -I=$(WATCOM)/h $(CFLAGS)
 LFLAGS := libpath $(WATCOM)/lib386 libpath $(WATCOM)/lib386/dos system pmodew
@@ -159,6 +160,7 @@ PROGRAM := $(PROJECT_NAME).$(BIN_EXT)
 
 #CA65_LIB # Environment variable should be set to directory that contains c64.lib.
 
+CFLAGS := -I $(PUZLDIR) -I $(GAMEDIR)
 CFLAGS := --cpu $(CPU) -O -I $(SDIR) $(CFLAGS) -D__$(PLATFORM_UC)__
 AFLAGS := --cpu $(CPU) -I $(SDIR) -I $(SDIR)/$(PLATFORM)
 LFLAGS := -C $(PUZLDIR)/$(PLATFORM)/$(LDCONFIG) $(CA65_LIB)/$(PLATFORM).lib -Ln $(LABEL_FILE)

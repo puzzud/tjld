@@ -30,4 +30,12 @@ typedef unsigned short word;
 #include <audio.h>
 #endif
 
+#ifdef __WATCOMC__
+#include <msdos/core.h>
+#include <msdos/video.h>
+#include <msdos/color.h>
+#include <msdos/input.h>
+#include <msdos/audio.h>
+#endif
+
 #endif

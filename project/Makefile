@@ -111,6 +111,31 @@ EXECUTE := @echo Serve this follow to test: $(EXECUTABLE)
 endif
 
 #---------------------------------------
+# MS-DOS
+#---------------------------------------
+ifeq ($(TARGET),msdos)
+CC := wcc386
+AS := wasm
+LD := wlink
+CC_FAMILY := watcom
+
+PLATFORM := msdos
+
+#WATCOM # Environment variable should be set to root directory that contains h, lib386.
+#WATCOM/binl and #WATCOM/binw need to be in system path (in this order).
+#EDPATH # Environment variable should be set to $WATCOM/eddat.
+
+# NOTE: CFLAGS previous value is being overwritten because watch has different include parameter format.
+CFLAGS := -I=$(PUZLDIR) -I=$(GAMEDIR)
+CFLAGS := -I=$(WATCOM)/h $(CFLAGS)
+LFLAGS := libpath $(WATCOM)/lib386 libpath $(WATCOM)/lib386/dos system pmodew
+
+EXECUTABLE := $(BTDIR)/$(PROJECT_NAME).exe
+
+EXECUTE := dosbox $(EXECUTABLE)
+endif
+
+#---------------------------------------
 # Commodore 64
 #---------------------------------------
 ifeq ($(TARGET),c64)
@@ -163,6 +188,9 @@ OBJS := $(subst $(SDIR),$(BTDIR),$(OBJS))
 .PHONY: all
 all: $(EXECUTABLE)
 
+#---------------------------------------
+# gcc/g++
+#---------------------------------------
 ifeq ($(CC_FAMILY),g++)
 $(EXECUTABLE): $(OBJS)
 	@mkdir -p $(@D)
@@ -172,6 +200,9 @@ $(BDIR)/$(TARGET)/%.o: $(SDIR)/%.c
 	@mkdir -p $(@D)
 	$(CC) -o $@ -c $< $(CFLAGS) $(LFLAGS)
 
+#---------------------------------------
+# cc65
+#---------------------------------------
 else ifeq ($(CC_FAMILY),cc65)
 $(EXECUTABLE): $(OBJS)
 	@mkdir -p $(@D)
@@ -198,6 +229,22 @@ play_real: | transfer
 	# Assumes presence of command.
 	# https://github.com/markusC64/1541ultimate2/releases/tag/tools-v1.2.1
 	1541u2 $(ULTIMATE_HOSTNAME) -c run:$(EXECUTABLE)
+
+#---------------------------------------
+# watcom
+#---------------------------------------
+else ifeq ($(CC_FAMILY),watcom)
+$(EXECUTABLE): $(OBJS)
+	@mkdir -p $(@D)
+	$(LD) $(patsubst %,file %,$(OBJS)) $(LFLAGS) name $@
+
+#$(BTDIR)/%.o: $(BTDIR)/%.asm
+#	@mkdir -p $(@D)
+#	$(AS) -o $@ $< $(AFLAGS)
+
+$(BTDIR)/%.o: $(SDIR)/%.c
+	@mkdir -p $(@D)
+	$(CC) -fo=$@ $(CFLAGS) $<
 
 endif
 

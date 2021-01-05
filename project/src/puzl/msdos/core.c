@@ -22,7 +22,7 @@ void InitializeVideo(void);
 void ShutdownVideo(void);
 
 void SetGraphicsMode(int mode);
-void PlotPixel(int x, int y, byte color);
+void PlotPixel(word x, word y, byte color);
 void FillScreen(byte color);
 
 int main(int argc, char* args[])
@@ -57,7 +57,7 @@ void InitializeVideo(void)
 {
 	SetGraphicsMode(VGA_256_COLOR_MODE);
 
-	FillScreen(32);
+	//FillScreen(32);
 }
 
 void ShutdownVideo(void)
@@ -67,20 +67,21 @@ void ShutdownVideo(void)
 
 void Draw(void)
 {
-	/*
 	unsigned int y;
 	unsigned int x;
 
 	static unsigned int c = 0;
+
+	//printf("%d\n", sizeof(x));
 	
 	for (y = 0; y < 200; ++y)
 	{
 		for (x = 0; x < 320; ++x)
 		{
 			VideoBuffer[((y * 320) + x)] = ++c;
+			//PlotPixel(x, y, ++c);
 		}
 	}
-	*/
 }
 
 void SetGraphicsMode(int mode)
@@ -90,8 +91,8 @@ void SetGraphicsMode(int mode)
 	regs.h.al = mode;
 	int386(VIDEO_INT, &regs, &regs);
 }
-
-void PlotPixel(int x, int y, byte color)
+/*
+void PlotPixel(unsigned int x, unsigned int y, byte color)
 {
   union REGS regs;
 
@@ -101,12 +102,35 @@ void PlotPixel(int x, int y, byte color)
 	regs.w.dx = y;
   int386(VIDEO_INT, &regs, &regs);
 }
+*/
 
+#ifdef SLOW
+#pragma aux PlotPixel = \
+"mov ah, 0ch" \
+"mov bh, 00h" \
+"int 10h" \
+parm [cx] [dx] [al] \
+modify [ah bh];
+#else
+#pragma aux PlotPixel = \
+"mov dx, 320" \
+"mul dx" \
+"add ax, bx" \
+"mov di, ax" \
+"mov ax, 0a000h" \
+"mov es, ax" \
+"mov [es:di], cl" \
+parm [ax] [bx] [cl] \
+modify [dx es di];
+#endif
+
+/*
 #pragma aux FillScreen = \
-"mov [es:di], 0a000h" \
-"les di, [es:di]" \
+"les di, 0a000h" \
 "mov ah, al" \
+"mov al, ah" \
 "mov cx, 320*200/2" \
 "rep stosw" \
 parm [al] \
-modify [ah di cx es];
+modify [es di ah cx];
+*/

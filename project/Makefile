@@ -129,7 +129,7 @@ PLATFORM := msdos
 
 CFLAGS := -I=$(PUZLDIR) -I=$(GAMEDIR)
 CFLAGS := -I=$(WATCOM)/h $(CFLAGS) -zq -bt=dos -wx -ms
-LFLAGS := system dos4g op q libpath $(WATCOM)/lib386 libpath $(WATCOM)/lib386/dos option stack=8192
+LFLAGS := system dos4g libpath $(WATCOM)/lib386 libpath $(WATCOM)/lib386/dos option stack=8192
 
 EXECUTABLE := $(BTDIR)/$(PROJECT_NAME).exe
 

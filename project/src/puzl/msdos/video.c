@@ -1,10 +1,13 @@
 #include <msdos/video.h>
 
-#include <i86.h>
 #include <stdio.h>
 #include <string.h>
+#include <i86.h>
+#include <conio.h>
 
 #include <puzl.h>
+
+#define INPUT_STATUS_0 0x3da
 
 byte FAR* VideoBuffer = (byte FAR*)0xa0000l;
 
@@ -32,7 +35,11 @@ void ShutdownVideo(void)
 
 void Draw(void)
 {
-	//ClearScreen();
+	// Wait for vertical re-trace.
+	while (inp(INPUT_STATUS_0) & 0x08);
+	while (!(inp(INPUT_STATUS_0) & 0x08));
+
+	ClearScreen();
 
 	DrawTileMap();
 	DrawSprites();

@@ -14,7 +14,7 @@ typedef enum
 	KEY_CODE_DOWN = 0x50
 } KeyCode;
 
-#define NUMBER_OF_KEY_CODES 255
+#define NUMBER_OF_KEY_CODES 128
 
 #include <input.h>
 

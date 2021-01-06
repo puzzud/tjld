@@ -11,95 +11,54 @@
 #define KEY_CONTROL        0x61
 #define PIC_PORT           0x20
 
-void (interrupt FAR* OldKeyboardIsr)(void); // Holds old keyboard interrupt handler.
-void interrupt FAR KeyboardDriver(void);
-void KeyboardDriver0(void);
+void InitializeKeyboard(void);
+void _WCINTERRUPT FAR KeyboardDriver(void);
+void ScanKeyForInterrupt(void);
 
+void _WCINTERRUPT (FAR* OldKeyboardIsr)(void); // Holds old keyboard interrupt handler.
 word RawKeyScanCode;
-
 byte KeyCodeStates[NUMBER_OF_KEY_CODES];
-unsigned int NumberOfActiveKeys;
+byte NumberOfActiveKeys;
 
 byte ControllerAxisXState;
 byte ControllerAxisYState;
 byte ControllerButtonState;
 
-void ClearKeyCodes(void);
-void OnKeyPress(unsigned int keyCode);
-unsigned char GetScanCode(void);
-
 void InitializeInput(void)
 {
-	ClearKeyCodes();
+	InitializeKeyboard();
+}
+
+void ShutdownInput(void)
+{
+	// Shutdown keyboard.
+	_dos_setvect(KEYBOARD_INTERRUPT, OldKeyboardIsr);
+}
+
+void InitializeKeyboard(void)
+{
+	memset(KeyCodeStates, 0, sizeof(KeyCodeStates));
+	NumberOfActiveKeys = 0;
+	RawKeyScanCode = 0;
 
 	OldKeyboardIsr = _dos_getvect(KEYBOARD_INTERRUPT);
 	_dos_setvect(KEYBOARD_INTERRUPT, KeyboardDriver);
 }
 
-void ShutdownInput(void)
-{
-	_dos_setvect(KEYBOARD_INTERRUPT, OldKeyboardIsr);
-}
-
-#pragma aux GetScanCode = \
-"mov ah, 01h" \
-"int 16h" \
-"jz bufferIsEmpty" \
-"mov ah, 00h" \
-"int 16h" \
-"mov al, ah" \
-"xor ah, ah" \
-"jmp done" \
-"bufferIsEmpty:" \
-"xor ax, ax" \
-"done:" \
-modify [ah] \
-value [al];
-
-inline void ClearKeyCodes(void)
-{
-	memset(KeyCodeStates, 0, sizeof(KeyCodeStates));
-
-	NumberOfActiveKeys = 0;
-
-	RawKeyScanCode = 0;
-}
-
 void ProcessInput(void)
 {
-	/*unsigned char keyCode;
-
-	ClearKeyCodes();
-
-	keyCode = GetScanCode();
-
-	//if (kbhit() != 0)
-	if (keyCode != 0)
-	{
-		//keyCode = getch();
-		//printf("keyCode: %x\n", keyCode);
-
-		OnKeyPress(keyCode);
-	}*/
-}
-
-inline void OnKeyPress(unsigned int keyCode)
-{
-	if (keyCode < NUMBER_OF_KEY_CODES)
-	{
-		KeyCodeStates[keyCode] = 1;
-	}
+	// TODO: Check game controllers.
 }
 
 // 60h is KEY_BUFFER.
 // 61h is KEY_CONTROL.
 // 21h is PIC_PORT.
-#pragma aux KeyboardDriver0 = \
+#pragma aux ScanKeyForInterrupt = \
 "sti" \
 "in al, 60h" \
 "xor ah, ah" \
 "mov RawKeyScanCode, ax" \
-"in al, 60h" \
+"in al, 61h" \
 "or al, 82h" \
 "out 61h, al" \
 "and al, 7fh" \
@@ -110,9 +69,7 @@ modify [ax];
 
 void _WCINTERRUPT FAR KeyboardDriver(void)
 {
-	KeyboardDriver0();
-
-	printf("keyCode: %x\n", RawKeyScanCode);
+	ScanKeyForInterrupt();
 
 	if (RawKeyScanCode < 128)
 	{

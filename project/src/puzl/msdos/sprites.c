@@ -34,7 +34,8 @@ void DrawSprite(Sprite* sprite)
 {
 	unsigned int x = sprite->position.x;
 	unsigned int y = sprite->position.y;
-	VideoBuffer[((y * SCREEN_WIDTH) + x)] = sprite->colorCode + 4;
+	//VideoBuffer[((y * SCREEN_WIDTH) + x)] = sprite->colorCode + 4;
+	DrawRectangle(x, y, SPRITE_WIDTH, SPRITE_HEIGHT, sprite->colorCode + 4);
 }
 
 void EnableSprite(byte spriteIndex, byte enable)

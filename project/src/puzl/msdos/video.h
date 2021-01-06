@@ -38,6 +38,11 @@ void ShutdownVideo(void);
 
 void Draw(void);
 
+void DrawRectangle(signed short x, signed short y, unsigned short width, unsigned short height, byte colorCode);
+
+void InitializeTilemap(void);
+void DrawTileMap(void);
+
 void InitializeSprites(void);
 void DrawSprites(void);
 

@@ -24,6 +24,14 @@ typedef struct
 	signed short y;
 } ScreenPoint;
 
+typedef struct
+{
+	signed short x;
+	signed short y;
+	signed short width;
+	signed short height;
+} Rectangle;
+
 extern byte PrintX;
 extern byte PrintY;
 extern byte PrintColor;

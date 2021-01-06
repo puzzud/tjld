@@ -8,21 +8,18 @@
 
 byte far* VideoBuffer = (byte far*)0xa0000l;
 
-byte PrintX;
-byte PrintY;
-byte PrintColor;
+byte BackgroundColorCode;
 
 void SetGraphicsMode(int mode);
 void PlotPixel(word x, word y, byte color);
 void FillScreen(byte color);
 void ClearScreen(void);
 
-void DrawTileMap(void);
-
 void InitializeVideo(void)
 {
 	SetGraphicsMode(VGA_256_COLOR_MODE);
 
+	BackgroundColorCode = COLOR_BLACK;
 	ClearScreen();
 
 	InitializeSprites();
@@ -100,50 +97,33 @@ void FillScreen(byte color)
 
 void ClearScreen(void)
 {
-	FillScreen(0);
+	FillScreen(BackgroundColorCode);
 }
 
 void SetBackgroundColor(byte colorCode)
 {
-	
+	BackgroundColorCode = colorCode;
 }
 
-byte FASTCALL GetTileMapShapeCode(byte x, byte y)
+void DrawRectangle(signed short x, signed short y, unsigned short width, unsigned short height, byte colorCode)
 {
-	return 0;
-}
+	int xCounter;
+	int yCounter = height;
+	byte far* videoBufferOffset = &VideoBuffer[((y * SCREEN_WIDTH) + x)];
 
-byte FASTCALL GetTileMapColorCode(byte x, byte y)
-{
-	return 0;
-}
+	do
+	{
+		xCounter = width;
 
-byte FASTCALL GetTileMapCellCollisionCode(byte x, byte y)
-{
-	return 0;
-}
+		do
+		{
+			*videoBufferOffset = colorCode;
 
-void FASTCALL SetTileMapCellShape(byte x, byte y, byte shapeCode)
-{
+			++videoBufferOffset;
+		}
+		while (--xCounter != 0);
 
-}
-
-void FASTCALL SetTileMapCellColor(byte x, byte y, byte colorCode)
-{
-
-}
-
-void FASTCALL SetTileMapCellCollisionCode(byte x, byte y, byte collisionCode)
-{
-
-}
-
-void FASTCALL PrintText(const char* text, byte x, byte y)
-{
-
-}
-
-void DrawTileMap(void)
-{
-
+		videoBufferOffset += SCREEN_WIDTH - width;
+	}
+	while (--yCounter != 0);
 }

@@ -31,7 +31,7 @@ typedef struct
 	Vector2d velocity;
 } Sprite;
 
-extern byte far* VideoBuffer;
+extern byte FAR* VideoBuffer;
 
 void InitializeVideo(void);
 void ShutdownVideo(void);

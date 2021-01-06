@@ -9,6 +9,14 @@
 #define FASTCALL
 #endif
 
+// NOTE: Bad hack to get VS Code to shut up about far
+// keyword (not ISO?).
+#ifdef __WATCOM__
+#define FAR far
+#else
+#define FAR
+#endif
+
 typedef unsigned char byte;
 typedef unsigned short word;
 

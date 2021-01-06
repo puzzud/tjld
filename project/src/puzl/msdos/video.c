@@ -6,7 +6,7 @@
 
 #include <puzl.h>
 
-byte far* VideoBuffer = (byte far*)0xa0000l;
+byte FAR* VideoBuffer = (byte FAR*)0xa0000l;
 
 byte BackgroundColorCode;
 
@@ -107,12 +107,13 @@ void SetBackgroundColor(byte colorCode)
 
 void DrawRectangle(signed short x, signed short y, unsigned short width, unsigned short height, byte colorCode)
 {
-	int xCounter;
+	//int xCounter;
 	int yCounter = height;
-	byte far* videoBufferOffset = &VideoBuffer[((y * SCREEN_WIDTH) + x)];
+	byte FAR* videoBufferOffset = &VideoBuffer[(y * SCREEN_WIDTH) + x];
 
 	do
 	{
+		/*
 		xCounter = width;
 
 		do
@@ -122,8 +123,11 @@ void DrawRectangle(signed short x, signed short y, unsigned short width, unsigne
 			++videoBufferOffset;
 		}
 		while (--xCounter != 0);
+		*/
 
-		videoBufferOffset += SCREEN_WIDTH - width;
+		memset((void*)videoBufferOffset, colorCode, width);
+
+		videoBufferOffset += SCREEN_WIDTH;
 	}
 	while (--yCounter != 0);
 }

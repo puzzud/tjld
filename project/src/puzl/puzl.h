@@ -25,7 +25,6 @@ typedef unsigned short word;
 
 #include <c64/core.h>
 #include <c64/video.h>
-#include <color.h>
 #include <c64/input.h>
 #include <audio.h>
 #endif

@@ -6,8 +6,6 @@
 
 #include <stdio.h>
 
-#include <color.h>
-
 void SetBackgroundColor(byte color)
 {
 	SET_MEMORY_BYTE(BGCOL0, color);

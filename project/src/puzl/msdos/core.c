@@ -1,5 +1,6 @@
 #include <msdos/core.h>
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -10,7 +11,6 @@ byte Running;
 void Initialize(void);
 void Shutdown(void);
 void MainLoop(void);
-void MainLoopIteration(void);
 
 int main(int argc, char* args[])
 {
@@ -45,16 +45,11 @@ inline void MainLoop(void)
 {
 	while (Running != 0)
 	{
-		MainLoopIteration();
+		ProcessInput();
+
+		Process();
+
+		Draw();
+		//ProcessSequences();
 	}
-}
-
-inline void MainLoopIteration(void)
-{
-	ProcessInput();
-
-	Process();
-
-	Draw();
-	//ProcessSequences();
 }

@@ -9,11 +9,17 @@
 
 #define INPUT_STATUS_0 0x3da
 
-byte FAR* VideoBuffer = (byte FAR*)0xa0000l;
+byte FAR* VideoBuffer;
+byte FAR* DoubleBuffer;
 
 byte BackgroundColorCode;
 
 void SetGraphicsMode(int mode);
+
+void DisplayDoubleBuffer(void);
+int InitializeVideoBuffers(void);
+void ShutdownVideoBuffers(void);
+
 void PlotPixel(word x, word y, byte color);
 void FillScreen(byte color);
 void ClearScreen(void);
@@ -21,6 +27,8 @@ void ClearScreen(void);
 void InitializeVideo(void)
 {
 	SetGraphicsMode(VGA_256_COLOR_MODE);
+
+	InitializeVideoBuffers();
 
 	BackgroundColorCode = COLOR_BLACK;
 	ClearScreen();
@@ -31,18 +39,49 @@ void InitializeVideo(void)
 void ShutdownVideo(void)
 {
 	SetGraphicsMode(TEXT_MODE);
+
+	ShutdownVideoBuffers();
+}
+
+int InitializeVideoBuffers(void)
+{
+	VideoBuffer = (byte FAR*)0xa0000l;
+
+	DoubleBuffer = (byte FAR*)malloc(SCREEN_WIDTH * SCREEN_HEIGHT);
+	if (DoubleBuffer == NULL)
+	{
+		printf("Failed to allocate double buffer.\n");
+		return 1;
+	}
+
+	return 0;
+}
+
+void ShutdownVideoBuffers(void)
+{
+	if (DoubleBuffer != NULL)
+	{
+		free(DoubleBuffer);
+	}
+}
+
+void DisplayDoubleBuffer(void)
+{
+	memcpy((void*)VideoBuffer, (void*)DoubleBuffer, SCREEN_WIDTH * SCREEN_HEIGHT);
 }
 
 void Draw(void)
 {
 	// Wait for vertical re-trace.
-	while (inp(INPUT_STATUS_0) & 0x08);
-	while (!(inp(INPUT_STATUS_0) & 0x08));
+	//while (inp(INPUT_STATUS_0) & 0x08);
+	//while (!(inp(INPUT_STATUS_0) & 0x08));
 
 	ClearScreen();
 
 	DrawTileMap();
 	DrawSprites();
+
+	DisplayDoubleBuffer();
 }
 
 void SetGraphicsMode(int mode)
@@ -53,53 +92,9 @@ void SetGraphicsMode(int mode)
 	int386(VIDEO_INT, &regs, &regs);
 }
 
-/*
-void PlotPixel(unsigned int x, unsigned int y, byte color)
-{
-  union REGS regs;
-
-  regs.h.ah = WRITE_DOT;
-  regs.h.al = color;
-	regs.w.cx = x;
-	regs.w.dx = y;
-  int386(VIDEO_INT, &regs, &regs);
-}
-*/
-
-#ifdef SLOW
-#pragma aux PlotPixel = \
-"mov ah, 0ch" \
-"mov bh, 00h" \
-"int 10h" \
-parm [cx] [dx] [al] \
-modify [ah bh];
-#else
-#pragma aux PlotPixel = \
-"mov dx, 320" \
-"mul dx" \
-"add ax, bx" \
-"mov di, ax" \
-"mov ax, 0a000h" \
-"mov es, ax" \
-"mov [es:di], cl" \
-parm [ax] [bx] [cl] \
-modify [dx es di];
-#endif
-
-/*
-#pragma aux FillScreen = \
-"les di, 0a000h" \
-"mov ah, al" \
-"mov al, ah" \
-"mov cx, 320*200/2" \
-"rep stosw" \
-parm [al] \
-modify [es di ah cx];
-*/
-
 void FillScreen(byte color)
 {
-	memset((void*)VideoBuffer, color, SCREEN_WIDTH * SCREEN_HEIGHT);
+	memset((void*)DoubleBuffer, color, SCREEN_WIDTH * SCREEN_HEIGHT);
 }
 
 void ClearScreen(void)
@@ -116,7 +111,7 @@ void DrawRectangle(signed short x, signed short y, unsigned short width, unsigne
 {
 	//int xCounter;
 	int yCounter = height;
-	byte FAR* videoBufferOffset = &VideoBuffer[(y * SCREEN_WIDTH) + x];
+	byte FAR* videoBufferOffset = &DoubleBuffer[(y * SCREEN_WIDTH) + x];
 
 	do
 	{

@@ -19,6 +19,7 @@ typedef enum
 #include <input.h>
 
 void InitializeInput(void);
+void ShutdownInput(void);
 
 void ProcessInput(void);
 

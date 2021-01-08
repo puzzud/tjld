@@ -7,6 +7,8 @@
 Sprite Sprites[NUMBER_OF_SPRITES];
 byte SpriteNonPrimaryColorCodes[NUMBER_OF_SPRITE_COLORS - 1];
 
+extern const byte SpriteSet[NUMBER_OF_SPRITE_FRAMES][SPRITE_WIDTH][SPRITE_HEIGHT];
+
 void DrawSprite(Sprite* sprite);
 
 void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition);
@@ -35,10 +37,57 @@ void DrawSprites(void)
 
 void DrawSprite(Sprite* sprite)
 {
-	unsigned int x = sprite->position.x;
-	unsigned int y = sprite->position.y;
-	//VideoBuffer[((y * SCREEN_WIDTH) + x)] = sprite->colorCode;
-	DrawRectangle(x, y, SPRITE_WIDTH, SPRITE_HEIGHT, sprite->colorCode);
+	const byte* spriteFrameOffset = SpriteSet[sprite->frameIndex];
+	byte FAR* videoBufferOffset = &DoubleBuffer[(sprite->position.y * SCREEN_WIDTH) + sprite->position.x];
+
+	byte colorCode;
+	int yCounter = SPRITE_HEIGHT;
+	int xCounter;
+
+	do
+	{
+		xCounter = SPRITE_WIDTH;
+
+		do
+		{
+			colorCode = *spriteFrameOffset;
+			if (colorCode != 0)
+			{
+				switch (colorCode)
+				{
+					case 2:
+					{
+						colorCode = sprite->colorCode;
+
+						break;
+					}
+
+					case 1:
+					{
+						colorCode = SpriteNonPrimaryColorCodes[0];
+
+						break;
+					}
+
+					case 3:
+					{
+						colorCode = SpriteNonPrimaryColorCodes[1];
+
+						break;
+					}
+				}
+
+				*videoBufferOffset = colorCode;
+			}
+
+			++videoBufferOffset;
+			++spriteFrameOffset;
+		}
+		while (--xCounter != 0);
+
+		videoBufferOffset += SCREEN_WIDTH - SPRITE_WIDTH;
+	}
+	while (--yCounter != 0);
 }
 
 void EnableSprite(byte spriteIndex, byte enable)

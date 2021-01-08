@@ -69,7 +69,7 @@ void InitializeFrameInterrupt(void)
 	OldTimerIsr = _dos_getvect(0x1c);
 
 	// Install our new ISR.
-	_dos_setvect(0x1c, FrameInterrupt);
+	//_dos_setvect(0x1c, FrameInterrupt);
 
 	TimerProgram(TIMER_COUNTER_0, TIMER_60HZ);
 }
@@ -94,10 +94,10 @@ inline void MainLoop(void)
 
 		while (GetTime() < nextTime);
 
-		//Draw();
+		Draw();
 
-		startTime = nextTime;
-		++nextTime;
+		startTime = GetTime();
+		nextTime = startTime + 1;
 	}
 }
 
@@ -110,7 +110,11 @@ void _WCINTERRUPT FAR FrameInterrupt(void)
 		return;
 	}
 
-	Draw();
+	//ProcessInput();
+
+	//Process();
+
+	//Draw();
 	//ProcessSequences();
 
 	//_asm sti;

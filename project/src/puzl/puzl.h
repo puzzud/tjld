@@ -20,6 +20,9 @@
 #define SetBits(x,bits)   (x | bits)
 #define ClearBits(x,bits) (x & ~bits)
 
+#define LowByte(n)  (n & 0x00ff)
+#define HighByte(n) ((n>>8) & 0x00ff)
+
 typedef unsigned char byte;
 typedef unsigned short word;
 

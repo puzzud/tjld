@@ -17,6 +17,9 @@
 #define FAR
 #endif
 
+#define SetBits(x,bits)   (x | bits)
+#define ClearBits(x,bits) (x & ~bits)
+
 typedef unsigned char byte;
 typedef unsigned short word;
 

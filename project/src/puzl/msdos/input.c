@@ -54,7 +54,6 @@ void ProcessInput(void)
 // 61h is KEY_CONTROL.
 // 21h is PIC_PORT.
 #pragma aux ScanKeyForInterrupt = \
-"sti" \
 "in al, 60h" \
 "xor ah, ah" \
 "mov RawKeyScanCode, ax" \

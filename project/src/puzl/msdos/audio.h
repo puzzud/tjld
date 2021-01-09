@@ -5,6 +5,6 @@
 
 #include <audio.h>
 
-//#define NUMBER_OF_VOICES 3
+#define NUMBER_OF_VOICES 3
 
 #endif

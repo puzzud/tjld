@@ -15,7 +15,7 @@
 #include <sdl/color.h>
 #include <sdl/input.h>
 #include <sdl/audio.h>
-#include <sdl/sequencer.h>
+#include <c/sequencer.h>
 
 #define FRAMES_PER_SECOND	60
 #define USE_PERFORMANCE_COUNTER 1

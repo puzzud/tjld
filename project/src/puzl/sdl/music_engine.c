@@ -4,7 +4,7 @@
 #include <math.h>
 
 #include <puzl.h>
-#include <sdl/sequencer.h>
+#include <c/sequencer.h>
 
 // MULE music engine.
 // 

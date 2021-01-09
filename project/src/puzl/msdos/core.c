@@ -8,6 +8,8 @@
 
 #include <puzl.h>
 
+#include <c/sequencer.h>
+
 #define TIMER_COUNTER_0 0x40  // Counter 0.
 
 #define TIMER_CONTROL   0x43  // The 8253's control register.
@@ -45,7 +47,7 @@ int main(int argc, char* args[])
 
 void Initialize(void)
 {
-	//InitializeSequencer();
+	InitializeSequencer();
 
 	InitializeInput();
 	InitializeVideo();
@@ -96,6 +98,7 @@ inline void MainLoop(void)
 		while (GetTime() < nextTime);
 
 		//Draw();
+		ProcessSequences();
 
 		startTime = GetTime();
 		nextTime = startTime + 1;

@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include <puzl.h>
+#include <c/sequencer.h>
 
 Sprite Sprites[NUMBER_OF_SPRITES];
 byte SpriteNonPrimaryColorCodes[NUMBER_OF_SPRITE_COLORS - 1];
@@ -13,10 +14,28 @@ void DrawSprite(Sprite* sprite);
 
 void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition);
 
+void ProcessSpriteAnimationDatum(unsigned int sequenceIndex, byte sequenceFetchDatum);
+
 void InitializeSprites(void)
 {
+	unsigned int index;
+
 	// Sprite controls.
 	memset((void*)Sprites, 0, NUMBER_OF_SPRITES * sizeof(Sprite));
+
+	// Initialize animation.
+	// NOTE: This could just be referenced in an array at compile time.
+	ProcessSequenceDatum[SEQUENCE_TYPE_ANIMATION] = &ProcessSpriteAnimationDatum;
+	OnSequenceSegmentEnd[SEQUENCE_TYPE_ANIMATION] = NULL;
+
+	// Set all sprite animation IDs to -1.
+	// NOTE: Hacky way to indicate initial unset
+	// values for animation IDs, but it's fairly efficient
+	// for 8 bit platform implementations.
+	for (index = 0; index < NUMBER_OF_SPRITES; ++index)
+	{
+		Sprites[index].animationId = -1;
+	}
 }
 
 void DrawSprites(void)
@@ -238,11 +257,30 @@ void FASTCALL PlaySpriteAnimation(byte spriteIndex, byte animationId, byte loopi
 	animationStart = Sprites[spriteIndex].animationSet[animationId];
 
 	// TODO: Properly determine sequence from sprite index.
-	//PlaySequence(spriteIndex + 3, animationStart, looping);
+	PlaySequence(spriteIndex + 3, animationStart, looping);
 }
 
 void FASTCALL StopSpriteAnimation(byte spriteIndex)
 {
 	// TODO: Properly determine sequence from sprite index.
-	//StopSequence(spriteIndex + 3);
+	StopSequence(spriteIndex + 3);
+}
+
+void ProcessSpriteAnimationDatum(unsigned int sequenceIndex, byte sequenceFetchDatum)
+{
+	byte spriteIndex = sequenceIndex - 3; // TODO: Properly determine sprite index from sequence index.
+
+	// Cutoff bit 7.
+	// The first seven bits of this byte are the animation frame index.
+	SetSpriteFrameIndex(spriteIndex, sequenceFetchDatum & 0x7f); // %01111111
+
+	// Now check bit 7.
+	if ((sequenceFetchDatum & 0x80) != 0) // %10000000
+	{
+		// Fetch and store next byte.
+		// Increase music pointer.
+		SequenceSegmentDuration[sequenceIndex] = SequenceStart[sequenceIndex][++SequencePosition[sequenceIndex]];
+	}
+
+	SequenceSegmentDurationCounter[sequenceIndex] = SequenceSegmentDuration[sequenceIndex];
 }

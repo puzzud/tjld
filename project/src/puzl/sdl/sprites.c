@@ -4,7 +4,7 @@
 
 #include <puzl.h>
 #include <sdl/color.h>
-#include <sdl/sequencer.h>
+#include <c/sequencer.h>
 
 SDL_Texture* SpriteSetTextures[NUMBER_OF_SPRITE_COLORS];
 

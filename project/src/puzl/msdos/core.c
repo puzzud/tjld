@@ -51,6 +51,7 @@ void Initialize(void)
 
 	InitializeInput();
 	InitializeVideo();
+	InitializeAudio();
 
 	InitalizeSpeed();
 	InitializeNodeTree();
@@ -62,6 +63,7 @@ void Shutdown(void)
 {
 	ShutdownFrameInterrupt();
 
+	ShutdownAudio();
 	ShutdownVideo();
 	ShutdownInput();
 }

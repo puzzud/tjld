@@ -74,8 +74,8 @@ void DisplayDoubleBuffer(void)
 void Draw(void)
 {
 	// Wait for vertical re-trace.
-	//while (inp(INPUT_STATUS_0) & 0x08);
-	//while (!(inp(INPUT_STATUS_0) & 0x08));
+	while (inp(INPUT_STATUS_0) & 0x08);
+	while (!(inp(INPUT_STATUS_0) & 0x08));
 
 	ClearScreen();
 

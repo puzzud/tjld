@@ -6,6 +6,8 @@
 #include <c/sequencer.h>
 
 Sprite Sprites[NUMBER_OF_SPRITES];
+byte SpriteCollisionMasks[NUMBER_OF_SPRITES];
+byte SpriteCollisions[NUMBER_OF_SPRITES];
 byte SpriteNonPrimaryColorCodes[NUMBER_OF_SPRITE_COLORS - 1];
 
 extern const byte SpriteSet[NUMBER_OF_SPRITE_FRAMES][SPRITE_WIDTH][SPRITE_HEIGHT];
@@ -13,6 +15,7 @@ extern const byte SpriteSet[NUMBER_OF_SPRITE_FRAMES][SPRITE_WIDTH][SPRITE_HEIGHT
 void DrawSprite(Sprite* sprite);
 
 void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition);
+void CalculateSpriteTileCorners(ScreenPoint* spritePosition, Vector2d* upperLeftSpriteTile, Vector2d* lowerRightSpriteTile);
 
 void ProcessSpriteAnimationDatum(unsigned int sequenceIndex, byte sequenceFetchDatum);
 
@@ -35,6 +38,10 @@ void InitializeSprites(void)
 	for (index = 0; index < NUMBER_OF_SPRITES; ++index)
 	{
 		Sprites[index].animationId = -1;
+
+		// Collision data.
+		SpriteCollisionMasks[index] = 0;
+		SpriteCollisions[index] = 0;
 	}
 }
 
@@ -149,8 +156,7 @@ void MoveSprite(byte spriteIndex)
 	tempSpritePosition.x = spritePosition->x + spriteVelocity->x;
 	tempSpritePosition.y = spritePosition->y + spriteVelocity->y;
 	
-	// TODO: Make collision map optional.
-	//if (1)
+	if (SpriteCollisionMasks[spriteIndex] != 0)
 	{
 		CheckSpriteCollision(spriteIndex, &tempSpritePosition);
 	}
@@ -165,57 +171,92 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 	ScreenPoint* spritePosition = &sprite->position;
 	Vector2d* spriteVelocity = &sprite->velocity;
 
+	int x, y;
+
 	Vector2d upperLeftSpriteTile;
 	Vector2d lowerRightSpriteTile;
 
-	upperLeftSpriteTile.x = tempSpritePosition->x / TILE_WIDTH;
-	upperLeftSpriteTile.y = tempSpritePosition->y / TILE_HEIGHT;
+	CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
+
+	SpriteCollisions[spriteIndex] = 0;
+
+	if ((SpriteCollisionMasks[spriteIndex] & COLLISION_FLAG_OBSTACLE) != 0)
+	{
+		if (spriteVelocity->x < 0)
+		{
+			// Upper left.
+			// Lower left.
+			if (((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, upperLeftSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0) ||
+				(((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, lowerRightSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0)))
+			{
+				tempSpritePosition->x = spritePosition->x;
+				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
+			}
+		}
+		else if (spriteVelocity->x > 0)
+		{
+			// Upper right.
+			// Lower right.
+			if (((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, upperLeftSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0) ||
+				(((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, lowerRightSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0)))
+			{
+				tempSpritePosition->x = spritePosition->x;
+				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
+			}
+		}
+
+		// TODO: Should be updated, but apparently doesn't matter much.
+		//CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
+
+		if (spriteVelocity->y < 0)
+		{
+			// Upper left.
+			// Upper right.
+			if (((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, upperLeftSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0) ||
+				(((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, upperLeftSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0)))
+			{
+				tempSpritePosition->y = spritePosition->y;
+				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
+			}
+		}
+		else if (spriteVelocity->y > 0)
+		{
+			// Lower left.
+			// Lower right.
+			if (((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, lowerRightSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0) ||
+				(((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, lowerRightSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0)))
+			{
+				tempSpritePosition->y = spritePosition->y;
+				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
+			}
+		}
+	}
+
+	if ((SpriteCollisionMasks[spriteIndex] & ~COLLISION_FLAG_OBSTACLE) != 0)
+	{
+		// TODO: Should be updated, but apparently doesn't matter much.
+		//CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
+
+		// Cycle through all overlapped tiles and imprint their collision flags on
+		// this sprite's collisions.
+		for (y = upperLeftSpriteTile.y; y <= lowerRightSpriteTile.y; ++y)
+		{
+			for (x = upperLeftSpriteTile.x; x <= lowerRightSpriteTile.x; ++x)
+			{
+				SpriteCollisions[spriteIndex] |= GetTileMapCellCollisionCode(x, y);
+			}	
+		}
+	}
+}
+
+inline void CalculateSpriteTileCorners(ScreenPoint* spritePosition, Vector2d* upperLeftSpriteTile, Vector2d* lowerRightSpriteTile)
+{
+	upperLeftSpriteTile->x = spritePosition->x / TILE_WIDTH;
+	upperLeftSpriteTile->y = spritePosition->y / TILE_HEIGHT;
 
 	// TODO: Need way to track sprite dimensions.
-	lowerRightSpriteTile.x = (tempSpritePosition->x + 16 - 1) / TILE_WIDTH;
-	lowerRightSpriteTile.y = (tempSpritePosition->y + 16 - 1) / TILE_HEIGHT;
-
-	if (spriteVelocity->x < 0)
-	{
-		// Upper left.
-		// Lower left.
-		if ((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, upperLeftSpriteTile.y) != 0) ||
-			 ((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, lowerRightSpriteTile.y) != 0)))
-		{
-			tempSpritePosition->x = spritePosition->x;
-		}
-	}
-	else if (spriteVelocity->x > 0)
-	{
-		// Upper right.
-		// Lower right.
-		if ((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, upperLeftSpriteTile.y) != 0) ||
-			 ((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, lowerRightSpriteTile.y) != 0)))
-		{
-			tempSpritePosition->x = spritePosition->x;
-		}
-	}
-
-	if (spriteVelocity->y < 0)
-	{
-		// Upper left.
-		// Upper right.
-		if ((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, upperLeftSpriteTile.y) != 0) ||
-			 ((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, upperLeftSpriteTile.y) != 0)))
-		{
-			tempSpritePosition->y = spritePosition->y;
-		}
-	}
-	else if (spriteVelocity->y > 0)
-	{
-		// Lower left.
-		// Lower right.
-		if ((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, lowerRightSpriteTile.y) != 0) ||
-			 ((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, lowerRightSpriteTile.y) != 0)))
-		{
-			tempSpritePosition->y = spritePosition->y;
-		}
-	}
+	lowerRightSpriteTile->x = (spritePosition->x + SPRITE_WIDTH - 1) / TILE_WIDTH;
+	lowerRightSpriteTile->y = (spritePosition->y + SPRITE_HEIGHT - 1) / TILE_HEIGHT;	
 }
 
 void FASTCALL SetSpriteFrameIndex(byte spriteIndex, byte frameIndex)

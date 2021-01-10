@@ -24,9 +24,26 @@ typedef struct
 	signed short y;
 } ScreenPoint;
 
+typedef enum
+{
+	COLLISION_FLAG_0 = 0x01,
+	COLLISION_FLAG_1 = 0x02,
+	COLLISION_FLAG_2 = 0x04,
+	COLLISION_FLAG_3 = 0x08,
+	COLLISION_FLAG_4 = 0x10,
+	COLLISION_FLAG_5 = 0x20,
+	COLLISION_FLAG_6 = 0x40,
+	COLLISION_FLAG_7 = 0x80
+} CollisionFlags;
+
+#define COLLISION_FLAG_OBSTACLE COLLISION_FLAG_7
+
 extern byte PrintX;
 extern byte PrintY;
 extern byte PrintColor;
+
+extern byte SpriteCollisionMasks[NUMBER_OF_SPRITES];
+extern byte SpriteCollisions[NUMBER_OF_SPRITES];
 
 void FASTCALL SetBackgroundColor(byte colorCode);
 

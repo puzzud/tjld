@@ -1,12 +1,10 @@
 // TJLD
 #include <stdio.h>
-#include <stdlib.h>
 
 #include <puzl.h>
 
+#include <level.h>
 #include <dwarf.h>
-
-#define CHARACTER_BLOCK 219
 
 #define PLAYER_SPRITE_INDEX 1
 
@@ -18,6 +16,8 @@ Vector2d IntendedDirection;
 
 byte SpriteSpeedPatternIndex;
 Vector2d SpriteTilePosition;
+
+byte SpriteClimbing;
 #pragma bss-name (pop)
 
 int Score;
@@ -28,44 +28,38 @@ extern const byte Voice1Start[];
 extern const byte Voice2Start[];
 extern const byte PickupSound[];
 
-void FASTCALL GenerateHWall(byte x, byte y, byte width);
-void FASTCALL GenerateVWall(byte x, byte y, byte height);
-
 void UpdateIntendedDirection(void);
 void UpdateSpriteAnimation(void);
 byte GetSpriteTilePositionX(void);
 byte GetSpriteTilePositionY(void);
 void CheckSpriteTile(void);
 
-void AddNewPickup(void);
+void CheckSpriteClimbing(void);
+void SpriteClimbingAlignLadderTouching(void);
+void SpriteClimbingAlignLadderAbove(void);
 
 void InitializeNodeTree(void)
 {
-	// TODO: Call out custom logic?
-	SetBackgroundColor(COLOR_BLACK);
-
-	GenerateHWall(0, 1, TILEMAP_WIDTH);
-	GenerateVWall(0, 2, TILEMAP_HEIGHT - 2);
-	GenerateVWall(TILEMAP_WIDTH - 1, 2, TILEMAP_HEIGHT - 2);
-	GenerateHWall(0, TILEMAP_HEIGHT - 1, TILEMAP_WIDTH);
-
-	SetTileMapCellShape(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT - 2, CHARACTER_BLOCK);
-	SetTileMapCellColor(TILEMAP_WIDTH / 2, TILEMAP_HEIGHT - 2, COLOR_YELLOW);
+	LoadLevel();
 	
 	Score = 0;
+	SpriteClimbing = 0;
 
 	SpriteSpeedPatternIndex = 8;
 
-	PrintText(AuthorFirstName, 0, 0);
+	PrintColor = COLOR_WHITE;
+	PrintText(AuthorFirstName, TARGET_SCREEN_TILE_OFFSET_X + 0, 0);
 
 	SetSpriteSeconaryColor(COLOR_WHITE);
 	SetSpriteTertiaryColor(COLOR_LIGHT_RED);
 
 	EnableSprite(PLAYER_SPRITE_INDEX, 1);
-	SetSpritePosition(PLAYER_SPRITE_INDEX, 8 + 0, SCREEN_HEIGHT - SPRITE_HEIGHT - TILE_HEIGHT);
+	SetSpritePosition(PLAYER_SPRITE_INDEX, 48, SCREEN_HEIGHT - SPRITE_HEIGHT - (TILE_HEIGHT * 2));
 	SetSpriteFrameIndex(PLAYER_SPRITE_INDEX, 1);
 	SetSpriteColor(PLAYER_SPRITE_INDEX, COLOR_RED);
 	SetSpriteAnimationSet(PLAYER_SPRITE_INDEX, DwarfAnimationSet);
+
+	SpriteCollisionMasks[PLAYER_SPRITE_INDEX] = COLLISION_FLAG_OBSTACLE | COLLISION_FLAG_LADDER;
 
 	CheckSpriteTile();
 
@@ -84,7 +78,9 @@ void Process(void)
 		{
 			if (IsMoving(SpriteSpeedPatternIndex) != 0)
 			{
-				SetSpriteVelocity(PLAYER_SPRITE_INDEX, IntendedDirection.x, 0);//IntendedDirection.y);
+				CheckSpriteClimbing();
+
+				SetSpriteVelocity(PLAYER_SPRITE_INDEX, IntendedDirection.x, IntendedDirection.y);
 
 				MoveSprite(PLAYER_SPRITE_INDEX);
 
@@ -97,32 +93,6 @@ void Process(void)
 	while (--LoopIndex != 0);
 
 	UpdateSpriteAnimation();
-}
-
-void GenerateHWall(byte x, byte y, byte width)
-{
-	do
-	{
-		SetTileMapCellColor(x, y, COLOR_WHITE);
-		SetTileMapCellShape(x, y, CHARACTER_BLOCK);
-		SetTileMapCellCollisionCode(x, y, 1);
-
-		++x;
-	}
-	while (--width > 0);
-}
-
-void GenerateVWall(byte x, byte y, byte height)
-{
-	do
-	{
-		SetTileMapCellColor(x, y, COLOR_WHITE);
-		SetTileMapCellShape(x, y, CHARACTER_BLOCK);
-		SetTileMapCellCollisionCode(x, y, 1);
-
-		++y;
-	}
-	while (--height > 0);
 }
 
 void UpdateIntendedDirection(void)
@@ -153,6 +123,7 @@ void UpdateIntendedDirection(void)
 void UpdateSpriteAnimation(void)
 {
 	signed char intendedDirectionX = IntendedDirection.x;
+	signed char intendedDirectionY = IntendedDirection.y;
 
 	if (intendedDirectionX != 0)
 	{
@@ -167,7 +138,21 @@ void UpdateSpriteAnimation(void)
 	}
 	else
 	{
-		PlaySpriteAnimation(PLAYER_SPRITE_INDEX, DWARF_ANIMATION_ID_FRONT_IDLE, 1);
+		if (SpriteClimbing != 0)
+		{
+			if (intendedDirectionY != 0)
+			{
+				PlaySpriteAnimation(PLAYER_SPRITE_INDEX, DWARF_ANIMATION_ID_BACK_CLIMB, 1);
+			}
+			else
+			{
+				//StopSpriteAnimation(PLAYER_SPRITE_INDEX);
+			}
+		}
+		else
+		{
+			PlaySpriteAnimation(PLAYER_SPRITE_INDEX, DWARF_ANIMATION_ID_FRONT_IDLE, 1);
+		}
 	}
 }
 
@@ -180,14 +165,11 @@ void CheckSpriteTile(void)
 	{
 		switch (GetTileMapColorCode(SpriteTilePosition.x, SpriteTilePosition.y))
 		{
-			case COLOR_YELLOW:
+			case PICKUP_BLOCK_COLOR:
 			{
 				Score += 1;
-
-				AddNewPickup();
+				
 				SetTileMapCellShape(SpriteTilePosition.x, SpriteTilePosition.y, 0);
-
-				SetBackgroundColor(COLOR_GREY_1);
 
 				PlayAudioPattern(1, PickupSound, 0);
 
@@ -219,18 +201,108 @@ byte GetSpriteTilePositionY(void)
 	return SpriteTilePositionY;
 }
 
-void AddNewPickup(void)
+void CheckSpriteClimbing(void)
 {
-	Vector2d randomTile;
-
-	do
+	if (IntendedDirection.y < 0)
 	{
-		// TODO: Use of rand in cc65 C64 is warning about initialized data in BSS.
-		randomTile.x = rand() % TILEMAP_WIDTH;
-		randomTile.y = TILEMAP_HEIGHT - 2;
-	}
-	while (GetTileMapShapeCode(randomTile.x, randomTile.y) == CHARACTER_BLOCK);
+		// Pressing up.
 
-	SetTileMapCellShape(randomTile.x, randomTile.y, CHARACTER_BLOCK);
-	SetTileMapCellColor(randomTile.x, randomTile.y, COLOR_YELLOW);
+		// Check if sprite is touching a ladder.
+		if ((SpriteCollisions[PLAYER_SPRITE_INDEX] & COLLISION_FLAG_LADDER) != 0)
+		{
+			// Touching a ladder.
+
+			SpriteClimbing = 1;
+			//IntendedDirection.x = 0;
+
+			SpriteClimbingAlignLadderTouching();
+		}
+		else
+		{
+			SpriteClimbing = 0;
+			IntendedDirection.y = 0;
+		}
+	}
+	else if (IntendedDirection.y > 0)
+	{
+		// Pressing down.
+
+		byte belowTileCollision = GetTileMapCellCollisionCode(SpriteTilePosition.x, SpriteTilePosition.y + 1);
+		if ((belowTileCollision & COLLISION_FLAG_OBSTACLE) != 0)
+		{
+			// Pressing down into a platform.
+			SpriteClimbing = 0;
+		}
+		else if ((belowTileCollision & COLLISION_FLAG_LADDER) != 0)
+		{
+			// Pressing down with ladder below.
+
+			SpriteClimbing = 1;
+			SpriteClimbingAlignLadderAbove();
+		}
+		else
+		{
+			SpriteClimbing = 0;
+			IntendedDirection.y = 0;
+		}
+	}
+	else if (SpriteClimbing != 0)
+	{
+		IntendedDirection.x = 0;
+	}
+}
+
+void SpriteClimbingAlignLadderTouching(void)
+{
+	// When climbing, don't allow sprite to intentionally move horizontally.
+	// Instead, move it horizontally to align with the ladder block.
+
+	// Get direction from sprite to ladder.
+
+	// If sprite does not line up evenly with 16x16 ladder block,
+	// move it in the direction to that block.
+
+	// Otherwise, set X direction to 0.
+
+	word spriteX = GetSpritePositionX(PLAYER_SPRITE_INDEX);
+	word spriteY;
+
+	if ((spriteX % 16) != 0)
+	{
+		spriteY = GetSpritePositionY(PLAYER_SPRITE_INDEX);
+
+		if ((GetTileMapCellCollisionCode(spriteX / 8, spriteY / 8) & COLLISION_FLAG_LADDER) != 0)
+		{
+			IntendedDirection.x = -1;
+		}
+		else
+		{
+			IntendedDirection.x = 1;
+		}
+	}
+	else
+	{
+		IntendedDirection.x = 0;
+	}
+}
+
+void SpriteClimbingAlignLadderAbove(void)
+{
+	word spriteX = GetSpritePositionX(PLAYER_SPRITE_INDEX);
+	
+	if ((spriteX % 16) != 0)
+	{
+		if ((GetTileMapCellCollisionCode(spriteX / 8, SpriteTilePosition.y + 1) & COLLISION_FLAG_LADDER) != 0)
+		{
+			IntendedDirection.x = -1;
+		}
+		else
+		{
+			IntendedDirection.x = 1;
+		}
+	}
+	else
+	{
+		IntendedDirection.x = 0;
+	}
 }

@@ -18,6 +18,9 @@
 
 extern byte TileMapCollisionCodes[SCREEN_CHAR_SIZE];
 
+#pragma zpsym ("SpriteCollisionMasks")
+#pragma zpsym ("SpriteCollisions")
+
 void FASTCALL InitializeVideo(void);
 
 void FASTCALL SetSpritePositionX(byte spriteIndex, signed short x);

@@ -378,7 +378,7 @@ _MoveSprite:
 
 @afterSetY:
 
-  ; TODO: Make collision map optional.
+  ; Check if should do collision map checking.
   ldx tmp1
   lda _SpriteCollisionMasks,x
   beq @afterCollisionChecking
@@ -497,7 +497,7 @@ CheckSpriteCollision:
   ldy UpperLeftSpriteTileX
   ldx UpperLeftSpriteTileY
   jsr GetTileMapCellCollisionCode
-  bpl @afterCheckX
+  bmi @resetPositionX
   ldx LowerRightSpriteTileY
   jsr GetTileMapCellCollisionCode
   bpl @afterCheckX
@@ -518,7 +518,7 @@ CheckSpriteCollision:
   ldy LowerRightSpriteTileX
   ldx UpperLeftSpriteTileY
   jsr GetTileMapCellCollisionCode
-  bpl @afterCheckX
+  bmi @resetPositionX
   ldx LowerRightSpriteTileY
   jsr GetTileMapCellCollisionCode
   bmi @resetPositionX ; NOTE: Not bpl.
@@ -534,7 +534,7 @@ CheckSpriteCollision:
   ldy UpperLeftSpriteTileX
   ldx UpperLeftSpriteTileY
   jsr GetTileMapCellCollisionCode
-  bpl @afterCheckY
+  bmi @resetPositionY
   ldy LowerRightSpriteTileX
   jsr GetTileMapCellCollisionCode
   bpl @afterCheckY
@@ -555,7 +555,7 @@ CheckSpriteCollision:
   ldy UpperLeftSpriteTileX
   ldx LowerRightSpriteTileY
   jsr GetTileMapCellCollisionCode
-  bpl @afterCheckY
+  bmi @resetPositionY
   ldy LowerRightSpriteTileX
   jsr GetTileMapCellCollisionCode
   bmi @resetPositionY ; NOTE: Not bpl.

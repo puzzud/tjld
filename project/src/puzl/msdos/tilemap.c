@@ -139,6 +139,7 @@ void FASTCALL PrintText(const char* text, byte x, byte y)
 		}
 
 		TileMapShapeCodes[tileMapOffset + charIndex] = characterCode;
+		TileMapColorCodes[tileMapOffset + charIndex] = PrintColor;
 
 		++charIndex;
 	}

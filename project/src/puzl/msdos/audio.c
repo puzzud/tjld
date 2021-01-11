@@ -17,7 +17,7 @@
 #define SB_DISABLE_SPEAKER  0xd3
 
 #define SB_SET_PLAYBACK_FREQUENCY 0x40
-#define SB_SINGLE_CYCLE_PLAYBACK 0x14
+#define SB_SINGLE_CYCLE_PLAYBACK  0x14
 
 #define MASK_REGISTER       0x0a
 #define MODE_REGISTER       0x0b
@@ -47,48 +47,49 @@ const byte SpecialSbIrqPicBitMasks[] =
 	0x08
 };
 
-word sb_base; // Default 220h.
-byte sb_irq; // Default 7.
-byte sb_dma; // Default 1.
+word SbBase; // Default 220h.
+byte SbIrq;  // Default 7.
+byte SbDma;  // Default 1.
 
 byte IrqTableIndex;
 byte PicBitMask;
 
 void _WCINTERRUPT (FAR* OldIsr)(void); // Holds old interrupt handler that audio one replaces.
 
-volatile int playing;
-volatile long to_be_played;
+volatile int IsPlaying;
+volatile long AmountToBePlayed;
 
-byte* dma_buffer;
-word page;
-word offset;
+byte* DmaBuffer;
+word Page;
+word Offset;
 
 void InitializeSoundBlaster(void);
 void ShutdownSoundBlaster(void);
 
 void InitializeFmSynthesis(void);
 
-int sb_detect(void);
-void sb_init(void);
-void sb_deinit(void);
+int IsSoundBlasterPresent(void);
 
-int reset_dsp(word port);
+int ResetDsp(word port);
 
-void init_irq(void);
-void deinit_irq(void);
-void assign_dma_buffer(void);
-void write_dsp(byte command);
+void InitializeIrq(void);
+void ShutdownIrq(void);
+void AssignDmaBuffer(void);
+void WriteDsp(byte command);
 
-void sb_single_play(const char* file_name);
-void single_cycle_playback(void);
+void PlaySoundFile(const char* fileName);
+void SingleCyclePlayback(void);
 
 void _WCINTERRUPT FAR AudioInterrupt(void);
 
 void InitializeAudio(void)
 {
-	InitializeSoundBlaster();
-	InitializeFmSynthesis();
-	InitializeMusicEngine();
+	if (IsSoundBlasterPresent() != 0)
+	{
+		InitializeSoundBlaster();
+		InitializeFmSynthesis();
+		InitializeMusicEngine();
+	}
 }
 
 void ShutdownAudio(void)
@@ -96,77 +97,57 @@ void ShutdownAudio(void)
 	ShutdownSoundBlaster();
 }
 
-void InitializeSoundBlaster(void)
+int IsSoundBlasterPresent(void)
 {
-	int sb_detected = sb_detect();
-	if (!sb_detected)
-	{
-		//printf("SB not found.\n");
-	}
-	else
-	{
-		//printf("SB found at A%x I%u D%u.\n", sb_base, sb_irq, sb_dma);
-	}
+	byte index;
+	char* blasterString;
 
-	sb_init();
-}
-
-void ShutdownSoundBlaster(void)
-{
-	sb_deinit();
-}
-
-int sb_detect(void)
-{
-	byte temp;
-	char* BLASTER;
-
-	sb_base = 0;
+	SbBase = 0;
 
 	// Possible values: 210, 220, 230, 240, 250, 260, 280.
-	for (temp = 1; temp < 9; ++temp)
+	for (index = 1; index < 9; ++index)
 	{
-		if (temp != 7) // Skip 270.
+		if (index != 7) // Skip 270.
 		{
-			if (reset_dsp(0x200 + (temp << 4)))
+			if (ResetDsp(0x200 + (index << 4)))
 			{
 				break;
 			}
 		}
 	}
 
-	if (temp == 9)
+	if (index == 9)
 	{
 		return 0;
 	}
 
-	BLASTER = getenv("BLASTER");
-	sb_dma = 0;
-	for (temp = 0; temp < strlen(BLASTER); ++temp)
+	blasterString = getenv("BLASTER");
+	SbDma = 0;
+	for (index = 0; index < strlen(blasterString); ++index)
 	{
-		if ((BLASTER[temp] | 32) == 'd')
+		if ((blasterString[index] | 32) == 'd')
 		{
-			sb_dma = BLASTER[temp + 1] - '0';
+			SbDma = blasterString[index + 1] - '0';
 		}
 	}
 
-	for (temp = 0; temp < strlen(BLASTER); ++temp)
+	for (index = 0; index < strlen(blasterString); ++index)
 	{
-		if ((BLASTER[temp] | 32) == 'i')
+		if ((blasterString[index] | 32) == 'i')
 		{
-			sb_irq = BLASTER[temp + 1] - '0';
+			SbIrq = blasterString[index + 1] - '0';
 
-			if (BLASTER[temp + 2] != ' ')
+			if (blasterString[index + 2] != ' ')
 			{
-				sb_irq = (sb_irq * 10) + BLASTER[temp + 2] - '0';
+				SbIrq = (SbIrq * 10) + blasterString[index + 2] - '0';
 			}
 		}
 	}
 
-	return sb_base;
+	return SbBase;
 }
 
-int reset_dsp(word port)
+int ResetDsp(word port)
 {
 	outp(port + SB_RESET, 1);
 	delay(10);
@@ -176,21 +157,21 @@ int reset_dsp(word port)
 	if (((inp(port + SB_READ_DATA_STATUS) & 0x80) != 0) &&
 	    (inp(port + SB_READ_DATA) == 0x0aa))
 	{
-		sb_base = port;
+		SbBase = port;
 		return 1;
 	}
 
 	return 0;
 }
 
-void sb_init(void)
+void InitializeSoundBlaster(void)
 {
-	init_irq();
-	assign_dma_buffer();
-	write_dsp(SB_ENABLE_SPEAKER);
+	InitializeIrq();
+	AssignDmaBuffer();
+	WriteDsp(SB_ENABLE_SPEAKER);
 }
 
-void init_irq(void)
+void InitializeIrq(void)
 {
 	unsigned int index;
 
@@ -199,7 +180,7 @@ void init_irq(void)
 
 	for (index = 0; index < (sizeof(SpecialSbIrqNumbers) / sizeof(byte)); ++index)
 	{
-		if (SpecialSbIrqNumbers[index] == sb_irq)
+		if (SpecialSbIrqNumbers[index] == SbIrq)
 		{
 			IrqTableIndex = SpecialSbIrqTableIndexes[index];
 			PicBitMask = SpecialSbIrqPicBitMasks[index];
@@ -209,7 +190,7 @@ void init_irq(void)
 
 	if (PicBitMask == 0)
 	{
-		IrqTableIndex = sb_irq + 8;
+		IrqTableIndex = SbIrq + 8;
 	}
 
 	// Save the old IRQ vector.
@@ -226,11 +207,11 @@ void init_irq(void)
 	}
 	else
 	{
-		outp(0x21, inp(0x21) & !(1 << sb_irq));
+		outp(0x21, inp(0x21) & !(1 << SbIrq));
 	}
 }
 
-void deinit_irq(void)
+void ShutdownIrq(void)
 {
 	// Restore the old IRQ vector.
 	_dos_setvect(IrqTableIndex, OldIsr);
@@ -243,125 +224,125 @@ void deinit_irq(void)
 	}
 	else
 	{
-		outp(0x21, inp(0x21) | (1 << sb_irq));
+		outp(0x21, inp(0x21) | (1 << SbIrq));
 	}
 }
 
-void assign_dma_buffer(void)
+void AssignDmaBuffer(void)
 {
-	byte* temp_buf;
-	long linear_address;
-	word page1, page2;
+	byte* tempBuffer;
+	long LinearAddress;
+	word Page1, Page2;
 
-	temp_buf = (byte*)malloc(32768);
+	tempBuffer = (byte*)malloc(32768);
 
-	linear_address = FP_SEG(temp_buf);
-	linear_address = (linear_address << 4) + FP_OFF(temp_buf);
+	LinearAddress = FP_SEG(tempBuffer);
+	LinearAddress = (LinearAddress << 4) + FP_OFF(tempBuffer);
 
-	page1 = linear_address >> 16;
-	page2 = (linear_address + 32768 - 1) >> 16;
-	if (page1 != page2)
+	Page1 = LinearAddress >> 16;
+	Page2 = (LinearAddress + 32768 - 1) >> 16;
+	if (Page1 != Page2)
 	{
-		dma_buffer = (byte*)malloc(32768);
-		free(temp_buf);
+		DmaBuffer = (byte*)malloc(32768);
+		free(tempBuffer);
 	}
 	{
-		dma_buffer = temp_buf;
+		DmaBuffer = tempBuffer;
 	}
 
-	linear_address = FP_SEG(dma_buffer);
-	linear_address = (linear_address << 4) + FP_OFF(dma_buffer);
+	LinearAddress = FP_SEG(DmaBuffer);
+	LinearAddress = (LinearAddress << 4) + FP_OFF(DmaBuffer);
 
-	page = linear_address >> 16;
-	offset = linear_address & 0xffff;
+	Page = LinearAddress >> 16;
+	Offset = LinearAddress & 0xffff;
 }
 
-void sb_deinit(void)
+void ShutdownSoundBlaster(void)
 {
-	write_dsp(SB_DISABLE_SPEAKER);
-	free(dma_buffer);
-	deinit_irq();
+	WriteDsp(SB_DISABLE_SPEAKER);
+	free(DmaBuffer);
+	ShutdownIrq();
 }
 
-void write_dsp(byte command)
+void WriteDsp(byte command)
 {
-	while ((inp(sb_base + SB_WRITE_DATA) & 0x80) != 0);
+	while ((inp(SbBase + SB_WRITE_DATA) & 0x80) != 0);
 
-	outp(sb_base + SB_WRITE_DATA, command);
+	outp(SbBase + SB_WRITE_DATA, command);
 }
 
 // sox Communicator.wav -b 8 -r 11000 -e unsigned -L sound.raw
 // mplayer -rawaudio samplesize=1:channels=1:rate=11000 -demuxer rawaudio sound.raw
-void sb_single_play(const char* file_name)
+void PlaySoundFile(const char* fileName)
 {
-	FILE* raw_file;
-	int file_size;
+	FILE* rawFile;
+	int fileSize;
 
-	memset(dma_buffer, 0, 32768);
+	memset(DmaBuffer, 0, 32768);
 
-	raw_file = fopen(file_name, "rb");
-	if (raw_file == NULL)
+	rawFile = fopen(fileName, "rb");
+	if (rawFile == NULL)
 	{
-		//playing = 0;
+		//IsPlaying = 0;
 		return;
 	}
 	
-	fseek(raw_file, 0l, SEEK_END);
-	file_size = ftell(raw_file);
+	fseek(rawFile, 0l, SEEK_END);
+	fileSize = ftell(rawFile);
 	
-	fseek(raw_file, 0l, SEEK_SET);
-	fread(dma_buffer, 1, file_size, raw_file);
-	write_dsp(SB_SET_PLAYBACK_FREQUENCY);
-	write_dsp((256 - 1000000) / 11000);
-	to_be_played = file_size;
+	fseek(rawFile, 0l, SEEK_SET);
+	fread(DmaBuffer, 1, fileSize, rawFile);
+	WriteDsp(SB_SET_PLAYBACK_FREQUENCY);
+	WriteDsp((256 - 1000000) / 11000);
+	AmountToBePlayed = fileSize;
 
-	single_cycle_playback();
+	SingleCyclePlayback();
 }
 
-void single_cycle_playback(void)
+void SingleCyclePlayback(void)
 {
-	playing = 1;
+	IsPlaying = 1;
 
 	// Program the DMA controller.
-	outp(MASK_REGISTER, 0x04 | sb_dma);
+	outp(MASK_REGISTER, 0x04 | SbDma);
 	outp(MSB_LSB_FLIP_FLOP, 0);
-	outp(MODE_REGISTER, 0x48 | sb_dma);
-	outp(sb_dma << 1, offset & 0xff);
-	outp(sb_dma << 1, (offset >> 8) & 0xff);
+	outp(MODE_REGISTER, 0x48 | SbDma);
+	outp(SbDma << 1, Offset & 0xff);
+	outp(SbDma << 1, (Offset >> 8) & 0xff);
 	
-	switch (sb_dma)
+	switch (SbDma)
 	{
 		case 0:
 		{
-			outp(DMA_CHANNEL_0, page);
+			outp(DMA_CHANNEL_0, Page);
 			break;
 		}
 
 		case 1:
 		{
-			outp(DMA_CHANNEL_1, page);
+			outp(DMA_CHANNEL_1, Page);
 			break;
 		}
 
 		case 3:
 		{
-			outp(DMA_CHANNEL_3, page);
+			outp(DMA_CHANNEL_3, Page);
 			break;
 		}
 	}
 
-	outp((sb_dma << 1) + 1, to_be_played & 0xff);
-	outp((sb_dma << 1) + 1, (to_be_played >> 8) & 0xff);
-	outp(MASK_REGISTER, sb_dma);
-	write_dsp(SB_SINGLE_CYCLE_PLAYBACK);
-	write_dsp(to_be_played & 0xff);
-	write_dsp((to_be_played >> 8) & 0xff);
-	to_be_played = 0;
+	outp((SbDma << 1) + 1, AmountToBePlayed & 0xff);
+	outp((SbDma << 1) + 1, (AmountToBePlayed >> 8) & 0xff);
+	outp(MASK_REGISTER, SbDma);
+	WriteDsp(SB_SINGLE_CYCLE_PLAYBACK);
+	WriteDsp(AmountToBePlayed & 0xff);
+	WriteDsp((AmountToBePlayed >> 8) & 0xff);
+	AmountToBePlayed = 0;
 }
 
 void _WCINTERRUPT FAR AudioInterrupt(void)
 {
-	inp(sb_base + SB_READ_DATA_STATUS);
+	inp(SbBase + SB_READ_DATA_STATUS);
 	outp(0x20, 0x20);
 
 	if (PicBitMask != 0)
@@ -369,7 +350,7 @@ void _WCINTERRUPT FAR AudioInterrupt(void)
 		outp(0xa0, 0x20);
 	}
 
-	playing = 0;
+	IsPlaying = 0;
 }
 
 void SoundKillAll(void)

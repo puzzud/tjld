@@ -66,6 +66,8 @@ word offset;
 void InitializeSoundBlaster(void);
 void ShutdownSoundBlaster(void);
 
+void InitializeFmSynthesis(void);
+
 int sb_detect(void);
 void sb_init(void);
 void sb_deinit(void);
@@ -85,8 +87,8 @@ void _WCINTERRUPT FAR AudioInterrupt(void);
 void InitializeAudio(void)
 {
 	InitializeSoundBlaster();
-
-	sb_single_play("tadaa.raw");
+	InitializeFmSynthesis();
+	InitializeMusicEngine();
 }
 
 void ShutdownAudio(void)
@@ -375,12 +377,37 @@ void SoundKillAll(void)
 	
 }
 
-void PlayAudioPattern(byte voiceIndex, const byte* voiceStart, byte looping)
+void InitializeFmSynthesis(void)
 {
-	
-}
+	unsigned int voiceIndex;
 
-void StopAudioPattern(byte voiceIndex)
-{
+	for (voiceIndex = 0; voiceIndex < NUMBER_OF_ADLIB_CHANNELS; ++voiceIndex)
+	{
+		// Waveform.
+		outp(PORT_ADLIB_STATUS, 0x20 + voiceIndex);
+		outp(PORT_ADLIB_DATA, 0x01);
 
+		// Amplitude.
+		outp(PORT_ADLIB_STATUS, 0x40 + voiceIndex);
+		outp(PORT_ADLIB_DATA, 0x10);
+
+		// Attack / Decay.
+		outp(PORT_ADLIB_STATUS, 0x60 + voiceIndex);
+		outp(PORT_ADLIB_DATA, 0xf0);
+
+		// Sustain / Release.
+		outp(PORT_ADLIB_STATUS, 0x80 + voiceIndex);
+		outp(PORT_ADLIB_DATA, 0x77);
+
+		// Frequency (LSB).
+		outp(PORT_ADLIB_STATUS, 0xa0 + voiceIndex);
+		outp(PORT_ADLIB_DATA, 0x00);
+
+		// Key On (5th bit).
+		// Octave (bits 2-4).
+		// Frequency (Most significant 2 bits, bits 0-1).
+		// Bits 6-7 not used.
+		outp(PORT_ADLIB_STATUS, 0xb0 + voiceIndex);
+		outp(PORT_ADLIB_DATA, 0x00);
+	}
 }

@@ -9,6 +9,20 @@
 #define FASTCALL
 #endif
 
+// NOTE: Bad hack to get VS Code to shut up about far
+// keyword (not ISO?).
+#ifdef __WATCOM__
+#define FAR far
+#else
+#define FAR
+#endif
+
+#define SetBits(x,bits)   (x | bits)
+#define ClearBits(x,bits) (x & ~bits)
+
+#define LowByte(n)  (n & 0x00ff)
+#define HighByte(n) ((n>>8) & 0x00ff)
+
 typedef unsigned char byte;
 typedef unsigned short word;
 
@@ -25,9 +39,16 @@ typedef unsigned short word;
 
 #include <c64/core.h>
 #include <c64/video.h>
-#include <color.h>
 #include <c64/input.h>
 #include <audio.h>
+#endif
+
+#ifdef __WATCOMC__
+#include <msdos/core.h>
+#include <msdos/video.h>
+#include <msdos/color.h>
+#include <msdos/input.h>
+#include <msdos/audio.h>
 #endif
 
 #endif

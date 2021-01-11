@@ -2,8 +2,6 @@
 #define PUZL_SDL_SEQUENCER_H
 
 #include <core.h>
-#include <sdl/audio.h>
-#include <sdl/video.h>
 
 typedef enum
 {

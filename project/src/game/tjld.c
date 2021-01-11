@@ -1,4 +1,5 @@
 // TJLD
+#include <stdlib.h>
 #include <stdio.h>
 
 #include <puzl.h>

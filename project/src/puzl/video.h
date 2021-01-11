@@ -12,18 +12,6 @@
 #define NUMBER_OF_SPRITES 8
 #define NUMBER_OF_SPRITE_COLORS 3
 
-typedef struct
-{
-	signed char x;
-	signed char y;
-} Vector2d;
-
-typedef struct
-{
-	signed short x;
-	signed short y;
-} ScreenPoint;
-
 typedef enum
 {
 	COLLISION_FLAG_0 = 0x01,
@@ -37,6 +25,26 @@ typedef enum
 } CollisionFlags;
 
 #define COLLISION_FLAG_OBSTACLE COLLISION_FLAG_7
+
+typedef struct
+{
+	signed char x;
+	signed char y;
+} Vector2d;
+
+typedef struct
+{
+	signed short x;
+	signed short y;
+} ScreenPoint;
+
+typedef struct
+{
+	signed short x;
+	signed short y;
+	signed short width;
+	signed short height;
+} Rectangle;
 
 extern byte PrintX;
 extern byte PrintY;

@@ -15,7 +15,7 @@
 #include <sdl/color.h>
 #include <sdl/input.h>
 #include <sdl/audio.h>
-#include <sdl/sequencer.h>
+#include <c/sequencer.h>
 
 #define FRAMES_PER_SECOND	60
 #define USE_PERFORMANCE_COUNTER 1
@@ -35,8 +35,6 @@ int main(int argc, char* args[])
 	{
 		return result;
 	}
-  
-	Running = 1;
 
 #ifdef __EMSCRIPTEN__
 	emscripten_set_main_loop(MainLoopIteration, 0, 1);
@@ -68,6 +66,8 @@ int Initialize(void)
 	InitalizeSpeed();
 	InitializeNodeTree();
 
+	Running = 1;
+
 	return 0;
 }
 
@@ -80,7 +80,7 @@ void Shutdown(void)
 	SDL_Quit();
 }
 
-void MainLoop(void)
+inline void MainLoop(void)
 {
 	while (Running != 0)
 	{

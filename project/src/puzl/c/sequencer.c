@@ -139,6 +139,8 @@ void ProcessSequence(unsigned int sequenceIndex)
 
 void ProcessSequenceData(unsigned int sequenceIndex)
 {
+	void (*processSequenceDatum)(unsigned int channelId, byte sequenceFetchDatum);
+
 	// Fetch current byte and cache for later analysis.
 	byte sequenceFetchDatum = SequenceStart[sequenceIndex][SequencePosition[sequenceIndex]];
 	if (sequenceFetchDatum == 0)
@@ -159,9 +161,10 @@ void ProcessSequenceData(unsigned int sequenceIndex)
 		}
 	}
 
-	if (ProcessSequenceDatum != NULL)
+	processSequenceDatum = ProcessSequenceDatum[SequenceTypes[sequenceIndex]];
+	if (processSequenceDatum != NULL)
 	{
-		ProcessSequenceDatum[SequenceTypes[sequenceIndex]](sequenceIndex, sequenceFetchDatum);
+		processSequenceDatum(sequenceIndex, sequenceFetchDatum);
 	}
 
 	++SequencePosition[sequenceIndex];

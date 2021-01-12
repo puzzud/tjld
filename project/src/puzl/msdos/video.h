@@ -42,6 +42,7 @@ void DrawRectangle(signed short x, signed short y, unsigned short width, unsigne
 
 void InitializeTilemap(void);
 void DrawTileMap(void);
+void DrawCharacter(unsigned int x, unsigned int y, byte shapeCode, byte colorCode);
 
 void InitializeSprites(void);
 void DrawSprites(void);

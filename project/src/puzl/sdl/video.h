@@ -38,7 +38,6 @@ void Draw(void);
 
 void InitializeTilemap(void);
 void InitializeCharacterSet(void);
-void FreeTilemap(void);
 void ShutdownCharacterSet(void);
 void DrawTileMap(void);
 

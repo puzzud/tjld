@@ -7,23 +7,12 @@
 #include <puzl.h>
 #include <sdl/color.h>
 
-byte* TileMapShapeCodes;
-byte* TileMapColorCodes;
-byte* TileMapCollisionCodes;
+#include <c/tilemap.c>
 
 SDL_Texture* CharacterSetTexture;
 
-byte PrintColor;
-
 void PopulateCharacterSetSurfaceFromCharacterSet(SDL_Surface* characterSetSurface);
 void PopulateCharacterSurfaceFromCharacter(SDL_Surface* characterSurface, unsigned int characterIndex);
-
-void InitializeTilemap(void)
-{
-	TileMapShapeCodes = (byte*)calloc(TILEMAP_WIDTH * TILEMAP_HEIGHT, sizeof(byte));
-	TileMapColorCodes = (byte*)calloc(TILEMAP_WIDTH * TILEMAP_HEIGHT, sizeof(byte));
-	TileMapCollisionCodes = (byte*)calloc(TILEMAP_WIDTH * TILEMAP_HEIGHT, sizeof(byte));
-}
 
 void InitializeCharacterSet(void)
 {
@@ -122,16 +111,7 @@ void PopulateCharacterSurfaceFromCharacter(SDL_Surface* characterSurface, unsign
 	}
 }
 
-void FreeTilemap(void)
-{
-	free(TileMapShapeCodes);
-	TileMapShapeCodes = NULL;
-
-	free(TileMapColorCodes);
-	TileMapColorCodes = NULL;
-}
-
-void DrawCharacter(unsigned int x, unsigned int y, unsigned int width, unsigned int height, byte shapeCode, byte colorCode)
+void DrawCharacter(unsigned int x, unsigned int y, byte shapeCode, byte colorCode)
 {
 	SDL_Color* color = &Colors[colorCode];
 
@@ -145,89 +125,9 @@ void DrawCharacter(unsigned int x, unsigned int y, unsigned int width, unsigned 
 
 	destinationRect.x = x;
 	destinationRect.y = y;
-	destinationRect.w = width;
-	destinationRect.h = height;
+	destinationRect.w = TILE_WIDTH;
+	destinationRect.h = TILE_HEIGHT;
 
 	SDL_SetTextureColorMod(CharacterSetTexture, color->r, color->g, color->b);
 	SDL_RenderCopy(Renderer, CharacterSetTexture, &sourceRect, &destinationRect);
-}
-
-void DrawTileMap()
-{
-	byte shapeCode;
-	byte colorCode;
-
-	unsigned int columnIndex;
-	unsigned int rowIndex;
-
-	for (rowIndex = 0; rowIndex < TILEMAP_HEIGHT; ++rowIndex)
-	{
-		for (columnIndex = 0; columnIndex < TILEMAP_WIDTH; ++columnIndex)
-		{
-			shapeCode = TileMapShapeCodes[(rowIndex * TILEMAP_WIDTH) + columnIndex];
-			if (shapeCode != 0)
-			{
-				colorCode = TileMapColorCodes[(rowIndex * TILEMAP_WIDTH) + columnIndex];
-				DrawCharacter(columnIndex * TILE_WIDTH, rowIndex * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT, shapeCode, colorCode);
-			}
-		}
-	}
-}
-
-byte GetTileMapShapeCode(byte x, byte y)
-{
-	return TileMapShapeCodes[(y * TILEMAP_WIDTH) + x];
-}
-
-byte GetTileMapColorCode(byte x, byte y)
-{
-	return TileMapColorCodes[(y * TILEMAP_WIDTH) + x];
-}
-
-byte GetTileMapCellCollisionCode(byte x, byte y)
-{
-	return TileMapCollisionCodes[(y * TILEMAP_WIDTH) + x];
-}
-
-void SetTileMapCellShape(byte x, byte y, byte shapeCode)
-{
-	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
-
-	TileMapShapeCodes[tileMapOffset] = shapeCode;
-}
-
-void SetTileMapCellColor(byte x, byte y, byte colorCode)
-{
-	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
-
-	TileMapColorCodes[tileMapOffset] = colorCode;
-}
-
-void SetTileMapCellCollisionCode(byte x, byte y, byte collisionCode)
-{
-	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
-
-	TileMapCollisionCodes[tileMapOffset] = collisionCode;
-}
-
-void PrintText(const char* text, byte x, byte y)
-{
-	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
-	
-	byte characterCode;
-	int charIndex = 0;
-
-	while (1)
-	{
-		characterCode = text[charIndex];
-		if (characterCode == 0)
-		{
-			break;
-		}
-
-		TileMapShapeCodes[tileMapOffset + charIndex] = characterCode;
-		TileMapColorCodes[tileMapOffset + charIndex] = PrintColor;
-
-		++charIndex;
-	}
 }

@@ -92,8 +92,6 @@ SDL_Surface* CreateSurface(unsigned int width, unsigned int height)
 
 void ShutdownVideo(void)
 {
-	FreeTilemap();
-
 	ShutdownCharacterSet();
 	ShutdownSprites();
 	SDL_DestroyWindow(Window);

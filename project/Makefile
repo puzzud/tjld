@@ -90,7 +90,7 @@ LFLAGS := -L $(WIN_SDL_LIB) -mwindows -lmingw32 -lSDL2main -lSDL2
 
 EXECUTABLE := $(BTDIR)/$(PROJECT_NAME).exe
 
-EXECUTE := wine $(EXECUTABLE)
+EXECUTE := cp $(WIN_SDL_DEV_HOME)/bin/SDL2.dll $(BTDIR)/; wine $(EXECUTABLE)
 endif
 
 #---------------------------------------

@@ -10,9 +10,7 @@
 // SDL Specific.
 void InitializeMusicEngine(void)
 {
-	// NOTE: Not really too SDL specific at this point.
-	ProcessSequenceDatum[SEQUENCE_TYPE_MUSIC] = &ProcessAudioDatum;
-	OnSequenceSegmentEnd[SEQUENCE_TYPE_MUSIC] = &DisableVoice;
+	BaseInitializeMusicEngine();
 }
 
 void SetVoiceFrequency(unsigned int voiceIndex, unsigned int frequencyIndex)

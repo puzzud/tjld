@@ -31,12 +31,10 @@ void InitializeMusicEngine(void)
 {
 	unsigned int voiceIndex;
 
-	// NOTE: Not really too MSDOS specific at this point.
-	ProcessSequenceDatum[SEQUENCE_TYPE_MUSIC] = &ProcessAudioDatum;
-	OnSequenceSegmentEnd[SEQUENCE_TYPE_MUSIC] = &DisableVoice;
+	BaseInitializeMusicEngine();
 
 	for (voiceIndex = 0; voiceIndex < NUMBER_OF_VOICES; ++voiceIndex)
-	{	
+	{
 		VoiceA0ShadowRegisters[voiceIndex] = 0;
 		VoiceB0ShadowRegisters[voiceIndex] = 0;
 	}

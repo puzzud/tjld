@@ -49,7 +49,15 @@
 #define NUMBER_OF_NOTES_IN_OCTAVE 12
 #define OCTAVE NUMBER_OF_NOTES_IN_OCTAVE
 
+void BaseInitializeMusicEngine(void);
+
 void ProcessAudioDatum(unsigned int sequenceIndex, byte sequenceFetchDatum);
+
+void BaseInitializeMusicEngine(void)
+{
+	ProcessSequenceDatum[SEQUENCE_TYPE_MUSIC] = &ProcessAudioDatum;
+	OnSequenceSegmentEnd[SEQUENCE_TYPE_MUSIC] = &DisableVoice;
+}
 
 void PlayAudioPattern(byte voiceIndex, const byte* voiceStart, byte looping)
 {

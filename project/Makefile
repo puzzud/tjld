@@ -11,7 +11,7 @@ TARGET ?= lin
 
 PUZL := puzl
 
-LIBS := $(PUZL) game
+MODULES := $(PUZL) game
 
 SRC := src
 SDIR := ./$(SRC)
@@ -21,9 +21,9 @@ GAMEDIR := $(SDIR)/game
 TOOLSDIR := ../resources/Tools
 
 #ASMS := $(wildcard $(SDIR)/*.asm)
-ASMS := $(foreach LIB,$(LIBS),$(wildcard $(SDIR)/$(LIB)/*.asm))
+ASMS := $(foreach MODULE,$(MODULES),$(wildcard $(SDIR)/$(MODULE)/*.asm))
 #SRCS := $(wildcard $(SDIR)/*.c)
-SRCS := $(foreach LIB,$(LIBS),$(wildcard $(SDIR)/$(LIB)/*.c))
+SRCS := $(foreach MODULE,$(MODULES),$(wildcard $(SDIR)/$(MODULE)/*.c))
 
 BIN := bin
 BDIR := ./$(BIN)
@@ -170,11 +170,52 @@ EXECUTABLE := $(BTDIR)/$(PROJECT_NAME).$(BIN_EXT)
 EXECUTE := $(EMU) -moncommands $(LABEL_FILE) $(EXECUTABLE)
 endif
 
+#---------------------------------------
+# NDS
+#---------------------------------------
+ifeq ($(TARGET),nds)
+
+#DEVKITPRO Expected environment variable.
+#DEVKITARM Expected environment variable.
+
+include $(DEVKITARM)/ds_rules
+CC_FAMILY := devkitproarm
+
+PLATFORM := nds
+
+ARCH :=	-mthumb -mthumb-interwork
+
+export LD := $(CC)
+
+INCLUDE := -I $(PUZLDIR) -I $(GAMEDIR)
+CFLAGS := -g -Wall -Wno-unknown-pragmas -O2 -march=armv5te -mtune=arm946e-s -fomit-frame-pointer -ffast-math $(ARCH)
+CFLAGS += $(INCLUDE) -I$(LIBNDS)/include $(INCLUDE) -DARM9 -D__NDS__
+CXXFLAGS := $(CFLAGS) -fno-rtti -fno-exceptions
+
+ASFLAGS := -g $(ARCH)
+LDFLAGS = -specs=ds_arm9.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
+
+LIBS := -lnds9
+LIBDIRS := $(LIBNDS)
+
+export LIBPATHS := $(foreach dir,$(LIBDIRS),-L$(dir)/lib)
+
+export OUTPUT := $(PROJECT_NAME)
+export VPATH := $(BTDIR)
+export DEPSDIR := $(BTDIR)
+
+BUILD := $(BTDIR)
+
+EXECUTABLE := $(BTDIR)/$(PROJECT_NAME).nds
+
+EXECUTE := desmume $(EXECUTABLE)
+endif
+
 ########################################
 # Platform Dependent Settings
 ########################################
-ASMS += $(foreach LIB,$(LIBS),$(wildcard $(SDIR)/$(LIB)/$(PLATFORM)/*.asm))
-SRCS += $(foreach LIB,$(LIBS),$(wildcard $(SDIR)/$(LIB)/$(PLATFORM)/*.c))
+ASMS += $(foreach MODULE,$(MODULES),$(wildcard $(SDIR)/$(MODULE)/$(PLATFORM)/*.asm))
+SRCS += $(foreach MODULE,$(MODULES),$(wildcard $(SDIR)/$(MODULE)/$(PLATFORM)/*.c))
 
 CASMS := $(patsubst %.c,%_c.asm,$(SRCS))
 CASMS := $(subst $(SDIR),$(BTDIR),$(CASMS))
@@ -251,6 +292,30 @@ $(BTDIR)/%.o: $(SDIR)/%.c
 .PHONY: copy_extender
 copy_extender:
 	@cp $(WATCOM)/binw/dos4gw.exe $(BTDIR)
+
+#---------------------------------------
+# devkitproarm
+#---------------------------------------
+else ifeq ($(CC_FAMILY),devkitproarm)
+TARGET := $(PROJECT_NAME)
+CFILES := $(SRCS)
+
+export OFILES := $(OBJS)
+DEPENDS := $(OFILES:.o=.d)
+
+$(EXECUTABLE): $(OUTPUT).elf
+	@mkdir -p $(@D)
+	ndstool -c $@ -9 $< -b $(GAME_ICON) "$(GAME_TITLE);$(GAME_SUBTITLE1);$(GAME_SUBTITLE2)" $(_ADDFILES)
+
+$(OUTPUT).elf: $(OFILES)
+	@mkdir -p $(@D)
+	$(LD) $(LDFLAGS) $(OFILES) $(LIBPATHS) $(LIBS) -o $@
+
+$(BDIR)/$(TARGET)/%.o: $(SDIR)/%.c
+	@mkdir -p $(@D)
+	$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d $(CFLAGS) -c $< -o $@
+
+-include $(DEPENDS)
 
 endif
 

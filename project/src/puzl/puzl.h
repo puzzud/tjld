@@ -51,4 +51,12 @@ typedef unsigned short word;
 #include <msdos/audio.h>
 #endif
 
+#ifdef __NDS__
+#include <nds/core.h>
+#include <nds/video.h>
+#include <nds/color.h>
+#include <nds/input.h>
+#include <nds/audio.h>
+#endif
+
 #endif

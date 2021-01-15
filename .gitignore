@@ -3,9 +3,6 @@
 *~
 .vscode/
 
-# devkitpro
-.map
-
 # Output binaries & oject files.
 bin/
 

@@ -193,7 +193,7 @@ CFLAGS += $(INCLUDE) -I$(LIBNDS)/include $(INCLUDE) -DARM9 -D__NDS__
 CXXFLAGS := $(CFLAGS) -fno-rtti -fno-exceptions
 
 ASFLAGS := -g $(ARCH)
-LDFLAGS = -specs=ds_arm9.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
+LDFLAGS = -specs=ds_arm9.specs -g $(ARCH) -Wl,-Map,$(BTDIR)/$(PROJECT_NAME).map
 
 LIBS := -lnds9
 LIBDIRS := $(LIBNDS)

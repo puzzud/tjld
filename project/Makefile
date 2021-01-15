@@ -303,11 +303,11 @@ CFILES := $(SRCS)
 export OFILES := $(OBJS)
 DEPENDS := $(OFILES:.o=.d)
 
-$(EXECUTABLE): $(OUTPUT).elf
+$(EXECUTABLE): $(BTDIR)/$(OUTPUT).elf
 	@mkdir -p $(@D)
 	ndstool -c $@ -9 $< -b $(GAME_ICON) "$(GAME_TITLE);$(GAME_SUBTITLE1);$(GAME_SUBTITLE2)" $(_ADDFILES)
 
-$(OUTPUT).elf: $(OFILES)
+$(BTDIR)/$(OUTPUT).elf: $(OFILES)
 	@mkdir -p $(@D)
 	$(LD) $(LDFLAGS) $(OFILES) $(LIBPATHS) $(LIBS) -o $@
 

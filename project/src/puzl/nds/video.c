@@ -17,7 +17,10 @@ void Draw(void);
 void InitializeVideo(void)
 {
 	videoSetMode(MODE_0_2D | DISPLAY_BG0_ACTIVE);
-	videoSetModeSub(MODE_0_2D);
+	
+	//videoSetModeSub(MODE_0_2D);
+	consoleDemoInit();
+	iprintf("\x1b[2J"); // ANSI escape sequence to clear & home cursor.
 
 	SetBackgroundColor(COLOR_BLACK);
 	setBackdropColorSub(Colors[COLOR_BLACK]);

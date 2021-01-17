@@ -11,96 +11,123 @@
 
 #include <nds/color.h>
 
-//#include <c/tilemap.c>
+int BackgroundId;
 
-//extern const byte CharacterSet[NUMBER_OF_CHARACTERS][CHARACTER_HEIGHT];
+extern const byte CharacterSet[NUMBER_OF_CHARACTERS][CHARACTER_HEIGHT];
+byte TilesetData[NUMBER_OF_CHARACTERS * CHARACTER_HEIGHT * 4]; // 4 => 4bpp.
 
-word BackgroundPalette[256];
+u16 BackgroundPalette[256];
 
-byte BackgroundVideoBuffer[256 * 256];
+word TilemapShapeCodes[1024];
 
-//byte TileMapShapeCodes[TILEMAP_WIDTH * TILEMAP_HEIGHT];
-//byte TileMapColorCodes[TILEMAP_WIDTH * TILEMAP_HEIGHT];
 byte TileMapCollisionCodes[TILEMAP_WIDTH * TILEMAP_HEIGHT];
 
 byte PrintX;
 byte PrintY;
 byte PrintColor;
 
-//extern void DrawCharacter(unsigned int x, unsigned int y, byte shapeCode, byte colorCode);
+void DrawCharacterToTilesetData(byte shapeCode);
 
 void InitializeBackgroundPalette(void);
+void InitializeTilemapGraphics(void);
+void InitializeTilemapShapeCodes(void);
 
 void InitializeTilemap(void)
 {
-	//int backgroundId;
-
 	// Background.
 	vramSetBankA(VRAM_A_MAIN_BG);
-	BGCTRL[0] = BG_TILE_BASE(1) | BG_MAP_BASE(0) | BG_COLOR_256 | BG_32x32;
-	//backgroundId = bgInit(3, BgType_Bmp8, BgSize_B8_256x256, 0, 0);
+	BackgroundId = bgInit(0, BgType_Text4bpp, BgSize_T_256x256, 0, 1);
 
 	InitializeBackgroundPalette();
+	InitializeTilemapGraphics();
 
-	// Background.
-	//memset(BackgroundVideoBuffer, COLOR_RED, sizeof(BackgroundVideoBuffer));
-	//dmaCopy(BackgroundVideoBuffer, bgGetGfxPtr(backgroundId), 256 * 256);
+	InitializeTilemapShapeCodes();
 
 	memset(TileMapCollisionCodes, 0, sizeof(TileMapCollisionCodes));
 }
 
 void InitializeBackgroundPalette(void)
 {
+	unsigned int rowIndex;
 	unsigned int index;
 
-	memset(BackgroundPalette, 0x0000, sizeof(BackgroundPalette));
+	//memset(BackgroundPalette, Colors[COLOR_BLACK], sizeof(BackgroundPalette));
 
 	// Set first NUMBER_OF_COLORS to match ARGB values from engine colors.
-	for (index = 0; index < NUMBER_OF_COLORS; ++index)
+	for (rowIndex = 0; rowIndex < NUMBER_OF_COLORS; ++rowIndex)
 	{
-		BackgroundPalette[index] = Colors[index];
+		for (index = 0; index < NUMBER_OF_COLORS; ++index)
+		{
+			// NOTE: Currently, each row represents a single color
+			// (with understanding that 0th column will represent transparency).
+			// TODO: Switch to use actual palettes when all implementations use a
+			// NES like palette system.
+			BackgroundPalette[(rowIndex * NUMBER_OF_COLORS) + index] = Colors[rowIndex];//Colors[index];
+		}
 	}
 
 	dmaCopy(BackgroundPalette, BG_PALETTE, sizeof(BackgroundPalette));
 }
 
-void DrawCharacter(unsigned int x, unsigned int y, byte shapeCode, byte colorCode)
+void InitializeTilemapGraphics(void)
 {
-	
+	unsigned int characterIndex;
+
+	for (characterIndex = 0; characterIndex < NUMBER_OF_CHARACTERS; ++characterIndex)
+	{
+		DrawCharacterToTilesetData(characterIndex);
+	}
+
+	dmaCopy((void*)&TilesetData, (void*)bgGetGfxPtr(BackgroundId), sizeof(TilesetData));
 }
 
-/*void DrawTileMap(void)
+void DrawCharacterToTilesetData(byte shapeCode)
 {
-	byte shapeCode;
+	unsigned int y;
+	unsigned int rowPixels;
+	unsigned int pixelIndex;
 	byte colorCode;
+	byte rowColorCodes[8];
 
-	unsigned int columnIndex;
-	unsigned int rowIndex;
+	unsigned int charBaseBlockDataIndex = ((TILE_HEIGHT * 4) * shapeCode); // 4 => 4bpp.
 
-	for (rowIndex = 0; rowIndex < TILEMAP_HEIGHT; ++rowIndex)
+	for (y = 0; y < TILE_HEIGHT; ++y)
 	{
-		for (columnIndex = 0; columnIndex < TILEMAP_WIDTH; ++columnIndex)
+		rowPixels = CharacterSet[shapeCode][y];
+		
+		for (pixelIndex = 0; pixelIndex < 8; ++pixelIndex)
 		{
-			shapeCode = TileMapShapeCodes[(rowIndex * TILEMAP_WIDTH) + columnIndex];
-			if (shapeCode != 0)
-			{
-				colorCode = TileMapColorCodes[(rowIndex * TILEMAP_WIDTH) + columnIndex];
-				DrawCharacter(columnIndex * TILE_WIDTH, rowIndex * TILE_HEIGHT, shapeCode, colorCode);
-			}
+			rowColorCodes[pixelIndex] = (rowPixels & 0x80) != 0 ? 1 : 0;
+			rowPixels <<= 1;
+		}
+
+		for (pixelIndex = 0; pixelIndex < 8;)
+		{
+			colorCode = rowColorCodes[pixelIndex++];
+			colorCode |= rowColorCodes[pixelIndex++] << 4;
+			
+			TilesetData[charBaseBlockDataIndex] = colorCode;
+
+			++charBaseBlockDataIndex;
 		}
 	}
-}*/
+}
+
+void InitializeTilemapShapeCodes(void)
+{
+	memset((void*)bgGetMapPtr(BackgroundId), 0x0000, (TILEMAP_WIDTH * TILEMAP_HEIGHT) / 2); 
+}
 
 byte GetTileMapShapeCode(byte x, byte y)
 {
-	return 0;
-	//return TileMapShapeCodes[(y * TILEMAP_WIDTH) + x];
+	word* screenBaseBlockData = (word*)bgGetMapPtr(BackgroundId);
+	return screenBaseBlockData[(y * TILEMAP_WIDTH) + x] & 0x00ff;
 }
 
 byte GetTileMapColorCode(byte x, byte y)
 {
-	return 0;
-	//return TileMapColorCodes[(y * TILEMAP_WIDTH) + x];
+	word* screenBaseBlockData = (word*)bgGetMapPtr(BackgroundId);
+	return (screenBaseBlockData[(y * TILEMAP_WIDTH) + x] & 0xf000) >> 12;
 }
 
 byte GetTileMapCellCollisionCode(byte x, byte y)
@@ -110,16 +137,24 @@ byte GetTileMapCellCollisionCode(byte x, byte y)
 
 void SetTileMapCellShape(byte x, byte y, byte shapeCode)
 {
-	//const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
+	word* screenBaseBlockData = (word*)bgGetMapPtr(BackgroundId);
+	unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
+	word cellDatum = screenBaseBlockData[tileMapOffset];
 
-	//TileMapShapeCodes[tileMapOffset] = shapeCode;
+	// Clear lower 11 bits while retaining upper 4 of current cellDatum for this cell.
+	// Overlay shapeCode over the lower 11 bits.
+	screenBaseBlockData[tileMapOffset] = (cellDatum & 0xf300) | shapeCode;
 }
 
 void SetTileMapCellColor(byte x, byte y, byte colorCode)
 {
-	//const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
+	word* screenBaseBlockData = (word*)bgGetMapPtr(BackgroundId);
+	unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
+	word cellDatum = screenBaseBlockData[tileMapOffset];
 
-	//TileMapColorCodes[tileMapOffset] = colorCode;
+	// Clear upper 4 bits while retaining lower 11 of current cellDatum for this cell.
+	// Overlay colorCode over the upper 4 bits.
+	screenBaseBlockData[tileMapOffset] = (colorCode << 12) | (cellDatum & 0x0fff); // 12th bit starts color palette index.
 }
 
 void SetTileMapCellCollisionCode(byte x, byte y, byte collisionCode)
@@ -131,9 +166,11 @@ void SetTileMapCellCollisionCode(byte x, byte y, byte collisionCode)
 
 void PrintText(const char* text, byte x, byte y)
 {
-	/*
+	word* screenBaseBlockData = (word*)bgGetMapPtr(BackgroundId);
 	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
 	
+	word paletteBankOverlay = (PrintColor << 12);
+
 	byte characterCode;
 	int charIndex = 0;
 
@@ -145,9 +182,10 @@ void PrintText(const char* text, byte x, byte y)
 			break;
 		}
 
-		TileMapShapeCodes[tileMapOffset + charIndex] = characterCode;
-		TileMapColorCodes[tileMapOffset + charIndex] = PrintColor;
+		// NOTE: This assumes flipping flags should be clear.
+		// NOTE: PrintColor shifting could be optimized out.
+		screenBaseBlockData[tileMapOffset + charIndex] = paletteBankOverlay | characterCode;
 
 		++charIndex;
-	}*/
+	}
 }

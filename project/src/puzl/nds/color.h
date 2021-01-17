@@ -32,6 +32,6 @@ typedef enum
 	NUMBER_OF_COLORS
 } ColorCode;
 
-extern u16 Colors[NUMBER_OF_COLORS];
+extern const u16 Colors[NUMBER_OF_COLORS];
 
 #endif

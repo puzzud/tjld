@@ -2,7 +2,7 @@
 
 #include <color.h>
 
-u16 Colors[NUMBER_OF_COLORS] =
+const u16 Colors[NUMBER_OF_COLORS] =
 {
 	RGB24_TO_ARGB16(RGB_COLOR_BLACK),
 	RGB24_TO_ARGB16(RGB_COLOR_WHITE),

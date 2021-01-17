@@ -33,12 +33,12 @@ void InitializeVideo(void)
 
 void ShutdownVideo(void)
 {
-	
+	//ShutdownSprites
 }
 
 void Draw(void)
 {
-	
+	oamUpdate(&oamMain);
 }
 
 void SetBackgroundColor(byte colorCode)

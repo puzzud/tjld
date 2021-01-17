@@ -46,8 +46,6 @@ void Shutdown(void)
 
 inline void MainLoop(void)
 {
-	int keys;
-
 	Running = 1;
 
 	while (Running != 0)
@@ -55,12 +53,15 @@ inline void MainLoop(void)
 		swiWaitForVBlank();
 
 		ProcessInput();
-		scanKeys();
-		keys = keysDown();
-		if (keys & KEY_START)
+		
+		if (ControllerButtonState & KEY_START)
+		{
+			SetBackgroundColor(COLOR_RED);
+		}
+
+		//if ((keys & KEY_L) && (keys & KEY_R))
 		{
 			//Running = 0;
-			SetBackgroundColor(COLOR_RED);
 		}
 
 		Process();

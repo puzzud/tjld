@@ -101,6 +101,7 @@ void UpdateIntendedDirection(void)
 	IntendedDirection.x = ControllerAxisXState;
 	IntendedDirection.y = ControllerAxisYState;
 
+	#ifdef HAS_KEYBOARD
 	#ifndef __C64__
 	IntendedDirection.x += KeyCodeStates[KEY_CODE_RIGHT] - KeyCodeStates[KEY_CODE_LEFT];
 	if (abs(IntendedDirection.x) > 1)
@@ -118,6 +119,7 @@ void UpdateIntendedDirection(void)
 	{
 		Running = 0;
 	}
+	#endif
 	#endif
 }
 

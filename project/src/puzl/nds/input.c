@@ -40,26 +40,28 @@ inline void ProcessInput(void)
 
 	// Axes.
 	ControllerAxisXState = 0;
-	
-	if (KeysState & KEY_LEFT)
-	{
-		--ControllerAxisXState;
-	}
-
-	if (KeysState & KEY_RIGHT)
-	{
-		++ControllerAxisXState;
-	}
-
 	ControllerAxisYState = 0;
-
-	if (KeysState & KEY_UP)
+	
+	if (KeysState != 0)
 	{
-		--ControllerAxisYState;
-	}
+		if (KeysState & KEY_LEFT)
+		{
+			--ControllerAxisXState;
+		}
 
-	if (KeysState & KEY_DOWN)
-	{
-		++ControllerAxisYState;
+		if (KeysState & KEY_RIGHT)
+		{
+			++ControllerAxisXState;
+		}
+
+		if (KeysState & KEY_UP)
+		{
+			--ControllerAxisYState;
+		}
+
+		if (KeysState & KEY_DOWN)
+		{
+			++ControllerAxisYState;
+		}
 	}
 }

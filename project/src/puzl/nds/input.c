@@ -11,6 +11,8 @@ byte ControllerAxisXState;
 byte ControllerAxisYState;
 byte ControllerButtonState;
 
+int KeysState;
+
 void InitializeInput(void)
 {
 	ControllerAxisXState = 0;
@@ -25,40 +27,38 @@ void ShutdownInput(void)
 
 inline void ProcessInput(void)
 {
-	static int keys;
-	
 	scanKeys();
-	keys = keysCurrent();
+	KeysState = keysCurrent();
 
 	// Buttons.
 	// First 4 buttons (matches NES? Or is A & B reverse?).
 	// TODO: Get X, Y, L, R (in that order or whatever the SNES does).
 	// Then L & R (order swapped).
-	ControllerButtonState = keys & 0x0f;
+	ControllerButtonState = KeysState & 0x0f;
 
 	// NOTE: Touch & Lid were ignored.
 
 	// Axes.
 	ControllerAxisXState = 0;
 	
-	if (keys & KEY_LEFT)
+	if (KeysState & KEY_LEFT)
 	{
 		--ControllerAxisXState;
 	}
 
-	if (keys & KEY_RIGHT)
+	if (KeysState & KEY_RIGHT)
 	{
 		++ControllerAxisXState;
 	}
 
 	ControllerAxisYState = 0;
 
-	if (keys & KEY_UP)
+	if (KeysState & KEY_UP)
 	{
 		--ControllerAxisYState;
 	}
 
-	if (keys & KEY_DOWN)
+	if (KeysState & KEY_DOWN)
 	{
 		++ControllerAxisYState;
 	}

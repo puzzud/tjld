@@ -7,6 +7,7 @@
 #include <nds.h>
 
 #include <puzl.h>
+#include <nds/input.h>
 
 #include <c/sequencer.h>
 
@@ -54,14 +55,9 @@ inline void MainLoop(void)
 
 		ProcessInput();
 		
-		if (ControllerButtonState & KEY_START)
+		if (KeysState & (KEY_L | KEY_R))
 		{
-			SetBackgroundColor(COLOR_RED);
-		}
-
-		//if ((keys & KEY_L) && (keys & KEY_R))
-		{
-			//Running = 0;
+			Running = 0;
 		}
 
 		Process();

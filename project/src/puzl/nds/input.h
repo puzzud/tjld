@@ -5,6 +5,8 @@
 
 #include <input.h>
 
+extern int KeysState;
+
 void InitializeInput(void);
 void ShutdownInput(void);
 

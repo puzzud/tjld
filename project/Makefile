@@ -2,6 +2,9 @@
 # Project
 ########################################
 PROJECT_NAME := tjld
+GAME_TITLE := Three Jolly Little Dwarfs
+GAME_SUBTITLE1 := by puzzud
+GAME_SUBTITLE2 := https://puzzud.itch.io
 
 ########################################
 # General
@@ -205,6 +208,8 @@ export VPATH := $(BTDIR)
 export DEPSDIR := $(BTDIR)
 
 BUILD := $(BTDIR)
+
+GAME_ICON := ../resources/Graphics/Icons/nds.bmp
 
 EXECUTABLE := $(BTDIR)/$(PROJECT_NAME).nds
 

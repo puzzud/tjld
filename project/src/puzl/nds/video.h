@@ -19,6 +19,7 @@ typedef struct
 	byte enabled;
 	ScreenPoint position;
 	byte frameIndex;
+	u16* spriteGraphicsOffset; // NOTE: NDS specific.
 	const byte** animationSet;
 	byte animationId;
 	byte colorCode;
@@ -33,6 +34,7 @@ void DrawTileMap(void);
 void DrawCharacter(unsigned int x, unsigned int y, byte shapeCode, byte colorCode);
 
 void InitializeSprites(void);
+void ShutdownSprites(void);
 void DrawSprites(void);
 
 #endif

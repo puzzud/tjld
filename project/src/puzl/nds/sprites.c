@@ -8,7 +8,9 @@
 
 #include <nds/color.h>
 
-//extern const byte SpriteSet[NUMBER_OF_SPRITE_FRAMES][SPRITE_WIDTH][SPRITE_HEIGHT];
+#define SPRITE_GRAPHICS_FRAME_LENGTH (SPRITE_WIDTH * SPRITE_HEIGHT * 2) // Not sure why 2 instead of 4.
+
+extern const byte SpriteSet[NUMBER_OF_SPRITE_FRAMES][SPRITE_WIDTH][SPRITE_HEIGHT];
 
 u16* SpriteGraphics;
 
@@ -18,6 +20,10 @@ byte SpriteCollisions[NUMBER_OF_SPRITES];
 byte SpriteNonPrimaryColorCodes[NUMBER_OF_SPRITE_COLORS - 1];
 
 void BaseInitializeSprites(void);
+void InitializeSpriteGraphics(void);
+
+void PopulateSpriteGraphicsFromSprite(unsigned int spriteFrameIndex);
+void PopulateSpriteGraphicsCellFromSprite(unsigned int spriteFrameIndex, unsigned int cellXOffset, unsigned int cellYOffset);
 
 void ProcessSpriteAnimationDatum(unsigned int sequenceIndex, byte sequenceFetchDatum);
 
@@ -57,26 +63,83 @@ void BaseInitializeSprites(void)
 void InitializeSprites(void)
 {
 	unsigned int spriteIndex;
-	unsigned int i;
 
 	BaseInitializeSprites();
 
 	vramSetBankD(VRAM_D_SUB_SPRITE);
 	oamInit(&oamMain, SpriteMapping_1D_32, 0);
 	
-	// Graphics.
-	// TODO: Need to oamFreeGfx in a ShutdownSprites.
-	SpriteGraphics = oamAllocateGfx(&oamMain, SpriteSize_16x16, SpriteColorFormat_16Color);
-	for(i = 0; i < 16 * 16 / 2; i++)
-	{
-		//SpriteGraphics[i] = 1 | (1 << 8);
-		SpriteGraphics[i] = (0x11 << 8) | 0x11;
-	}
+	InitializeSpriteGraphics();
 
 	for (spriteIndex = 0; spriteIndex < NUMBER_OF_SPRITES; ++spriteIndex)
 	{
+		Sprites[spriteIndex].spriteGraphicsOffset = SpriteGraphics;
+
 		UpdateOam(spriteIndex);
 	}
+}
+
+void InitializeSpriteGraphics(void)
+{
+	unsigned int spriteFrameIndex;
+
+	SpriteGraphics = oamAllocateGfx(&oamMain, SpriteSize_16x16, SpriteColorFormat_16Color);
+
+	for (spriteFrameIndex = 0; spriteFrameIndex < NUMBER_OF_SPRITE_FRAMES; ++spriteFrameIndex)
+	{
+		PopulateSpriteGraphicsFromSprite(spriteFrameIndex);
+	}
+}
+
+void PopulateSpriteGraphicsFromSprite(unsigned int spriteFrameIndex)
+{
+	PopulateSpriteGraphicsCellFromSprite(spriteFrameIndex, 0, 0);
+	PopulateSpriteGraphicsCellFromSprite(spriteFrameIndex, 1, 0);
+	PopulateSpriteGraphicsCellFromSprite(spriteFrameIndex, 0, 1);
+	PopulateSpriteGraphicsCellFromSprite(spriteFrameIndex, 1, 1);
+}
+
+void PopulateSpriteGraphicsCellFromSprite(unsigned int spriteFrameIndex, unsigned int cellXOffset, unsigned int cellYOffset)
+{
+	unsigned int targetGraphicsIndex =
+		(spriteFrameIndex * SPRITE_GRAPHICS_FRAME_LENGTH) +
+		(cellYOffset * 32) +
+		(cellXOffset * SPRITE_WIDTH);
+
+	unsigned int x, y;
+	unsigned int spriteSetCellX, spriteSetCellY;
+	byte colorCode;
+	word targetColorDatum;
+
+	const unsigned int cellOffsetMultiplier = 8;
+
+	spriteSetCellX = (cellXOffset * cellOffsetMultiplier);
+	spriteSetCellY = (cellYOffset * cellOffsetMultiplier);
+
+	for (y = 0; y < 8; ++y)
+	{
+		for (x = 0; x < 8;)
+		{
+			colorCode = SpriteSet[spriteFrameIndex][spriteSetCellY + y][spriteSetCellX + x++];
+			targetColorDatum = colorCode;
+
+			colorCode = SpriteSet[spriteFrameIndex][spriteSetCellY + y][spriteSetCellX + x++];
+			targetColorDatum |= colorCode << 4;
+
+			colorCode = SpriteSet[spriteFrameIndex][spriteSetCellY + y][spriteSetCellX + x++];
+			targetColorDatum |= colorCode << 8;
+
+			colorCode = SpriteSet[spriteFrameIndex][spriteSetCellY + y][spriteSetCellX + x++];
+			targetColorDatum |= colorCode << 12;
+
+			SpriteGraphics[targetGraphicsIndex++] = targetColorDatum;
+		}
+	}
+}
+
+void ShutdownSprites(void)
+{
+	oamFreeGfx(&oamMain, SpriteGraphics);
 }
 
 void UpdateOam(unsigned int spriteIndex)
@@ -95,7 +158,7 @@ void UpdateOam(unsigned int spriteIndex)
 		spriteIndex,               // Palette index (or alpha value for BMP).
 		SpriteSize_16x16,          // Sprite size.
 		SpriteColorFormat_16Color, // Color format.
-		SpriteGraphics,            // Pointer to graphics.
+		sprite->spriteGraphicsOffset, // Pointer to graphics.
 		-1,                        // Affine index (for rotating).
 		0,                         // Double size during rotation.
 		sprite->enabled == 0 ? 1 : 0, // Hide sprite.
@@ -266,14 +329,17 @@ inline void CalculateSpriteTileCorners(ScreenPoint* spritePosition, Vector2d* up
 void SetSpriteFrameIndex(byte spriteIndex, byte frameIndex)
 {
 	Sprites[spriteIndex].frameIndex = frameIndex;
+
+	Sprites[spriteIndex].spriteGraphicsOffset = &SpriteGraphics[SPRITE_GRAPHICS_FRAME_LENGTH * frameIndex];
+
+	UpdateOam(spriteIndex);
 }
 
 void SetSpriteColor(byte spriteIndex, byte colorCode)
 {
 	Sprites[spriteIndex].colorCode = colorCode;
-
-	// TODO: 1 is probably not the right palette index.
-	SPRITE_PALETTE[(spriteIndex * 16) + 1] = Colors[colorCode];
+	
+	SPRITE_PALETTE[(spriteIndex * 16) + 2] = Colors[colorCode];
 }
 
 void SetSpritePaletteColumnColorCodes(unsigned int columnIndex, byte colorCode)
@@ -284,7 +350,7 @@ void SetSpritePaletteColumnColorCodes(unsigned int columnIndex, byte colorCode)
 	// this should no longer be done this way.
 	for (index = 0; index < NUMBER_OF_SPRITES; ++index)
 	{
-		SPRITE_PALETTE[(index * 16) + columnIndex] = colorCode;
+		SPRITE_PALETTE[(index * 16) + columnIndex] = Colors[colorCode];
 	}
 }
 
@@ -292,7 +358,7 @@ void SetSpriteSeconaryColor(byte colorCode)
 {
 	SpriteNonPrimaryColorCodes[0] = colorCode;
 
-	SetSpritePaletteColumnColorCodes(2, colorCode);
+	SetSpritePaletteColumnColorCodes(1, colorCode);
 }
 
 void SetSpriteTertiaryColor(byte colorCode)

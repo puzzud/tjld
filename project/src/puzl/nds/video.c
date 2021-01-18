@@ -33,7 +33,7 @@ void InitializeVideo(void)
 
 void ShutdownVideo(void)
 {
-	//ShutdownSprites
+	ShutdownSprites();
 }
 
 void Draw(void)

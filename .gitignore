@@ -1,9 +1,9 @@
-# System/tool-specific ignores
+# System & environment ignores.
 .directory
 *~
-
 .vscode/
 
+# Output binaries & oject files.
 bin/
 
 tjld

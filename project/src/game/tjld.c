@@ -55,7 +55,12 @@ void InitializeNodeTree(void)
 	SetSpriteTertiaryColor(COLOR_LIGHT_RED);
 
 	EnableSprite(PLAYER_SPRITE_INDEX, 1);
-	SetSpritePosition(PLAYER_SPRITE_INDEX, 48, SCREEN_HEIGHT - SPRITE_HEIGHT - (TILE_HEIGHT * 2));
+	SetSpritePosition
+	(
+		PLAYER_SPRITE_INDEX,
+		(TARGET_SCREEN_TILE_OFFSET_X * TILE_WIDTH) + (TILE_WIDTH * 2),
+		TARGET_SCREEN_TILE_OFFSET_Y + TARGET_SCREEN_HEIGHT - (TILE_HEIGHT * 2) - SPRITE_HEIGHT
+	);
 	SetSpriteFrameIndex(PLAYER_SPRITE_INDEX, 1);
 	SetSpriteColor(PLAYER_SPRITE_INDEX, COLOR_RED);
 	SetSpriteAnimationSet(PLAYER_SPRITE_INDEX, DwarfAnimationSet);
@@ -101,6 +106,7 @@ void UpdateIntendedDirection(void)
 	IntendedDirection.x = ControllerAxisXState;
 	IntendedDirection.y = ControllerAxisYState;
 
+	#ifdef HAS_KEYBOARD
 	#ifndef __C64__
 	IntendedDirection.x += KeyCodeStates[KEY_CODE_RIGHT] - KeyCodeStates[KEY_CODE_LEFT];
 	if (abs(IntendedDirection.x) > 1)
@@ -118,6 +124,7 @@ void UpdateIntendedDirection(void)
 	{
 		Running = 0;
 	}
+	#endif
 	#endif
 }
 

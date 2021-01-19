@@ -27,6 +27,8 @@ typedef unsigned char byte;
 typedef unsigned short word;
 
 #if defined(__linux__) || defined(_WIN32) | defined(__EMSCRIPTEN__)
+#define HAS_KEYBOARD
+
 #include <sdl/core.h>
 #include <sdl/video.h>
 #include <sdl/color.h>
@@ -35,6 +37,8 @@ typedef unsigned short word;
 #endif
 
 #ifdef __CC65__
+#define HAS_KEYBOARD
+
 #pragma rodata-name ("RODATA")
 
 #include <c64/core.h>
@@ -44,11 +48,21 @@ typedef unsigned short word;
 #endif
 
 #ifdef __WATCOMC__
+#define HAS_KEYBOARD
+
 #include <msdos/core.h>
 #include <msdos/video.h>
 #include <msdos/color.h>
 #include <msdos/input.h>
 #include <msdos/audio.h>
+#endif
+
+#ifdef __NDS__
+#include <nds/core.h>
+#include <nds/video.h>
+#include <nds/color.h>
+#include <nds/input.h>
+#include <nds/audio.h>
 #endif
 
 #endif

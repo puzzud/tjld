@@ -246,7 +246,7 @@ $(EXECUTABLE): $(OBJS)
 
 $(BDIR)/$(TARGET)/%.o: $(SDIR)/%.c
 	@mkdir -p $(@D)
-	$(CC) -o $@ -c $< $(CFLAGS) $(LFLAGS)
+	$(CC) -o $@ -c $< $(CFLAGS)
 
 #---------------------------------------
 # cc65

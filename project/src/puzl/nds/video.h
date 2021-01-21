@@ -23,7 +23,6 @@ typedef struct
 	const byte** animationSet;
 	byte animationId;
 	byte colorCode;
-	Vector2d velocity;
 } Sprite;
 
 void InitializeVideo(void);

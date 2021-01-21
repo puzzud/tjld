@@ -89,7 +89,8 @@ void Process(void)
 			{
 				CheckSpriteClimbing();
 
-				SetSpriteVelocity(PLAYER_SPRITE_INDEX, IntendedDirection.x, IntendedDirection.y);
+				SpriteVelocitiesX[PLAYER_SPRITE_INDEX] = IntendedDirection.x;
+				SpriteVelocitiesY[PLAYER_SPRITE_INDEX] = IntendedDirection.y;
 
 				MoveSprite(PLAYER_SPRITE_INDEX);
 

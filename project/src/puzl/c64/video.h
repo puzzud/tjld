@@ -18,6 +18,9 @@
 
 extern byte TileMapCollisionCodes[SCREEN_CHAR_SIZE];
 
+#pragma zpsym ("SpriteVelocitiesX")
+#pragma zpsym ("SpriteVelocitiesY")
+
 #pragma zpsym ("SpriteCollisionMasks")
 #pragma zpsym ("SpriteCollisions")
 

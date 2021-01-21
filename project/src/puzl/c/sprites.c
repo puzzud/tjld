@@ -1,10 +1,12 @@
-//#include <sdl/video.h>
-
 #include <puzl.h>
 
 #include <c/sequencer.h>
 
 Sprite Sprites[NUMBER_OF_SPRITES];
+
+signed char SpriteVelocitiesX[NUMBER_OF_SPRITES];
+signed char SpriteVelocitiesY[NUMBER_OF_SPRITES];
+
 byte SpriteCollisionMasks[NUMBER_OF_SPRITES];
 byte SpriteCollisions[NUMBER_OF_SPRITES];
 byte SpriteNonPrimaryColorCodes[NUMBER_OF_SPRITE_COLORS - 1];
@@ -24,6 +26,15 @@ void BaseInitializeSprites(void)
 
 	// Sprite controls.
 	memset(Sprites, 0, NUMBER_OF_SPRITES * sizeof(Sprite));
+
+	for (index = 0; index < NUMBER_OF_SPRITES; ++index)
+	{
+		SpriteVelocitiesX[index] = 0;
+		SpriteVelocitiesY[index] = 0;
+	}
+
+	//memset(SpriteVelocitiesX, 0, sizeof(SpriteVelocitiesX));
+	//memset(SpriteVelocitiesY, 0, sizeof(SpriteVelocitiesY));
 
 	// Initialize animation.
 	// NOTE: This could just be referenced in an array at compile time.
@@ -83,23 +94,15 @@ void SetSpritePosition(byte spriteIndex, signed short x, signed short y)
 	position->y = y;
 }
 
-void SetSpriteVelocity(byte spriteIndex, signed char x, signed char y)
-{
-	Vector2d* velocity = &Sprites[spriteIndex].velocity;
-	velocity->x = x;
-	velocity->y = y;
-}
-
 void MoveSprite(byte spriteIndex)
 {
 	Sprite* sprite = &Sprites[spriteIndex];
 	ScreenPoint* spritePosition = &sprite->position;
-	Vector2d* spriteVelocity = &sprite->velocity;
 
 	ScreenPoint tempSpritePosition;
 
-	tempSpritePosition.x = spritePosition->x + spriteVelocity->x;
-	tempSpritePosition.y = spritePosition->y + spriteVelocity->y;
+	tempSpritePosition.x = spritePosition->x + SpriteVelocitiesX[spriteIndex];
+	tempSpritePosition.y = spritePosition->y + SpriteVelocitiesY[spriteIndex];
 	
 	if (SpriteCollisionMasks[spriteIndex] != 0)
 	{
@@ -118,12 +121,15 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 {
 	Sprite* sprite = &Sprites[spriteIndex];
 	ScreenPoint* spritePosition = &sprite->position;
-	Vector2d* spriteVelocity = &sprite->velocity;
+	Vector2d spriteVelocity;
 
 	int x, y;
 
 	Vector2d upperLeftSpriteTile;
 	Vector2d lowerRightSpriteTile;
+
+	spriteVelocity.x = SpriteVelocitiesX[spriteIndex];
+	spriteVelocity.y = SpriteVelocitiesY[spriteIndex];
 
 	CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
 
@@ -131,7 +137,7 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 
 	if ((SpriteCollisionMasks[spriteIndex] & COLLISION_FLAG_OBSTACLE) != 0)
 	{
-		if (spriteVelocity->x < 0)
+		if (spriteVelocity.x < 0)
 		{
 			// Upper left.
 			// Lower left.
@@ -142,7 +148,7 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
 			}
 		}
-		else if (spriteVelocity->x > 0)
+		else if (spriteVelocity.x > 0)
 		{
 			// Upper right.
 			// Lower right.
@@ -157,7 +163,7 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 		// TODO: Should be updated, but apparently doesn't matter much.
 		//CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
 
-		if (spriteVelocity->y < 0)
+		if (spriteVelocity.y < 0)
 		{
 			// Upper left.
 			// Upper right.
@@ -168,7 +174,7 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
 			}
 		}
-		else if (spriteVelocity->y > 0)
+		else if (spriteVelocity.y > 0)
 		{
 			// Lower left.
 			// Lower right.

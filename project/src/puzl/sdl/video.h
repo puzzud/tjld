@@ -22,7 +22,6 @@ typedef struct
 	const byte** animationSet;
 	byte animationId;
 	byte colorCode;
-	Vector2d velocity;
 } Sprite;
 
 extern SDL_Renderer* Renderer;

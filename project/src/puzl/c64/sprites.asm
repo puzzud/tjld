@@ -6,7 +6,6 @@
 .export _GetSpritePositionY
 .export _SetSpritePositionX
 .export _SetSpritePositionY
-.export _SetSpriteVelocity
 .export _MoveSprite
 .export _SetSpriteFrameIndex
 .export _SetSpriteColor
@@ -15,6 +14,9 @@
 .export _SetSpriteAnimationSet
 .export _PlaySpriteAnimation
 .export _StopSpriteAnimation
+
+.export _SpriteVelocitiesX
+.export _SpriteVelocitiesY
 
 .export _SpriteCollisionMasks
 .export _SpriteCollisions
@@ -43,8 +45,6 @@
 .import _InverseNthBitFlags
 .import _SpritePositionsX
 .import _SpritePositionsY
-.import _SpriteVelocitiesX
-.import _SpriteVelocitiesY
 
 .include "c64.asm"
 
@@ -79,10 +79,10 @@ SpritePositionsYLo:
 SpritePositionsYHi:
   .res NUMBER_OF_SPRITES
 
-SpriteVelocitiesX:
+_SpriteVelocitiesX:
   .res NUMBER_OF_SPRITES
 
-SpriteVelocitiesY:
+_SpriteVelocitiesY:
   .res NUMBER_OF_SPRITES
 
 SpriteAnimationIds:
@@ -314,40 +314,13 @@ _GetSpritePositionY:
 
 ;------------------------------------------------------------------
 ; inputs:
-;  - spriteIndex: sp[1], which sprite to set velocity.
-;  - x: sp[0], x velocity (signed).
-;  - y: a, y velocity (signed).
-_SetSpriteVelocity:
-  ; Cache a register on CPU stack.
-  pha
-
-  ; Cache x velocity in x register.
-  ldy #0
-  lda (sp),y
-  tax
-
-  ; spriteIndex, as y register offset.
-  iny
-  lda (sp),y
-  tay
-
-  txa
-  sta SpriteVelocitiesX,y
-
-  pla
-  sta SpriteVelocitiesY,y
-
-  jmp incsp2
-
-;------------------------------------------------------------------
-; inputs:
 ;  - spriteIndex: a, which sprite to move.
 _MoveSprite:
   tax ; Cache spriteIndex.
   stx tmp1
 
 @setX:
-  lda SpriteVelocitiesX,x
+  lda _SpriteVelocitiesX,x
   ;beq @afterSetX
 
   sta mathOperandLo2
@@ -363,7 +336,7 @@ _MoveSprite:
 @afterSetX:
 @setY:
   ldx tmp1
-  lda SpriteVelocitiesY,x
+  lda _SpriteVelocitiesY,x
   ;beq @afterSetY
 
   sta mathOperandLo2
@@ -489,7 +462,7 @@ CheckSpriteCollision:
 @obstacleCollisionCheck:
 @checkX:
   ldx tmp1
-  lda SpriteVelocitiesX,x
+  lda _SpriteVelocitiesX,x
   beq @afterCheckX
   bpl @xVelocityPositive
 
@@ -526,7 +499,7 @@ CheckSpriteCollision:
 
 @checkY:
   ldx tmp1
-  lda SpriteVelocitiesY,x
+  lda _SpriteVelocitiesY,x
   beq @afterCheckY
   bpl @yVelocityPositive
 

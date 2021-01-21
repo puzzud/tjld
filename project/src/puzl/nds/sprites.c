@@ -44,15 +44,8 @@ void BaseInitializeSprites(void)
 
 	// Sprite controls.
 	memset(Sprites, 0, NUMBER_OF_SPRITES * sizeof(Sprite));
-
-	for (index = 0; index < NUMBER_OF_SPRITES; ++index)
-	{
-		SpriteVelocitiesX[index] = 0;
-		SpriteVelocitiesY[index] = 0;
-	}
-
-	//memset(SpriteVelocitiesX, 0, sizeof(SpriteVelocitiesX));
-	//memset(SpriteVelocitiesY, 0, sizeof(SpriteVelocitiesY));
+	memset(SpriteVelocitiesX, 0, sizeof(SpriteVelocitiesX));
+	memset(SpriteVelocitiesY, 0, sizeof(SpriteVelocitiesY));
 
 	// Initialize animation.
 	// NOTE: This could just be referenced in an array at compile time.

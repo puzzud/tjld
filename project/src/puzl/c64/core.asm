@@ -6,7 +6,6 @@
 
 .import ProcessSequences
 
-.import _InitalizeSpeed
 .import _InitializeNodeTree
 .import _Process
 
@@ -123,7 +122,6 @@ Reset:
   jsr _InitializeInput
   jsr InitializeAudio
   
-  jsr _InitalizeSpeed
   jsr _InitializeNodeTree
 
   cli

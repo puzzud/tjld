@@ -52,8 +52,7 @@ void Initialize(void)
 	InitializeInput();
 	InitializeVideo();
 	InitializeAudio();
-
-	InitalizeSpeed();
+	
 	InitializeNodeTree();
 
 	InitializeFrameInterrupt();

@@ -62,8 +62,7 @@ int Initialize(void)
 	InitializeInput();
 	InitializeVideo();
 	InitializeAudio();
-
-	InitalizeSpeed();
+	
 	InitializeNodeTree();
 
 	Running = 1;

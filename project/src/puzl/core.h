@@ -10,8 +10,4 @@ extern byte Running;
 void FASTCALL InitializeNodeTree(void);
 void FASTCALL Process(void);
 
-extern void FASTCALL InitalizeSpeed(void);
-extern void FASTCALL CycleSpeedBit(void);
-extern byte FASTCALL IsMoving(byte speedPatternIndex);
-
 #endif

@@ -4,6 +4,7 @@
 
 #include <puzl.h>
 
+#include <speed.h>
 #include <level.h>
 #include <dwarf.h>
 
@@ -41,6 +42,8 @@ void SpriteClimbingAlignLadderAbove(void);
 
 void InitializeNodeTree(void)
 {
+	InitalizeSpeed();
+
 	LoadLevel();
 	
 	Score = 0;

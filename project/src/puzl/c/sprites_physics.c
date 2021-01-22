@@ -68,32 +68,6 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 
 	if ((SpriteCollisionMasks[spriteIndex] & COLLISION_FLAG_OBSTACLE) != 0)
 	{
-		if (spriteVelocity.x < 0)
-		{
-			// Upper left.
-			// Lower left.
-			if (((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, upperLeftSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0) ||
-				(((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, lowerRightSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0)))
-			{
-				tempSpritePosition->x = spritePosition->x;
-				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
-			}
-		}
-		else if (spriteVelocity.x > 0)
-		{
-			// Upper right.
-			// Lower right.
-			if (((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, upperLeftSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0) ||
-				(((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, lowerRightSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0)))
-			{
-				tempSpritePosition->x = spritePosition->x;
-				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
-			}
-		}
-
-		// TODO: Should be updated, but apparently doesn't matter much.
-		//CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
-
 		if (spriteVelocity.y < 0)
 		{
 			// Upper left.
@@ -102,6 +76,7 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 				(((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, upperLeftSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0)))
 			{
 				tempSpritePosition->y = spritePosition->y;
+				CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
 				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
 			}
 		}
@@ -113,9 +88,38 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 				(((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, lowerRightSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0)))
 			{
 				tempSpritePosition->y = spritePosition->y;
+				CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
 				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
 			}
 		}
+
+		if (spriteVelocity.x < 0)
+		{
+			// Upper left.
+			// Lower left.
+			if (((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, upperLeftSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0) ||
+				(((GetTileMapCellCollisionCode(upperLeftSpriteTile.x, lowerRightSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0)))
+			{
+				tempSpritePosition->x = spritePosition->x;
+				CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
+				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
+			}
+		}
+		else if (spriteVelocity.x > 0)
+		{
+			// Upper right.
+			// Lower right.
+			if (((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, upperLeftSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0) ||
+				(((GetTileMapCellCollisionCode(lowerRightSpriteTile.x, lowerRightSpriteTile.y) & COLLISION_FLAG_OBSTACLE) != 0)))
+			{
+				tempSpritePosition->x = spritePosition->x;
+				CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
+				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
+			}
+		}
+
+		// TODO: Should be updated, but apparently doesn't matter much.
+		//CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
 	}
 
 	if ((SpriteCollisionMasks[spriteIndex] & ~COLLISION_FLAG_OBSTACLE) != 0)

@@ -394,7 +394,7 @@ _MoveSprite:
 ;  - LowerRightSpriteTileY
 ; notes:
 ;  - Squashes a, mathOperandLo2, mathOperandLo1, mathOperandHi1.
-.macro CalculateSpriteTileCorners
+CalculateSpriteTileCorners:
   ; Upper left X.
   lda #0
   sta mathOperandLo2
@@ -427,8 +427,7 @@ _MoveSprite:
   jsr GetTileIndexFromPosition
   sta LowerRightSpriteTileY
 
-;  rts
-.endmacro
+  rts
 
 ;------------------------------------------------------------------
 ; Checks for collision map overlap with temporary sprite position.
@@ -457,45 +456,9 @@ CheckSpriteCollision:
   jmp @otherCollisionCheckMaskLoaded
 
 @calculateSpriteTileCorners:
-  CalculateSpriteTileCorners ; macro
+  jsr CalculateSpriteTileCorners
 
 @obstacleCollisionCheck:
-@checkX:
-  ldx tmp1
-  lda _SpriteVelocitiesX,x
-  beq @afterCheckX
-  bpl @xVelocityPositive
-
-@xVelocityNegative:
-  ldy UpperLeftSpriteTileX
-  ldx UpperLeftSpriteTileY
-  jsr GetTileMapCellCollisionCode
-  bmi @resetPositionX
-  ldx LowerRightSpriteTileY
-  jsr GetTileMapCellCollisionCode
-  bpl @afterCheckX
-
-@resetPositionX:
-  ;lda #COLLISION_FLAG_OBSTACLE
-  sta tmp3 ; NOTE: Assumed first set, OR not needed.
-
-  ldx tmp1
-  lda SpritePositionsXLo,x
-  sta TempSpritePositionX
-  lda SpritePositionsXHi,x
-  sta TempSpritePositionX+1
-
-  jmp @afterCheckX
-
-@xVelocityPositive:
-  ldy LowerRightSpriteTileX
-  ldx UpperLeftSpriteTileY
-  jsr GetTileMapCellCollisionCode
-  bmi @resetPositionX
-  ldx LowerRightSpriteTileY
-  jsr GetTileMapCellCollisionCode
-  bmi @resetPositionX ; NOTE: Not bpl.
-@afterCheckX:
 
 @checkY:
   ldx tmp1
@@ -522,6 +485,8 @@ CheckSpriteCollision:
   lda SpritePositionsYHi,x
   sta TempSpritePositionY+1
 
+  jsr CalculateSpriteTileCorners
+
   jmp @afterCheckY
 
 @yVelocityPositive:
@@ -533,6 +498,46 @@ CheckSpriteCollision:
   jsr GetTileMapCellCollisionCode
   bmi @resetPositionY ; NOTE: Not bpl.
 @afterCheckY:
+
+@checkX:
+  ldx tmp1
+  lda _SpriteVelocitiesX,x
+  beq @afterCheckX
+  bpl @xVelocityPositive
+
+@xVelocityNegative:
+  ldy UpperLeftSpriteTileX
+  ldx UpperLeftSpriteTileY
+  jsr GetTileMapCellCollisionCode
+  bmi @resetPositionX
+  ldx LowerRightSpriteTileY
+  jsr GetTileMapCellCollisionCode
+  bpl @afterCheckX
+
+@resetPositionX:
+  ;lda #COLLISION_FLAG_OBSTACLE
+  sta tmp3 ; NOTE: Assumed first set, OR not needed.
+
+  ldx tmp1
+  lda SpritePositionsXLo,x
+  sta TempSpritePositionX
+  lda SpritePositionsXHi,x
+  sta TempSpritePositionX+1
+
+  jsr CalculateSpriteTileCorners
+
+  jmp @afterCheckX
+
+@xVelocityPositive:
+  ldy LowerRightSpriteTileX
+  ldx UpperLeftSpriteTileY
+  jsr GetTileMapCellCollisionCode
+  bmi @resetPositionX
+  ldx LowerRightSpriteTileY
+  jsr GetTileMapCellCollisionCode
+  bmi @resetPositionX ; NOTE: Not bpl.
+@afterCheckX:
+
 @afterObstacleCollisionCheck:
 
 @otherCollisionCheck:

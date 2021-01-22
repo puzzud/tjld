@@ -32,18 +32,6 @@ SpritePositionsYLo:
 SpritePositionsYHi:
   .res NUMBER_OF_SPRITES
 
-UpperLeftSpriteTileX:
-  .res 1
-
-UpperLeftSpriteTileY:
-  .res 1
-
-LowerRightSpriteTileX:
-  .res 1
-
-LowerRightSpriteTileY:
-  .res 1
-
 .segment "CODE"
 
 ;------------------------------------------------------------------
@@ -121,78 +109,6 @@ _GetSpritePositionY:
 
   ; a, low byte.
   lda SpritePositionsYLo,y
-
-  rts
-
-;------------------------------------------------------------------
-; Gets collision map cell coordinates for the top left and bottom right
-; points of a sprite through TempSpritePositionX/Y.
-; Assumes sprite dimensions of 16x16.
-;
-; inputs:
-;  - TempSpritePositionX+1/TempSpritePositionX
-;  - TempSpritePositionY+1/TempSpritePositionY
-; outputs:
-;  - UpperLeftSpriteTileX
-;  - UpperLeftSpriteTileY
-;  - LowerRightSpriteTileX
-;  - LowerRightSpriteTileY
-; notes:
-;  - Squashes a, mathOperandLo2, mathOperandLo1, mathOperandHi1.
-CalculateSpriteTileCorners:
-  ; Upper left X.
-  lda #0
-  sta mathOperandLo2
-  lda TempSpritePositionX
-  sta mathOperandLo1
-  lda TempSpritePositionX+1
-  sta mathOperandHi1
-  jsr GetTileIndexFromPosition
-  sta UpperLeftSpriteTileX
-
-  ; Lower right X.
-  lda #(SPRITE_WIDTH-1)
-  sta mathOperandLo2
-  jsr GetTileIndexFromPosition
-  sta LowerRightSpriteTileX
-
-  ; Upper left Y.
-  lda #0
-  sta mathOperandLo2
-  lda TempSpritePositionY
-  sta mathOperandLo1
-  lda TempSpritePositionY+1
-  sta mathOperandHi1
-  jsr GetTileIndexFromPosition
-  sta UpperLeftSpriteTileY
-
-  ; Lower right Y.
-  lda #(SPRITE_HEIGHT-1)
-  sta mathOperandLo2
-  jsr GetTileIndexFromPosition
-  sta LowerRightSpriteTileY
-
-  rts
-
-;------------------------------------------------------------------
-; inputs:
-;  - offset: mathOperandLo2, offset applied to position.
-;  - mathOperandHi1/mathOperandLo1, position to convert.
-; outputs:
-;  - a, tile offset (X or Y).
-GetTileIndexFromPosition:
-  jsr AddSignedByteToSignedWord
-
-  sta mathTmp1 ; Low
-  stx mathTmp2 ; High
-
-  lsr mathTmp2
-  ror mathTmp1
-  lsr mathTmp2
-  ror mathTmp1
-  lsr mathTmp2
-  lda mathTmp1
-  ror
 
   rts
 

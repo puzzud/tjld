@@ -44,6 +44,16 @@ void MoveSprite(byte spriteIndex)
 	SetSpritePosition(spriteIndex, tempSpritePosition.x, tempSpritePosition.y);
 }
 
+inline void CalculateSpriteTileCorners(ScreenPoint* spritePosition, Vector2d* upperLeftSpriteTile, Vector2d* lowerRightSpriteTile)
+{
+	upperLeftSpriteTile->x = spritePosition->x / TILE_WIDTH;
+	upperLeftSpriteTile->y = spritePosition->y / TILE_HEIGHT;
+
+	// TODO: Need way to track sprite dimensions.
+	lowerRightSpriteTile->x = (spritePosition->x + SPRITE_WIDTH - 1) / TILE_WIDTH;
+	lowerRightSpriteTile->y = (spritePosition->y + SPRITE_HEIGHT - 1) / TILE_HEIGHT;	
+}
+
 //--------------------------------------------------------------------------
 // Checks for collision map overlap with temporary sprite position.
 // Adjusts this position to original X or Y position, depending on velocity.

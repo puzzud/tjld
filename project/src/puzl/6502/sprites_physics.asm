@@ -14,14 +14,7 @@
 ;.importzp tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
 ;.macpack longbranch
 
-;.importzp mathOperandLo1, mathOperandHi1
-;.importzp mathOperandLo2, mathOperandHi2
-;.importzp mathTmp1, mathTmp2
-;.import AddSignedByteToSignedWord
-
 .import GetTileMapCellCollisionCode
-
-;.include "c64.asm"
 
 COLLISION_FLAG_OBSTACLE = $80
 

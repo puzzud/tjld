@@ -18,13 +18,6 @@
 .importzp SequenceSegmentDurationCounter
 .importzp SequenceTempFetch
 
-;.import _NthBitFlags
-;.import _InverseNthBitFlags
-;.import _SpritePositionsX
-;.import _SpritePositionsY
-
-;.include "c64.asm"
-
 .segment "BSS"
 
 SpriteAnimationSetsLo:

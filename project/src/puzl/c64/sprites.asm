@@ -6,20 +6,10 @@
 .export _GetSpritePositionY
 .export _SetSpritePositionX
 .export _SetSpritePositionY
-.export _MoveSprite
 .export _SetSpriteFrameIndex
 .export _SetSpriteColor
 .export _SetSpriteSeconaryColor
 .export _SetSpriteTertiaryColor
-.export _SetSpriteAnimationSet
-.export _PlaySpriteAnimation
-.export _StopSpriteAnimation
-
-.export _SpriteVelocitiesX
-.export _SpriteVelocitiesY
-
-.export _SpriteCollisionMasks
-.export _SpriteCollisions
 
 .autoimport on
   
@@ -31,15 +21,6 @@
 .importzp mathOperandLo2, mathOperandHi2
 .importzp mathTmp1, mathTmp2
 .import AddSignedByteToSignedWord
-
-.import GetTileMapCellCollisionCode
-
-.importzp sPtr1
-.importzp SequencePositionLo
-.importzp SequencePositionHi
-.importzp SequenceSegmentDuration
-.importzp SequenceSegmentDurationCounter
-.importzp SequenceTempFetch
 
 .import _NthBitFlags
 .import _InverseNthBitFlags
@@ -54,15 +35,8 @@ SPRITE_HEIGHT = 16
 ; TODO: Need to figure how to get this number from puzl/video.h.
 NUMBER_OF_SPRITES = NUMBER_OF_HARDWARE_SPRITES
 
-COLLISION_FLAG_OBSTACLE = $80
-
-.segment "BSS"
-
-SpriteAnimationSetsLo:
-  .res NUMBER_OF_SPRITES
-
-SpriteAnimationSetsHi:
-  .res NUMBER_OF_SPRITES
+.include "../6502/sprites_physics.asm"
+.include "../6502/sprites_animation.asm"
 
 .segment "ZEROPAGE"
 
@@ -79,21 +53,6 @@ SpritePositionsYLo:
 SpritePositionsYHi:
   .res NUMBER_OF_SPRITES
 
-_SpriteVelocitiesX:
-  .res NUMBER_OF_SPRITES
-
-_SpriteVelocitiesY:
-  .res NUMBER_OF_SPRITES
-
-SpriteAnimationIds:
-  .res NUMBER_OF_SPRITES
-
-TempSpritePositionX:
-  .res 2
-
-TempSpritePositionY:
-  .res 2
-
 UpperLeftSpriteTileX:
   .res 1
 
@@ -106,43 +65,7 @@ LowerRightSpriteTileX:
 LowerRightSpriteTileY:
   .res 1
 
-_SpriteCollisionMasks:
-  .res NUMBER_OF_SPRITES
-
-_SpriteCollisions:
-  .res NUMBER_OF_SPRITES
-
 .segment "CODE"
-
-;------------------------------------------------------------------
-InitializeSpritesAnimation:
-  ; NOTE: This could just be assembled in a sequence of data.
-  ; TODO: SEQUENCE_TYPE_ANIMATION = 1, need to source this value and in theory use indexing.
-  lda #<ProcessSpriteAnimationDatum
-  sta ProcessSequenceDatum+(1*2)
-  lda #>ProcessSpriteAnimationDatum
-  sta ProcessSequenceDatum+(1*2)+1
-
-  ; NOTE: OnSequenceSegmentEnd should already be null (saving space here).
-  ;lda #0
-  ;sta OnSequenceSegmentEnd+(1*2)
-  ;sta OnSequenceSegmentEnd+(1*2)+1
-
-  ; Set all sprite animation IDs to -1.
-  ldx #NUMBER_OF_SPRITES-1
-@resetSpriteAnimationsLoop:
-  lda #$ff
-  sta SpriteAnimationIds,x
-  lda #$00
-  sta SpriteAnimationSetsLo,x
-  sta SpriteAnimationSetsHi,x
-  sta _SpriteCollisionMasks,x
-  sta _SpriteCollisions,x
-
-  dex
-  bpl @resetSpriteAnimationsLoop
-
-  rts
 
 ;------------------------------------------------------------------
 ; inputs:
@@ -313,73 +236,6 @@ _GetSpritePositionY:
   rts
 
 ;------------------------------------------------------------------
-; inputs:
-;  - spriteIndex: a, which sprite to move.
-_MoveSprite:
-  tax ; Cache spriteIndex.
-  stx tmp1
-
-@setX:
-  lda _SpriteVelocitiesX,x
-  ;beq @afterSetX
-
-  sta mathOperandLo2
-  lda SpritePositionsXLo,x
-  sta mathOperandLo1
-  lda SpritePositionsXHi,x
-  sta mathOperandHi1
-  jsr AddSignedByteToSignedWord
-
-  sta TempSpritePositionX
-  stx TempSpritePositionX+1
-
-@afterSetX:
-@setY:
-  ldx tmp1
-  lda _SpriteVelocitiesY,x
-  ;beq @afterSetY
-
-  sta mathOperandLo2
-  lda SpritePositionsYLo,x
-  sta mathOperandLo1
-  lda SpritePositionsYHi,x
-  sta mathOperandHi1
-  jsr AddSignedByteToSignedWord
-
-  sta TempSpritePositionY
-  stx TempSpritePositionY+1
-
-@afterSetY:
-
-  ; Check if should do collision map checking.
-  ldx tmp1
-  lda _SpriteCollisionMasks,x
-  beq @afterCollisionChecking
-
-  jsr CheckSpriteCollision
-@afterCollisionChecking:
-
-@updateSpritePosition:
-  ldx tmp1
-  lda TempSpritePositionX
-  sta SpritePositionsXLo,x
-  lda TempSpritePositionX+1
-  sta SpritePositionsXHi,x
-
-  lda TempSpritePositionY
-  sta SpritePositionsYLo,x
-  lda TempSpritePositionY+1
-  sta SpritePositionsYHi,x
-
-  lda tmp1
-  pha
-  jsr UpdateSpritePositionX
-  pla
-  jsr UpdateSpritePositionY
-
-  rts
-
-;------------------------------------------------------------------
 ; Gets collision map cell coordinates for the top left and bottom right
 ; points of a sprite through TempSpritePositionX/Y.
 ; Assumes sprite dimensions of 16x16.
@@ -427,164 +283,6 @@ CalculateSpriteTileCorners:
   jsr GetTileIndexFromPosition
   sta LowerRightSpriteTileY
 
-  rts
-
-;------------------------------------------------------------------
-; Checks for collision map overlap with temporary sprite position.
-; Adjusts this position to original X or Y position, depending on velocity.
-; Assumes sprite dimensions of 16x16.
-;
-; inputs:
-;  - spriteIndex: tmp1, which sprite to move.
-;  - spriteCollisionMask: a, which layers this sprite collides with.
-;  - TempSpritePositionX+1/TempSpritePositionX
-;  - TempSpritePositionY+1/TempSpritePositionY
-; outputs:
-;  - TempSpritePositionX+1/TempSpritePositionX
-;  - TempSpritePositionY+1/TempSpritePositionY
-; notes:
-;  - Squashes a, x, y, tmp2, tmp3.
-;  - Squashes ptr1, ptr1+1 (by proxy).
-CheckSpriteCollision:
-  sta tmp2 ; Cache spriteCollisionMask.
-
-  lda #0
-  sta tmp3 ; Temporary cache for setting _SpriteCollisions,x.
-
-  lda tmp2
-  bmi @calculateSpriteTileCorners; spriteCollisionMask & COLLISION_FLAG_OBSTACLE
-  jmp @otherCollisionCheckMaskLoaded
-
-@calculateSpriteTileCorners:
-  jsr CalculateSpriteTileCorners
-
-@obstacleCollisionCheck:
-
-@checkY:
-  ldx tmp1
-  lda _SpriteVelocitiesY,x
-  beq @afterCheckY
-  bpl @yVelocityPositive
-
-@yVelocityNegative:
-  ldy UpperLeftSpriteTileX
-  ldx UpperLeftSpriteTileY
-  jsr GetTileMapCellCollisionCode
-  bmi @resetPositionY
-  ldy LowerRightSpriteTileX
-  jsr GetTileMapCellCollisionCode
-  bpl @afterCheckY
-
-@resetPositionY:
-  ;lda #COLLISION_FLAG_OBSTACLE
-  sta tmp3 ; NOTE: Assumed first set, OR not needed.
-
-  ldx tmp1
-  lda SpritePositionsYLo,x
-  sta TempSpritePositionY
-  lda SpritePositionsYHi,x
-  sta TempSpritePositionY+1
-
-  jsr CalculateSpriteTileCorners
-
-  jmp @afterCheckY
-
-@yVelocityPositive:
-  ldy UpperLeftSpriteTileX
-  ldx LowerRightSpriteTileY
-  jsr GetTileMapCellCollisionCode
-  bmi @resetPositionY
-  ldy LowerRightSpriteTileX
-  jsr GetTileMapCellCollisionCode
-  bmi @resetPositionY ; NOTE: Not bpl.
-@afterCheckY:
-
-@checkX:
-  ldx tmp1
-  lda _SpriteVelocitiesX,x
-  beq @afterCheckX
-  bpl @xVelocityPositive
-
-@xVelocityNegative:
-  ldy UpperLeftSpriteTileX
-  ldx UpperLeftSpriteTileY
-  jsr GetTileMapCellCollisionCode
-  bmi @resetPositionX
-  ldx LowerRightSpriteTileY
-  jsr GetTileMapCellCollisionCode
-  bpl @afterCheckX
-
-@resetPositionX:
-  ;lda #COLLISION_FLAG_OBSTACLE
-  sta tmp3 ; NOTE: Assumed first set, OR not needed.
-
-  ldx tmp1
-  lda SpritePositionsXLo,x
-  sta TempSpritePositionX
-  lda SpritePositionsXHi,x
-  sta TempSpritePositionX+1
-
-  jsr CalculateSpriteTileCorners
-
-  jmp @afterCheckX
-
-@xVelocityPositive:
-  ldy LowerRightSpriteTileX
-  ldx UpperLeftSpriteTileY
-  jsr GetTileMapCellCollisionCode
-  bmi @resetPositionX
-  ldx LowerRightSpriteTileY
-  jsr GetTileMapCellCollisionCode
-  bmi @resetPositionX ; NOTE: Not bpl.
-@afterCheckX:
-
-@afterObstacleCollisionCheck:
-
-@otherCollisionCheck:
-  lda tmp2
-@otherCollisionCheckMaskLoaded:
-  and #$7f
-  beq @afterOtherCollisionCheck; spriteCollisionMask & ~COLLISION_FLAG_OBSTACLE
-
-  ; Cycle through all overlapped tiles and imprint their collision flags on
-	; this sprite's collisions.
-
-  ldx UpperLeftSpriteTileY
-@yLoop:
-
-  ldy UpperLeftSpriteTileX
-@xLoop:
-  tya
-  pha
-  txa
-  pha
-
-  jsr GetTileMapCellCollisionCode
-  ora tmp3 ; Update _SpriteCollisions.
-  sta tmp3
-
-  pla
-  tax
-  pla
-  tay
-
-  iny
-  cpy LowerRightSpriteTileX
-  bcc @xLoop
-  beq @xLoop ; TODO: This check shouldn't be necessary!
-
-  inx
-  cpx LowerRightSpriteTileY
-  bcc @yLoop
-  beq @yLoop ; TODO: This check shouldn't be necessary!
-@afterOtherCollisionCheck:
-
-@setSpriteCollisions:
-  ldx tmp1
-  lda tmp3
-  sta _SpriteCollisions,x
-
-@done:
   rts
 
 ;------------------------------------------------------------------
@@ -669,137 +367,5 @@ _SetSpriteSeconaryColor:
 ;  - colorCode: a, color code.
 _SetSpriteTertiaryColor:
   sta SPMC1
-
-  rts
-
-;---------------------------------------
-; inputs:
-;  - spriteIndex: sp[0], which sprite to play this animation with.
-;  - animationSet: x/a, address of animation data to play.
-_SetSpriteAnimationSet:
-  pha
-  txa
-  pha
-
-  ; spriteIndex
-  ldy #0
-  lda (sp),y
-  tax
-
-  pla
-  sta SpriteAnimationSetsHi,x
-
-  pla
-  sta SpriteAnimationSetsLo,x
-
-  jmp incsp1
-
-;---------------------------------------
-; inputs:
-;  - spriteIndex: sp[1], which sprite to play this animation with.
-;  - animationId: sp[0], id entry in animation set for animation data to play.
-;  - looping: a, indicate whether animation should loop.
-_PlaySpriteAnimation:
-  sta tmp1
-  
-  ldy #1
-  lda (sp),y
-  tax
-
-  dey ; y=0
-  lda (sp),y
-  cmp SpriteAnimationIds,x
-  beq @done
-
-  sta SpriteAnimationIds,x
-  asl
-  tay
-
-  lda SpriteAnimationSetsLo,x
-  sta ptr2
-  lda SpriteAnimationSetsHi,x
-  sta ptr2+1
-
-  lda (ptr2),y
-  sta ptr1
-  iny
-  lda (ptr2),y
-  sta ptr1+1
-
-  ; TODO: Properly determine sequence from sprite index.
-  txa
-  clc
-  adc #3
-  tax ; Cache normal offset for call to PlaySequence.
-
-  lda tmp1
-  jsr PlaySequence
-
-@done:
-  jmp incsp2
-
-;---------------------------------------
-; inputs:
-;  - spriteIndex: a, index of which voice to stop.
-_StopSpriteAnimation:
-  ; TODO: Properly determine sequence from sprite index.
-  clc
-  adc #3
-  tax
-  jmp StopSequence
-  ;rts
-
-;---------------------------------------
-; inputs:
-;  - sequenceIndex: x, which sequence to fetch and process data from.
-;  - sequenceTempFetch: SequenceTempFetch, current datum just read.
-;  - sequencerPosition: sPtr1+1/sPtr1, where sequencer is looking at in sequence.
-; notes:
-;  - Preserves x.
-ProcessSpriteAnimationDatum:
-  ; Cutoff bits 7.
-  ; The first seven bits of this byte are the animation frame index.
-  txa
-  pha ; Cache x.
-
-  ; For SetSpriteFrameIndex, set x temporarily to
-  ; voiceIndex from sequenceIndex.
-  sec
-  sbc #3
-  tax
-
-  lda SequenceTempFetch
-  ; TODO: Make this literal use flag constants.
-  and #%01111111
-  
-  ; TODO: Translate to sequence channel ID.
-  jsr SetSpriteFrameIndex
-  
-  ; Restore x.
-  pla
-  tax
-
-  ; Now check bit 7.
-  bit SequenceTempFetch
-  bpl @updateDuration
-
-  ; Increase sequence pointer.
-  inc sPtr1
-  bne @skipIncrementCarry
-  inc sPtr1+1
-@skipIncrementCarry:
-  lda sPtr1
-  sta SequencePositionLo,x
-  lda sPtr1+1
-  sta SequencePositionHi,x
-
-  ; Fetch and store next byte.
-  ldy #0
-  lda (sPtr1),y
-  sta SequenceSegmentDuration,x
-
-@updateDuration:
-  lda SequenceSegmentDuration,x
-  sta SequenceSegmentDurationCounter,x
 
   rts

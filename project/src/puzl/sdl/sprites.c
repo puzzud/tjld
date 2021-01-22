@@ -7,6 +7,8 @@
 #include <sdl/color.h>
 
 #include <c/sprites.c>
+#include <c/sprites_physics.c>
+#include <c/sprites_animation.c>
 
 SDL_Texture* SpriteSetTextures[NUMBER_OF_SPRITE_COLORS];
 
@@ -18,11 +20,13 @@ void InitializeSpriteTextures(void);
 void PopulateSpriteSetSurfaceFromSpriteSet(SDL_Surface* spriteSetSurface, byte focusColorCode);
 void PopulateSpriteSurfaceFromSprite(SDL_Surface* spriteSurface, unsigned int spriteFrameIndex, byte focusColorCode);
 
-void ProcessSpriteAnimationDatum(unsigned int sequenceIndex, byte sequenceFetchDatum);
+void DrawSprite(Sprite* sprite);
 
 void InitializeSprites(void)
 {
 	BaseInitializeSprites();
+	BaseInitializeSpritesPhysics();
+	BaseInitializeSpritesAnimation();
 
 	InitializeSpriteTextures();
 }
@@ -134,7 +138,24 @@ void PopulateSpriteSurfaceFromSprite(SDL_Surface* spriteSurface, unsigned int sp
 	}
 }
 
-void DrawSprite(Sprite* sprite)
+void DrawSprites(void)
+{
+	Sprite* sprite;
+	int spriteIndex = NUMBER_OF_SPRITES - 1;
+
+	do
+	{
+		sprite = &Sprites[spriteIndex];
+
+		if (sprite->enabled != 0)
+		{
+			DrawSprite(sprite);
+		}
+	}
+	while (--spriteIndex > -1);
+}
+
+inline void DrawSprite(Sprite* sprite)
 {
 	unsigned int spriteColorIndex;
 
@@ -164,4 +185,36 @@ void DrawSprite(Sprite* sprite)
 	color = &Colors[SpriteNonPrimaryColorCodes[1]];
 	SDL_SetTextureColorMod(SpriteSetTextures[2], color->r, color->g, color->b);
 	SDL_RenderCopy(Renderer, SpriteSetTextures[2], &sourceRect, &destinationRect);
+}
+
+void EnableSprite(byte spriteIndex, byte enable)
+{
+	Sprites[spriteIndex].enabled = enable;
+}
+
+void SetSpritePosition(byte spriteIndex, signed short x, signed short y)
+{
+	ScreenPoint* position = &Sprites[spriteIndex].position;
+	position->x = x;
+	position->y = y;
+}
+
+void SetSpriteFrameIndex(byte spriteIndex, byte frameIndex)
+{
+	Sprites[spriteIndex].frameIndex = frameIndex;
+}
+
+void SetSpriteColor(byte spriteIndex, byte colorCode)
+{
+	Sprites[spriteIndex].colorCode = colorCode;
+}
+
+void SetSpriteSeconaryColor(byte colorCode)
+{
+	SpriteNonPrimaryColorCodes[0] = colorCode;
+}
+
+void SetSpriteTertiaryColor(byte colorCode)
+{
+	SpriteNonPrimaryColorCodes[1] = colorCode;
 }

@@ -3,16 +3,19 @@
 import sys
 
 class Xpm2CFacility:
-	def GenerateSpriteFrameRowsFromXpm(self, xpmData, x, y, spriteFrameWidth, spriteFrameHeight):
-		pixelX = (x * spriteFrameWidth) + x + 1
-		pixelY = (y * spriteFrameHeight) + y + 1
+	def __init__(self, type):
+		self.type = type
 
-		spriteFrameRows = []
-		for rowIndex in range(0, spriteFrameHeight):
-			rowString = xpmData.imageData.rows[pixelY + rowIndex][pixelX:pixelX + spriteFrameWidth]
-			spriteFrameRows.append(self.GenerateRowFromRowString(rowString, xpmData.headerData.palette))
+	def GenerateFrameRowsFromXpm(self, xpmData, x, y, frameWidth, frameHeight):
+		pixelX = (x * frameWidth) + x + 1
+		pixelY = (y * frameHeight) + y + 1
 
-		return spriteFrameRows
+		frameRows = []
+		for rowIndex in range(0, frameHeight):
+			rowString = xpmData.imageData.rows[pixelY + rowIndex][pixelX:pixelX + frameWidth]
+			frameRows.append(self.GenerateRowFromRowString(rowString, xpmData.headerData.palette))
+
+		return frameRows
 
 	def GenerateRowFromRowString(self, rowString, xpmPalette):
 		row = []
@@ -22,13 +25,13 @@ class Xpm2CFacility:
 
 		return row
 
-	def PrintNextSpriteFrame(self, spriteFrame):
+	def PrintNextFrame(self, frame):
 		print("\t{")
 
-		numberOfRows = len(spriteFrame)
+		numberOfRows = len(frame)
 
 		for i in range(0, numberOfRows):
-			row = spriteFrame[i]
+			row = frame[i]
 			
 			previewString = "|" + str(row).replace('[', '').replace(']', '').replace(", ", '').replace('0', '.') + "|"
 

@@ -3,23 +3,26 @@
 import sys
 
 class Xpm2CFacility:
-	def GenerateSpriteFrameRowsFromXpm(self, xpmData, x, y, spriteFrameWidth, spriteFrameHeight):
-		pixelX = (x * spriteFrameWidth) + x + 1
-		pixelY = (y * spriteFrameHeight) + y + 1
+	def __init__(self, type):
+		self.type = type
 
-		spriteFrameRows = []
-		for rowIndex in range(0, spriteFrameHeight):
-			rowString = xpmData.imageData.rows[pixelY + rowIndex][pixelX:pixelX + spriteFrameWidth]
-			spriteFrameRows += self.GenerateRowFromRowString(rowString, xpmData.headerData.palette)
+	def GenerateFrameRowsFromXpm(self, xpmData, x, y, frameWidth, frameHeight):
+		pixelX = (x * frameWidth) + x + 1
+		pixelY = (y * frameHeight) + y + 1
+
+		frameRows = []
+		for rowIndex in range(0, frameHeight):
+			rowString = xpmData.imageData.rows[pixelY + rowIndex][pixelX:pixelX + frameWidth]
+			frameRows += self.GenerateRowFromRowString(rowString, xpmData.headerData.palette)
 
 		# 21 C64 sprite height.
-		for rowIndex in range(21 - spriteFrameHeight):
+		for rowIndex in range(21 - frameHeight):
 			row = [0, 0, 0]
-			spriteFrameRows += row
+			frameRows += row
 		
-		spriteFrameRows.append(0) # Last unused byte.
+		frameRows.append(0) # Last unused byte.
 
-		return spriteFrameRows
+		return frameRows
 
 	def GenerateRowFromRowString(self, rowString, xpmPalette):
 		row = []
@@ -60,7 +63,7 @@ class Xpm2CFacility:
 
 		return colorCodeToCrumb[colorCode]
 
-	def PrintNextSpriteFrame(self, spriteFrame):
+	def PrintNextFrame(self, frame):
 		minimumLineLength = 16
 		
 		print("\t{")
@@ -71,9 +74,9 @@ class Xpm2CFacility:
 			i = i # pylint.
 
 			row = []
-			if len(spriteFrame) > 0:
-				row = spriteFrame[0:3]
-				spriteFrame = spriteFrame[3:len(spriteFrame) - 1]
+			if len(frame) > 0:
+				row = frame[0:3]
+				frame = frame[3:len(frame) - 1]
 			else:
 				row = [0, 0, 0]
 			

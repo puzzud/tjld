@@ -2,6 +2,7 @@
 .directory
 *~
 .vscode/
+*.pyc
 
 # Output binaries & oject files.
 bin/

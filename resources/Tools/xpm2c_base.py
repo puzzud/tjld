@@ -2,43 +2,44 @@
 
 import sys
 
-def GenerateSpriteFrameRowsFromXpmBase(xpmData, x, y, spriteFrameWidth, spriteFrameHeight):
-	pixelX = (x * spriteFrameWidth) + x + 1
-	pixelY = (y * spriteFrameHeight) + y + 1
+class Xpm2CFacility:
+	def GenerateSpriteFrameRowsFromXpm(self, xpmData, x, y, spriteFrameWidth, spriteFrameHeight):
+		pixelX = (x * spriteFrameWidth) + x + 1
+		pixelY = (y * spriteFrameHeight) + y + 1
 
-	spriteFrameRows = []
-	for rowIndex in range(0, spriteFrameHeight):
-		rowString = xpmData.imageData.rows[pixelY + rowIndex][pixelX:pixelX + spriteFrameWidth]
-		spriteFrameRows.append(GenerateRowFromRowStringBase(rowString, xpmData.headerData.palette))
+		spriteFrameRows = []
+		for rowIndex in range(0, spriteFrameHeight):
+			rowString = xpmData.imageData.rows[pixelY + rowIndex][pixelX:pixelX + spriteFrameWidth]
+			spriteFrameRows.append(self.GenerateRowFromRowString(rowString, xpmData.headerData.palette))
 
-	return spriteFrameRows
+		return spriteFrameRows
 
-def GenerateRowFromRowStringBase(rowString, xpmPalette):
-	row = []
+	def GenerateRowFromRowString(self, rowString, xpmPalette):
+		row = []
 
-	for colorSymbol in rowString:
-		row.append(xpmPalette.colorSymbols[colorSymbol])
+		for colorSymbol in rowString:
+			row.append(xpmPalette.colorSymbols[colorSymbol])
 
-	return row
+		return row
 
-def PrintNextSpriteFrameBase(spriteFrame):
-	print("\t{")
+	def PrintNextSpriteFrame(self, spriteFrame):
+		print("\t{")
 
-	numberOfRows = len(spriteFrame)
+		numberOfRows = len(spriteFrame)
 
-	for i in range(0, numberOfRows):
-		row = spriteFrame[i]
-		
-		previewString = "|" + str(row).replace('[', '').replace(']', '').replace(", ", '').replace('0', '.') + "|"
+		for i in range(0, numberOfRows):
+			row = spriteFrame[i]
+			
+			previewString = "|" + str(row).replace('[', '').replace(']', '').replace(", ", '').replace('0', '.') + "|"
 
-		sys.stdout.write("\t\t")
-		sys.stdout.write(str(row).replace('[', '{').replace(']', '}'))
+			sys.stdout.write("\t\t")
+			sys.stdout.write(str(row).replace('[', '{').replace(']', '}'))
 
-		if i == numberOfRows - 1:
-			sys.stdout.write("")
-		else:
-			sys.stdout.write(",")
-		
-		print("\t// " + previewString)
+			if i == numberOfRows - 1:
+				sys.stdout.write("")
+			else:
+				sys.stdout.write(",")
+			
+			print("\t// " + previewString)
 
-	sys.stdout.write("\t}")
+		sys.stdout.write("\t}")

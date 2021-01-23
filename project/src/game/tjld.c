@@ -57,18 +57,18 @@ void InitializeNodeTree(void)
 	SetSpriteSeconaryColor(COLOR_WHITE);
 	SetSpriteTertiaryColor(COLOR_LIGHT_RED);
 
-	EnableSprite(PLAYER_SPRITE_INDEX, 1);
+	CurrentSpriteIndex = PLAYER_SPRITE_INDEX;
+	EnableSprite(1);
 	SetSpritePosition
 	(
-		PLAYER_SPRITE_INDEX,
 		(TARGET_SCREEN_TILE_OFFSET_X * TILE_WIDTH) + (TILE_WIDTH * 2),
 		TARGET_SCREEN_TILE_OFFSET_Y + TARGET_SCREEN_HEIGHT - (TILE_HEIGHT * 2) - SPRITE_HEIGHT
 	);
-	SetSpriteFrameIndex(PLAYER_SPRITE_INDEX, 1);
-	SetSpriteColor(PLAYER_SPRITE_INDEX, COLOR_RED);
-	SetSpriteAnimationSet(PLAYER_SPRITE_INDEX, DwarfAnimationSet);
+	SetSpriteFrameIndex(1);
+	SetSpriteColor(COLOR_RED);
+	SetSpriteAnimationSet(DwarfAnimationSet);
 
-	SpriteCollisionMasks[PLAYER_SPRITE_INDEX] = COLLISION_FLAG_OBSTACLE | COLLISION_FLAG_LADDER;
+	SpriteCollisionMasks[CurrentSpriteIndex] = COLLISION_FLAG_OBSTACLE | COLLISION_FLAG_LADDER;
 
 	CheckSpriteTile();
 
@@ -80,6 +80,8 @@ void Process(void)
 {
 	UpdateIntendedDirection();
 
+	CurrentSpriteIndex = PLAYER_SPRITE_INDEX;
+
 	LoopIndex = 2;
 	do
 	{
@@ -89,10 +91,10 @@ void Process(void)
 			{
 				CheckSpriteClimbing();
 
-				SpriteVelocitiesX[PLAYER_SPRITE_INDEX] = IntendedDirection.x;
-				SpriteVelocitiesY[PLAYER_SPRITE_INDEX] = IntendedDirection.y;
+				SpriteVelocitiesX[CurrentSpriteIndex] = IntendedDirection.x;
+				SpriteVelocitiesY[CurrentSpriteIndex] = IntendedDirection.y;
 
-				MoveSprite(PLAYER_SPRITE_INDEX);
+				MoveSprite();
 
 				CheckSpriteTile();
 			}
@@ -141,11 +143,11 @@ void UpdateSpriteAnimation(void)
 	{
 		if (intendedDirectionX < 0)
 		{
-			PlaySpriteAnimation(PLAYER_SPRITE_INDEX, DWARF_ANIMATION_ID_LEFT_WALK, 1);
+			PlaySpriteAnimation(DWARF_ANIMATION_ID_LEFT_WALK, 1);
 		}
 		else if (intendedDirectionX > 0)
 		{
-			PlaySpriteAnimation(PLAYER_SPRITE_INDEX, DWARF_ANIMATION_ID_RIGHT_WALK, 1);
+			PlaySpriteAnimation(DWARF_ANIMATION_ID_RIGHT_WALK, 1);
 		}
 	}
 	else
@@ -154,16 +156,16 @@ void UpdateSpriteAnimation(void)
 		{
 			if (intendedDirectionY != 0)
 			{
-				PlaySpriteAnimation(PLAYER_SPRITE_INDEX, DWARF_ANIMATION_ID_BACK_CLIMB, 1);
+				PlaySpriteAnimation(DWARF_ANIMATION_ID_BACK_CLIMB, 1);
 			}
 			else
 			{
-				//StopSpriteAnimation(PLAYER_SPRITE_INDEX);
+				//StopSpriteAnimation();
 			}
 		}
 		else
 		{
-			PlaySpriteAnimation(PLAYER_SPRITE_INDEX, DWARF_ANIMATION_ID_FRONT_IDLE, 1);
+			PlaySpriteAnimation(DWARF_ANIMATION_ID_FRONT_IDLE, 1);
 		}
 	}
 }
@@ -193,7 +195,7 @@ void CheckSpriteTile(void)
 
 byte GetSpriteTilePositionX(void)
 {
-	byte SpriteTilePositionX = (GetSpritePositionX(PLAYER_SPRITE_INDEX) + 7) / TILE_WIDTH;
+	byte SpriteTilePositionX = (GetSpritePositionX() + 7) / TILE_WIDTH;
 	if (SpriteTilePositionX >= TILEMAP_WIDTH)
 	{
 		SpriteTilePositionX = TILEMAP_WIDTH;
@@ -204,7 +206,7 @@ byte GetSpriteTilePositionX(void)
 
 byte GetSpriteTilePositionY(void)
 {
-	byte SpriteTilePositionY = (GetSpritePositionY(PLAYER_SPRITE_INDEX) + TILE_HEIGHT + (TILE_HEIGHT * 3 / 4)) / TILE_HEIGHT;
+	byte SpriteTilePositionY = (GetSpritePositionY() + TILE_HEIGHT + (TILE_HEIGHT * 3 / 4)) / TILE_HEIGHT;
 	if (SpriteTilePositionY >= TILEMAP_HEIGHT)
 	{
 		SpriteTilePositionY = TILEMAP_HEIGHT;
@@ -220,7 +222,7 @@ void CheckSpriteClimbing(void)
 		// Pressing up.
 
 		// Check if sprite is touching a ladder.
-		if ((SpriteCollisions[PLAYER_SPRITE_INDEX] & COLLISION_FLAG_LADDER) != 0)
+		if ((SpriteCollisions[CurrentSpriteIndex] & COLLISION_FLAG_LADDER) != 0)
 		{
 			// Touching a ladder.
 
@@ -276,12 +278,12 @@ void SpriteClimbingAlignLadderTouching(void)
 
 	// Otherwise, set X direction to 0.
 
-	word spriteX = GetSpritePositionX(PLAYER_SPRITE_INDEX);
+	word spriteX = GetSpritePositionX();
 	word spriteY;
 
 	if ((spriteX % 16) != 0)
 	{
-		spriteY = GetSpritePositionY(PLAYER_SPRITE_INDEX);
+		spriteY = GetSpritePositionY();
 
 		if ((GetTileMapCellCollisionCode(spriteX / 8, spriteY / 8) & COLLISION_FLAG_LADDER) != 0)
 		{
@@ -300,7 +302,7 @@ void SpriteClimbingAlignLadderTouching(void)
 
 void SpriteClimbingAlignLadderAbove(void)
 {
-	word spriteX = GetSpritePositionX(PLAYER_SPRITE_INDEX);
+	word spriteX = GetSpritePositionX();
 	
 	if ((spriteX % 16) != 0)
 	{

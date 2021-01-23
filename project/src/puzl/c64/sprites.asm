@@ -30,16 +30,11 @@ NUMBER_OF_SPRITES = NUMBER_OF_HARDWARE_SPRITES
 
 ;------------------------------------------------------------------
 ; inputs:
-;  - spriteIndex: sp[0], which sprite to enable / disable.
 ;  - enable: a, enable or disable sprite.
 _EnableSprite:
-  tax
+  ldy _CurrentSpriteIndex
 
-  ldy #0
-  lda (sp),y
-  tay
-
-  txa
+  cmp #0
   bne @enable
 
 @disable:
@@ -56,7 +51,7 @@ _EnableSprite:
   sta SPENA
 
 @done:
-  jmp incsp1
+  rts
 
 ;------------------------------------------------------------------
 ; Update C64 sprite register with the value in SpritePositionsXLo/Hi.
@@ -133,19 +128,13 @@ SetSpriteFrameIndex:
 
 ;------------------------------------------------------------------
 ; inputs:
-;  - spriteIndex: sp[0], which sprite to assign color.
 ;  - colorCode: a, color code.
+;  - spriteIndex: _CurrentSpriteIndex, which sprite to assign color.
 _SetSpriteColor:
-  tax
-
-  ldy #0
-  lda (sp),y
-  tay
-
-  txa
+  ldy _CurrentSpriteIndex
   sta SP0COL,y
 
-  jmp incsp1
+  rts
 
 ;------------------------------------------------------------------
 ; inputs:

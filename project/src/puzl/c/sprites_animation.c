@@ -24,41 +24,43 @@ void BaseInitializeSpritesAnimation(void)
 	}
 }
 
-void SetSpriteAnimationSet(byte spriteIndex, const byte** animationSet)
+void SetSpriteAnimationSet(const byte** animationSet)
 {
-	Sprites[spriteIndex].animationSet = animationSet;
+	Sprites[CurrentSpriteIndex].animationSet = animationSet;
 }
 
-void PlaySpriteAnimation(byte spriteIndex, byte animationId, byte looping)
+void PlaySpriteAnimation(byte animationId, byte looping)
 {
 	const byte* animationStart;
 
-	if (Sprites[spriteIndex].animationId == animationId)
+	if (Sprites[CurrentSpriteIndex].animationId == animationId)
 	{
 		return;
 	}
 
-	Sprites[spriteIndex].animationId = animationId;
+	Sprites[CurrentSpriteIndex].animationId = animationId;
 
-	animationStart = Sprites[spriteIndex].animationSet[animationId];
+	animationStart = Sprites[CurrentSpriteIndex].animationSet[animationId];
 
 	// TODO: Properly determine sequence from sprite index.
-	PlaySequence(spriteIndex + 3, animationStart, looping);
+	PlaySequence(CurrentSpriteIndex + 3, animationStart, looping);
 }
 
-void StopSpriteAnimation(byte spriteIndex)
+void StopSpriteAnimation(void)
 {
 	// TODO: Properly determine sequence from sprite index.
-	StopSequence(spriteIndex + 3);
+	StopSequence(CurrentSpriteIndex + 3);
 }
 
 void ProcessSpriteAnimationDatum(unsigned int sequenceIndex, byte sequenceFetchDatum)
 {
-	byte spriteIndex = sequenceIndex - 3; // TODO: Properly determine sprite index from sequence index.
+	byte currentSpriteIndexBackup = CurrentSpriteIndex;
+	
+	CurrentSpriteIndex = sequenceIndex - 3; // TODO: Properly determine sprite index from sequence index.
 
 	// Cutoff bit 7.
 	// The first seven bits of this byte are the animation frame index.
-	SetSpriteFrameIndex(spriteIndex, sequenceFetchDatum & 0x7f); // %01111111
+	SetSpriteFrameIndex(sequenceFetchDatum & 0x7f); // %01111111
 
 	// Now check bit 7.
 	if ((sequenceFetchDatum & 0x80) != 0) // %10000000
@@ -69,4 +71,6 @@ void ProcessSpriteAnimationDatum(unsigned int sequenceIndex, byte sequenceFetchD
 	}
 
 	SequenceSegmentDurationCounter[sequenceIndex] = SequenceSegmentDuration[sequenceIndex];
+
+	CurrentSpriteIndex = currentSpriteIndexBackup;
 }

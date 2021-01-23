@@ -54,10 +54,10 @@ _SpriteCollisions:
 
 ;------------------------------------------------------------------
 ; inputs:
-;  - spriteIndex: a, which sprite to move.
+;  - spriteIndex: _CurrentSpriteIndex, which sprite to move.
 _MoveSprite:
-  tax ; Cache spriteIndex.
-  stx tmp1
+  ; spriteIndex.
+  ldx _CurrentSpriteIndex
 
 @setX:
   lda _SpriteVelocitiesX,x
@@ -75,7 +75,7 @@ _MoveSprite:
 
 @afterSetX:
 @setY:
-  ldx tmp1
+  ldx _CurrentSpriteIndex
   lda _SpriteVelocitiesY,x
   ;beq @afterSetY
 
@@ -92,7 +92,7 @@ _MoveSprite:
 @afterSetY:
 
   ; Check if should do collision map checking.
-  ldx tmp1
+  ldx _CurrentSpriteIndex
   lda _SpriteCollisionMasks,x
   beq @afterCollisionChecking
 
@@ -100,7 +100,7 @@ _MoveSprite:
 @afterCollisionChecking:
 
 @updateSpritePosition:
-  ldx tmp1
+  ldx _CurrentSpriteIndex
   lda TempSpritePositionX
   sta SpritePositionsXLo,x
   lda TempSpritePositionX+1
@@ -111,7 +111,7 @@ _MoveSprite:
   lda TempSpritePositionY+1
   sta SpritePositionsYHi,x
 
-  lda tmp1
+  lda _CurrentSpriteIndex
   pha
   jsr UpdateSpritePositionX
   pla
@@ -197,7 +197,7 @@ GetTileIndexFromPosition:
 ; Assumes sprite dimensions of 16x16.
 ;
 ; inputs:
-;  - spriteIndex: tmp1, which sprite to move.
+;  - spriteIndex: _CurrentSpriteIndex, which sprite to move.
 ;  - spriteCollisionMask: a, which layers this sprite collides with.
 ;  - TempSpritePositionX+1/TempSpritePositionX
 ;  - TempSpritePositionY+1/TempSpritePositionY
@@ -223,7 +223,7 @@ CheckSpriteCollision:
 @obstacleCollisionCheck:
 
 @checkY:
-  ldx tmp1
+  ldx _CurrentSpriteIndex
   lda _SpriteVelocitiesY,x
   beq @afterCheckY
   bpl @yVelocityPositive
@@ -241,7 +241,7 @@ CheckSpriteCollision:
   ;lda #COLLISION_FLAG_OBSTACLE
   sta tmp3 ; NOTE: Assumed first set, OR not needed.
 
-  ldx tmp1
+  ldx _CurrentSpriteIndex
   lda SpritePositionsYLo,x
   sta TempSpritePositionY
   lda SpritePositionsYHi,x
@@ -262,7 +262,7 @@ CheckSpriteCollision:
 @afterCheckY:
 
 @checkX:
-  ldx tmp1
+  ldx _CurrentSpriteIndex
   lda _SpriteVelocitiesX,x
   beq @afterCheckX
   bpl @xVelocityPositive
@@ -280,7 +280,7 @@ CheckSpriteCollision:
   ;lda #COLLISION_FLAG_OBSTACLE
   sta tmp3 ; NOTE: Assumed first set, OR not needed.
 
-  ldx tmp1
+  ldx _CurrentSpriteIndex
   lda SpritePositionsXLo,x
   sta TempSpritePositionX
   lda SpritePositionsXHi,x
@@ -342,7 +342,7 @@ CheckSpriteCollision:
 @afterOtherCollisionCheck:
 
 @setSpriteCollisions:
-  ldx tmp1
+  ldx _CurrentSpriteIndex
   lda tmp3
   sta _SpriteCollisions,x
 

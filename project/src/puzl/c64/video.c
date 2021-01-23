@@ -11,10 +11,10 @@ void SetBackgroundColor(byte color)
 	SET_MEMORY_BYTE(BGCOL0, color);
 }
 
-void SetSpritePosition(byte spriteIndex, signed short x, signed short y)
+void SetSpritePosition(signed short x, signed short y)
 {
-	SetSpritePositionX(spriteIndex, x);
-	SetSpritePositionY(spriteIndex, y);
+	SetSpritePositionX(x);
+	SetSpritePositionY(y);
 }
 
 void ClearTileMapCollisionCodes(void)

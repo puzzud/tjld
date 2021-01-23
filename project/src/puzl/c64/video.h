@@ -18,6 +18,8 @@
 
 extern byte TileMapCollisionCodes[SCREEN_CHAR_SIZE];
 
+#pragma zpsym ("CurrentSpriteIndex")
+
 #pragma zpsym ("SpriteVelocitiesX")
 #pragma zpsym ("SpriteVelocitiesY")
 
@@ -26,7 +28,7 @@ extern byte TileMapCollisionCodes[SCREEN_CHAR_SIZE];
 
 void FASTCALL InitializeVideo(void);
 
-void FASTCALL SetSpritePositionX(byte spriteIndex, signed short x);
-void FASTCALL SetSpritePositionY(byte spriteIndex, signed short y);
+void FASTCALL SetSpritePositionX(signed short x);
+void FASTCALL SetSpritePositionY(signed short y);
 
 #endif

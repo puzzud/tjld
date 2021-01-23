@@ -135,42 +135,42 @@ void UpdateOam(unsigned int spriteIndex)
 	);
 }
 
-void EnableSprite(byte spriteIndex, byte enable)
+void EnableSprite(byte enable)
 {
-	Sprites[spriteIndex].enabled = enable;
+	Sprites[CurrentSpriteIndex].enabled = enable;
 	
 	// NOTE: oamSetHidden doesn't seem to work well,
 	// so it seems full UpdateOam is needed.
-	//oamSetHidden(&oamMain, spriteIndex, enable == 0 ? 1 : 0);
+	//oamSetHidden(&oamMain, CurrentSpriteIndex, enable == 0 ? 1 : 0);
 	
-	UpdateOam(spriteIndex);
+	UpdateOam(CurrentSpriteIndex);
 }
 
-void SetSpritePosition(byte spriteIndex, signed short x, signed short y)
+void SetSpritePosition(signed short x, signed short y)
 {
-	ScreenPoint* position = &Sprites[spriteIndex].position;
+	ScreenPoint* position = &Sprites[CurrentSpriteIndex].position;
 	position->x = x;
 	position->y = y;
 
 	// NOTE: oamSetXY seems to work well; UpdateOam not needed!
-	oamSetXY(&oamMain, spriteIndex, x, y);
-	//UpdateOam(spriteIndex);
+	oamSetXY(&oamMain, CurrentSpriteIndex, x, y);
+	//UpdateOam(CurrentSpriteIndex);
 }
 
-void SetSpriteFrameIndex(byte spriteIndex, byte frameIndex)
+void SetSpriteFrameIndex(byte frameIndex)
 {
-	Sprites[spriteIndex].frameIndex = frameIndex;
+	Sprites[CurrentSpriteIndex].frameIndex = frameIndex;
 
-	Sprites[spriteIndex].spriteGraphicsOffset = &SpriteGraphics[SPRITE_GRAPHICS_FRAME_LENGTH * frameIndex];
+	Sprites[CurrentSpriteIndex].spriteGraphicsOffset = &SpriteGraphics[SPRITE_GRAPHICS_FRAME_LENGTH * frameIndex];
 
-	UpdateOam(spriteIndex);
+	UpdateOam(CurrentSpriteIndex);
 }
 
-void SetSpriteColor(byte spriteIndex, byte colorCode)
+void SetSpriteColor(byte colorCode)
 {
-	Sprites[spriteIndex].colorCode = colorCode;
+	Sprites[CurrentSpriteIndex].colorCode = colorCode;
 	
-	SPRITE_PALETTE[(spriteIndex * 16) + 2] = Colors[colorCode];
+	SPRITE_PALETTE[(CurrentSpriteIndex * 16) + 2] = Colors[colorCode];
 }
 
 void SetSpritePaletteColumnColorCodes(unsigned int columnIndex, byte colorCode)

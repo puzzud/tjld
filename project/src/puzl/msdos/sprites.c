@@ -91,26 +91,26 @@ inline void DrawSprite(Sprite* sprite)
 	while (--yCounter != 0);
 }
 
-void EnableSprite(byte spriteIndex, byte enable)
+void EnableSprite(byte enable)
 {
-	Sprites[spriteIndex].enabled = enable;
+	Sprites[CurrentSpriteIndex].enabled = enable;
 }
 
-void SetSpritePosition(byte spriteIndex, signed short x, signed short y)
+void SetSpritePosition(signed short x, signed short y)
 {
-	ScreenPoint* position = &Sprites[spriteIndex].position;
+	ScreenPoint* position = &Sprites[CurrentSpriteIndex].position;
 	position->x = x;
 	position->y = y;
 }
 
-void SetSpriteFrameIndex(byte spriteIndex, byte frameIndex)
+void SetSpriteFrameIndex(byte frameIndex)
 {
-	Sprites[spriteIndex].frameIndex = frameIndex;
+	Sprites[CurrentSpriteIndex].frameIndex = frameIndex;
 }
 
-void SetSpriteColor(byte spriteIndex, byte colorCode)
+void SetSpriteColor(byte colorCode)
 {
-	Sprites[spriteIndex].colorCode = colorCode;
+	Sprites[CurrentSpriteIndex].colorCode = colorCode;
 }
 
 void SetSpriteSeconaryColor(byte colorCode)

@@ -65,17 +65,15 @@ InitializeSpritesAnimation:
 
 ;---------------------------------------
 ; inputs:
-;  - spriteIndex: sp[0], which sprite to play this animation with.
 ;  - animationSet: x/a, address of animation data to play.
+;  - spriteIndex: _CurrentSpriteIndex, which sprite to play this animation with.
 _SetSpriteAnimationSet:
   pha
   txa
   pha
 
   ; spriteIndex
-  ldy #0
-  lda (sp),y
-  tax
+  ldx _CurrentSpriteIndex
 
   pla
   sta SpriteAnimationSetsHi,x
@@ -83,21 +81,19 @@ _SetSpriteAnimationSet:
   pla
   sta SpriteAnimationSetsLo,x
 
-  jmp incsp1
+  rts
 
 ;---------------------------------------
 ; inputs:
-;  - spriteIndex: sp[1], which sprite to play this animation with.
 ;  - animationId: sp[0], id entry in animation set for animation data to play.
 ;  - looping: a, indicate whether animation should loop.
+;  - spriteIndex: _CurrentSpriteIndex, which sprite to play this animation with.
 _PlaySpriteAnimation:
   sta tmp1
   
-  ldy #1
-  lda (sp),y
-  tax
+  ldx _CurrentSpriteIndex
 
-  dey ; y=0
+  ldy #0
   lda (sp),y
   cmp SpriteAnimationIds,x
   beq @done
@@ -127,13 +123,14 @@ _PlaySpriteAnimation:
   jsr PlaySequence
 
 @done:
-  jmp incsp2
+  jmp incsp1
 
 ;---------------------------------------
 ; inputs:
-;  - spriteIndex: a, index of which voice to stop.
+;  - spriteIndex: _CurrentSpriteIndex, index of which voice to stop.
 _StopSpriteAnimation:
   ; TODO: Properly determine sequence from sprite index.
+  lda _CurrentSpriteIndex
   clc
   adc #3
   tax

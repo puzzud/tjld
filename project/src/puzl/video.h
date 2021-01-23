@@ -50,6 +50,8 @@ extern byte PrintX;
 extern byte PrintY;
 extern byte PrintColor;
 
+extern byte CurrentSpriteIndex;
+
 extern signed char SpriteVelocitiesX[NUMBER_OF_SPRITES];
 extern signed char SpriteVelocitiesY[NUMBER_OF_SPRITES];
 
@@ -68,17 +70,17 @@ void FASTCALL SetTileMapCellCollisionCode(byte x, byte y, byte collisionCode);
 
 extern void FASTCALL PrintText(const char* text, byte x, byte y);
 
-void FASTCALL EnableSprite(byte spriteIndex, byte enable);
-signed short FASTCALL GetSpritePositionX(byte spriteIndex);
-signed short FASTCALL GetSpritePositionY(byte spriteIndex);
-void FASTCALL SetSpritePosition(byte spriteIndex, signed short x, signed short y);
-void FASTCALL MoveSprite(byte spriteIndex);
-void FASTCALL SetSpriteFrameIndex(byte spriteIndex, byte frameIndex);
-void FASTCALL SetSpriteColor(byte spriteIndex, byte colorCode);
+void FASTCALL EnableSprite(byte enable);
+signed short FASTCALL GetSpritePositionX(void);
+signed short FASTCALL GetSpritePositionY(void);
+void FASTCALL SetSpritePosition(signed short x, signed short y);
+void FASTCALL MoveSprite(void);
+void FASTCALL SetSpriteFrameIndex(byte frameIndex);
+void FASTCALL SetSpriteColor(byte colorCode);
 void FASTCALL SetSpriteSeconaryColor(byte colorCode);
 void FASTCALL SetSpriteTertiaryColor(byte colorCode);
-void FASTCALL SetSpriteAnimationSet(byte spriteIndex, const byte** animationSet);
-void FASTCALL PlaySpriteAnimation(byte spriteIndex, byte animationId, byte looping);
-void FASTCALL StopSpriteAnimation(byte spriteIndex);
+void FASTCALL SetSpriteAnimationSet(const byte** animationSet);
+void FASTCALL PlaySpriteAnimation(byte animationId, byte looping);
+void FASTCALL StopSpriteAnimation(void);
 
 #endif

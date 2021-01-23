@@ -1,5 +1,6 @@
 ; 6502 sprites.asm
 
+.export _CurrentSpriteIndex
 .export _GetSpritePositionX
 .export _GetSpritePositionY
 .export _SetSpritePositionX
@@ -20,6 +21,9 @@
 .segment "ZEROPAGE"
 
 ; TODO: Should probably clear these values.
+_CurrentSpriteIndex:
+  .res 1
+
 SpritePositionsXLo:
   .res NUMBER_OF_SPRITES
 
@@ -36,17 +40,12 @@ SpritePositionsYHi:
 
 ;------------------------------------------------------------------
 ; inputs:
-;  - spriteIndex: sp[0], which sprite to set position x.
 ;  - y: x/a, x position (signed).
+;  - spriteIndex: _CurrentSpriteIndex, which sprite to set position x.
 _SetSpritePositionX:
-  pha
-
   ; spriteIndex, as y register offset.
-  ldy #0
-  lda (sp),y
-  tay
+  ldy _CurrentSpriteIndex
 
-  pla
   sta SpritePositionsXLo,y ; Cache low byte first.
   txa
   sta SpritePositionsXHi,y ; Cache high byte. 
@@ -54,21 +53,16 @@ _SetSpritePositionX:
   tya
   jsr UpdateSpritePositionX
 
-  jmp incsp1
+  rts
 
 ;------------------------------------------------------------------
 ; inputs:
-;  - spriteIndex: sp[0], which sprite to set position y.
 ;  - y: x/a, y position (signed).
+;  - spriteIndex: _CurrentSpriteIndex, which sprite to set position y.
 _SetSpritePositionY:
-  pha
-
   ; spriteIndex, as y register offset.
-  ldy #0
-  lda (sp),y
-  tay
+  ldy _CurrentSpriteIndex
 
-  pla
   sta SpritePositionsYLo,y ; Cache low byte first.
   txa
   sta SpritePositionsYHi,y ; Cache high byte. 
@@ -76,15 +70,15 @@ _SetSpritePositionY:
   tya
   jsr UpdateSpritePositionY
 
-  jmp incsp1
+  rts
 
 ;------------------------------------------------------------------
 ; inputs:
-;  - spriteIndex: a, which sprite to get position x.
+;  - spriteIndex: _CurrentSpriteIndex, which sprite to get position x.
 ; outputs:
 ;  - return: x/a, sprite position y.
 _GetSpritePositionX:
-  tay
+  ldy _CurrentSpriteIndex
   
   ; x, high byte.
   lda SpritePositionsXHi,y
@@ -97,11 +91,11 @@ _GetSpritePositionX:
 
 ;------------------------------------------------------------------
 ; inputs:
-;  - spriteIndex: a, which sprite to get position y.
+;  - spriteIndex: _CurrentSpriteIndex, which sprite to get position y.
 ; outputs:
 ;  - return: x/a, sprite position y.
 _GetSpritePositionY:
-  tay
+  ldy _CurrentSpriteIndex
   
   ; x, high byte.
   lda SpritePositionsYHi,y
@@ -114,18 +108,12 @@ _GetSpritePositionY:
 
 ;------------------------------------------------------------------
 ; inputs:
-;  - spriteIndex: sp[0], which sprite to assign frame index.
 ;  - frameIndex: a, index of graphic frame.
+;  - spriteIndex: _CurrentSpriteIndex, which sprite to assign frame index.
 ; notes:
 ;  - Intended call from C.
 _SetSpriteFrameIndex:
-  pha
-
-  ldy #0
-  lda (sp),y
-  tax
-
-  pla
+  ldx _CurrentSpriteIndex
   jsr SetSpriteFrameIndex
 
-  jmp incsp1
+  rts

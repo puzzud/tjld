@@ -7,7 +7,7 @@ byte SpriteCollisionMasks[NUMBER_OF_SPRITES];
 byte SpriteCollisions[NUMBER_OF_SPRITES];
 
 void BaseInitializeSpritesPhysics(void);
-void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition);
+void CheckSpriteCollision(ScreenPoint* tempSpritePosition);
 void CalculateSpriteTileCorners(ScreenPoint* spritePosition, Vector2d* upperLeftSpriteTile, Vector2d* lowerRightSpriteTile);
 
 void BaseInitializeSpritesPhysics(void)
@@ -25,23 +25,23 @@ void BaseInitializeSpritesPhysics(void)
 	}
 }
 
-void MoveSprite(byte spriteIndex)
+void MoveSprite(void)
 {
-	Sprite* sprite = &Sprites[spriteIndex];
+	Sprite* sprite = &Sprites[CurrentSpriteIndex];
 	ScreenPoint* spritePosition = &sprite->position;
 
 	ScreenPoint tempSpritePosition;
 
-	tempSpritePosition.x = spritePosition->x + SpriteVelocitiesX[spriteIndex];
-	tempSpritePosition.y = spritePosition->y + SpriteVelocitiesY[spriteIndex];
+	tempSpritePosition.x = spritePosition->x + SpriteVelocitiesX[CurrentSpriteIndex];
+	tempSpritePosition.y = spritePosition->y + SpriteVelocitiesY[CurrentSpriteIndex];
 	
-	if (SpriteCollisionMasks[spriteIndex] != 0)
+	if (SpriteCollisionMasks[CurrentSpriteIndex] != 0)
 	{
-		CheckSpriteCollision(spriteIndex, &tempSpritePosition);
+		CheckSpriteCollision(&tempSpritePosition);
 	}
 
 	// NOTE: Needs to happen to ensure platform implementation hooks.
-	SetSpritePosition(spriteIndex, tempSpritePosition.x, tempSpritePosition.y);
+	SetSpritePosition(tempSpritePosition.x, tempSpritePosition.y);
 }
 
 inline void CalculateSpriteTileCorners(ScreenPoint* spritePosition, Vector2d* upperLeftSpriteTile, Vector2d* lowerRightSpriteTile)
@@ -58,9 +58,9 @@ inline void CalculateSpriteTileCorners(ScreenPoint* spritePosition, Vector2d* up
 // Checks for collision map overlap with temporary sprite position.
 // Adjusts this position to original X or Y position, depending on velocity.
 // Assumes sprite dimensions of 16x16.
-void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
+void CheckSpriteCollision(ScreenPoint* tempSpritePosition)
 {
-	Sprite* sprite = &Sprites[spriteIndex];
+	Sprite* sprite = &Sprites[CurrentSpriteIndex];
 	ScreenPoint* spritePosition = &sprite->position;
 	Vector2d spriteVelocity;
 
@@ -69,14 +69,14 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 	Vector2d upperLeftSpriteTile;
 	Vector2d lowerRightSpriteTile;
 
-	spriteVelocity.x = SpriteVelocitiesX[spriteIndex];
-	spriteVelocity.y = SpriteVelocitiesY[spriteIndex];
+	spriteVelocity.x = SpriteVelocitiesX[CurrentSpriteIndex];
+	spriteVelocity.y = SpriteVelocitiesY[CurrentSpriteIndex];
 
 	CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
 
-	SpriteCollisions[spriteIndex] = 0;
+	SpriteCollisions[CurrentSpriteIndex] = 0;
 
-	if ((SpriteCollisionMasks[spriteIndex] & COLLISION_FLAG_OBSTACLE) != 0)
+	if ((SpriteCollisionMasks[CurrentSpriteIndex] & COLLISION_FLAG_OBSTACLE) != 0)
 	{
 		if (spriteVelocity.y < 0)
 		{
@@ -87,7 +87,7 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 			{
 				tempSpritePosition->y = spritePosition->y;
 				CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
-				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
+				SpriteCollisions[CurrentSpriteIndex] = COLLISION_FLAG_OBSTACLE;
 			}
 		}
 		else if (spriteVelocity.y > 0)
@@ -99,7 +99,7 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 			{
 				tempSpritePosition->y = spritePosition->y;
 				CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
-				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
+				SpriteCollisions[CurrentSpriteIndex] = COLLISION_FLAG_OBSTACLE;
 			}
 		}
 
@@ -112,7 +112,7 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 			{
 				tempSpritePosition->x = spritePosition->x;
 				CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
-				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
+				SpriteCollisions[CurrentSpriteIndex] = COLLISION_FLAG_OBSTACLE;
 			}
 		}
 		else if (spriteVelocity.x > 0)
@@ -124,7 +124,7 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 			{
 				tempSpritePosition->x = spritePosition->x;
 				CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
-				SpriteCollisions[spriteIndex] = COLLISION_FLAG_OBSTACLE;
+				SpriteCollisions[CurrentSpriteIndex] = COLLISION_FLAG_OBSTACLE;
 			}
 		}
 
@@ -132,7 +132,7 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 		//CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
 	}
 
-	if ((SpriteCollisionMasks[spriteIndex] & ~COLLISION_FLAG_OBSTACLE) != 0)
+	if ((SpriteCollisionMasks[CurrentSpriteIndex] & ~COLLISION_FLAG_OBSTACLE) != 0)
 	{
 		// TODO: Should be updated, but apparently doesn't matter much.
 		//CalculateSpriteTileCorners(tempSpritePosition, &upperLeftSpriteTile, &lowerRightSpriteTile);
@@ -143,7 +143,7 @@ void CheckSpriteCollision(byte spriteIndex, ScreenPoint* tempSpritePosition)
 		{
 			for (x = upperLeftSpriteTile.x; x <= lowerRightSpriteTile.x; ++x)
 			{
-				SpriteCollisions[spriteIndex] |= GetTileMapCellCollisionCode(x, y);
+				SpriteCollisions[CurrentSpriteIndex] |= GetTileMapCellCollisionCode(x, y);
 			}	
 		}
 	}

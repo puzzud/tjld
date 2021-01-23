@@ -1,10 +1,7 @@
-//#include <sdl/video.h>
-
 #include <stdio.h>
 #include <string.h>
 
 #include <puzl.h>
-//#include <sdl/color.h>
 
 byte TileMapShapeCodes[TILEMAP_WIDTH * TILEMAP_HEIGHT];
 byte TileMapColorCodes[TILEMAP_WIDTH * TILEMAP_HEIGHT];

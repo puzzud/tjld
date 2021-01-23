@@ -50,6 +50,8 @@ def ReadXpmHeaderData(inputFile):
 	
 	numberOfColors = int(info[2])
 	for i in range(numberOfColors):
+		i = i # pylint.
+
 		paletteEntryString = GetXpmQuotedLineString(inputFile.readline()) # "  c #3F3F3F",
 		paletteEntry = paletteEntryString.split(" c ")
 		colorSymbol = paletteEntry[0]

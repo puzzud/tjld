@@ -68,6 +68,8 @@ class Xpm2CFacility:
 		numberOfRows = 21
 
 		for i in range(0, numberOfRows):
+			i = i # pylint.
+
 			row = []
 			if len(spriteFrame) > 0:
 				row = spriteFrame[0:3]

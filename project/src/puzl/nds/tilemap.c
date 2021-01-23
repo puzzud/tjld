@@ -164,10 +164,10 @@ void SetTileMapCellCollisionCode(byte x, byte y, byte collisionCode)
 	TileMapCollisionCodes[tileMapOffset] = collisionCode;
 }
 
-void PrintText(const char* text, byte x, byte y)
+void PrintText(const char* text)
 {
 	word* screenBaseBlockData = (word*)bgGetMapPtr(BackgroundId);
-	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
+	const unsigned int tileMapOffset = (PrintY * TILEMAP_WIDTH) + PrintX;
 	
 	word paletteBankOverlay = (PrintColor << 12);
 
@@ -188,4 +188,6 @@ void PrintText(const char* text, byte x, byte y)
 
 		++charIndex;
 	}
+
+	PrintX += charIndex;
 }

@@ -78,9 +78,9 @@ void SetTileMapCellCollisionCode(byte x, byte y, byte collisionCode)
 	TileMapCollisionCodes[tileMapOffset] = collisionCode;
 }
 
-void PrintText(const char* text, byte x, byte y)
+void PrintText(const char* text)
 {
-	const unsigned int tileMapOffset = (y * TILEMAP_WIDTH) + x;
+	const unsigned int tileMapOffset = (PrintY * TILEMAP_WIDTH) + PrintX;
 	
 	byte characterCode;
 	int charIndex = 0;
@@ -98,4 +98,6 @@ void PrintText(const char* text, byte x, byte y)
 
 		++charIndex;
 	}
+
+	PrintX += charIndex;
 }

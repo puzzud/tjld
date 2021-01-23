@@ -1,5 +1,9 @@
 ; 6502 tilemap.asm
 
+.export _PrintColor
+.export _PrintX
+.export _PrintY
+
 .export _GetTileMapCellCollisionCode
 .export GetTileMapCellCollisionCode
 .export _SetTileMapCellCollisionCode
@@ -12,6 +16,17 @@
 
 .import TileMapCollisionOffsetTableLo
 .import TileMapCollisionOffsetTableHi
+
+.segment "BSS"
+
+_PrintColor:
+  .res 1
+
+_PrintX:
+  .res 1
+
+_PrintY:
+  .res 1
 
 .segment "CODE"
 

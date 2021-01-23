@@ -68,7 +68,7 @@ void FASTCALL SetTileMapCellShape(byte x, byte y, byte shapeCode);
 void FASTCALL SetTileMapCellColor(byte x, byte y, byte colorCode);
 void FASTCALL SetTileMapCellCollisionCode(byte x, byte y, byte collisionCode);
 
-extern void FASTCALL PrintText(const char* text, byte x, byte y);
+extern void FASTCALL PrintText(const char* text);
 
 void FASTCALL EnableSprite(byte enable);
 signed short FASTCALL GetSpritePositionX(void);

@@ -6,15 +6,15 @@ import xpm
 import xpm2c_base
 import xpm2c_c64
 
-def PrintAllFrames(xpmData, frameWidth, frameHeight, xpm2CFacility):
-	sheetFrameWidth = int((xpmData.headerData.width - 2) / frameWidth) # 2 for grid.
-	sheetFrameHeight = int((xpmData.headerData.height - 2) / frameHeight)
+def PrintAllFrames(xpmData, xpm2CFacility):
+	sheetFrameWidth = int(xpmData.headerData.width / (xpm2CFacility.frameWidth + 1)) # 1 for grid.
+	sheetFrameHeight = int(xpmData.headerData.height / (xpm2CFacility.frameHeight + 1)) # 1 for grid.
 
 	frames = []
 
 	for y in range(sheetFrameHeight):
 		for x in range(sheetFrameWidth):
-			frames.append(xpm2CFacility.GenerateFrameRowsFromXpm(xpmData, x, y, frameWidth, frameHeight))
+			frames.append(xpm2CFacility.GenerateFrameRowsFromXpm(xpmData, x, y))
 	
 	for i in range(0, len(frames)):
 		xpm2CFacility.PrintNextFrame(frames[i])
@@ -58,7 +58,7 @@ if inputFile:
 	xpmData.imageData = xpm.ReadXpmImageData(inputFile, xpmData.headerData)
 
 	print("{")
-	PrintAllFrames(xpmData, 16, 16, xpm2CFacility)
+	PrintAllFrames(xpmData, xpm2CFacility)
 	print("\n};")
 
 	inputFile.close()

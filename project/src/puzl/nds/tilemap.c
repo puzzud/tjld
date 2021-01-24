@@ -13,7 +13,7 @@
 
 int BackgroundId;
 
-extern const byte CharacterSet[NUMBER_OF_CHARACTERS][CHARACTER_HEIGHT];
+extern const byte CharacterSet[NUMBER_OF_CHARACTERS][CHARACTER_HEIGHT][CHARACTER_WIDTH];
 byte TilesetData[NUMBER_OF_CHARACTERS * CHARACTER_HEIGHT * 4]; // 4 => 4bpp.
 
 u16 BackgroundPalette[256];
@@ -83,28 +83,17 @@ void InitializeTilemapGraphics(void)
 
 void DrawCharacterToTilesetData(byte shapeCode)
 {
-	unsigned int y;
-	unsigned int rowPixels;
-	unsigned int pixelIndex;
+	unsigned int x, y;
 	byte colorCode;
-	byte rowColorCodes[8];
 
 	unsigned int charBaseBlockDataIndex = ((TILE_HEIGHT * 4) * shapeCode); // 4 => 4bpp.
 
 	for (y = 0; y < TILE_HEIGHT; ++y)
 	{
-		rowPixels = CharacterSet[shapeCode][y];
-		
-		for (pixelIndex = 0; pixelIndex < 8; ++pixelIndex)
+		for (x = 0; x < TILE_WIDTH;)
 		{
-			rowColorCodes[pixelIndex] = (rowPixels & 0x80) != 0 ? 1 : 0;
-			rowPixels <<= 1;
-		}
-
-		for (pixelIndex = 0; pixelIndex < 8;)
-		{
-			colorCode = rowColorCodes[pixelIndex++];
-			colorCode |= rowColorCodes[pixelIndex++] << 4;
+			colorCode = CharacterSet[shapeCode][y][x++];
+			colorCode |= CharacterSet[shapeCode][y][x++] << 4;
 			
 			TilesetData[charBaseBlockDataIndex] = colorCode;
 

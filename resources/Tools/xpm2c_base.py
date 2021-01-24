@@ -6,13 +6,20 @@ class Xpm2CFacility:
 	def __init__(self, type):
 		self.type = type
 
-	def GenerateFrameRowsFromXpm(self, xpmData, x, y, frameWidth, frameHeight):
-		pixelX = (x * frameWidth) + x + 1
-		pixelY = (y * frameHeight) + y + 1
+		if type == "chr":
+			self.frameWidth = 8
+			self.frameHeight = 8
+		elif self.type == "spr":
+			self.frameWidth = 16
+			self.frameHeight = 16
+
+	def GenerateFrameRowsFromXpm(self, xpmData, x, y):
+		pixelX = (x * self.frameWidth) + x + 1
+		pixelY = (y * self.frameHeight) + y + 1
 
 		frameRows = []
-		for rowIndex in range(0, frameHeight):
-			rowString = xpmData.imageData.rows[pixelY + rowIndex][pixelX:pixelX + frameWidth]
+		for rowIndex in range(0, self.frameHeight):
+			rowString = xpmData.imageData.rows[pixelY + rowIndex][pixelX:pixelX + self.frameWidth]
 			frameRows.append(self.GenerateRowFromRowString(rowString, xpmData.headerData.palette))
 
 		return frameRows

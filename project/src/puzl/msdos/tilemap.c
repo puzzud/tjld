@@ -7,7 +7,7 @@
 
 #include <c/tilemap.c>
 
-extern const byte CharacterSet[NUMBER_OF_CHARACTERS][CHARACTER_HEIGHT];
+extern const byte CharacterSet[NUMBER_OF_CHARACTERS][CHARACTER_HEIGHT][CHARACTER_WIDTH];
 
 void DrawCharacter(unsigned int x, unsigned int y, byte shapeCode, byte colorCode)
 {

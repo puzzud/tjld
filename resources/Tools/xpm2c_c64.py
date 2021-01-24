@@ -6,21 +6,29 @@ class Xpm2CFacility:
 	def __init__(self, type):
 		self.type = type
 
-	def GenerateFrameRowsFromXpm(self, xpmData, x, y, frameWidth, frameHeight):
-		pixelX = (x * frameWidth) + x + 1
-		pixelY = (y * frameHeight) + y + 1
+		if type == "chr":
+			self.frameWidth = 8
+			self.frameHeight = 8
+		elif self.type == "spr":
+			self.frameWidth = 16
+			self.frameHeight = 16
+
+	def GenerateFrameRowsFromXpm(self, xpmData, x, y):
+		pixelX = (x * self.frameWidth) + x + 1
+		pixelY = (y * self.frameHeight) + y + 1
 
 		frameRows = []
-		for rowIndex in range(0, frameHeight):
-			rowString = xpmData.imageData.rows[pixelY + rowIndex][pixelX:pixelX + frameWidth]
+		for rowIndex in range(0, self.frameHeight):
+			rowString = xpmData.imageData.rows[pixelY + rowIndex][pixelX:pixelX + self.frameWidth]
 			frameRows += self.GenerateRowFromRowString(rowString, xpmData.headerData.palette)
 
-		# 21 C64 sprite height.
-		for rowIndex in range(21 - frameHeight):
-			row = [0, 0, 0]
-			frameRows += row
-		
-		frameRows.append(0) # Last unused byte.
+		if self.type == "spr":
+			# 21 C64 sprite height.
+			for rowIndex in range(21 - self.frameHeight):
+				row = [0, 0, 0]
+				frameRows += row
+				
+				frameRows.append(0) # Last unused byte.
 
 		return frameRows
 
@@ -68,7 +76,9 @@ class Xpm2CFacility:
 		
 		print("\t{")
 
-		numberOfRows = 21
+		numberOfRows = self.frameHeight
+		if self.type == "spr":
+			numberOfRows = 21
 
 		for i in range(0, numberOfRows):
 			i = i # pylint.
@@ -91,12 +101,13 @@ class Xpm2CFacility:
 
 		sys.stdout.write("\t\t")
 
-		line = "0"
-		line += "".zfill(minimumLineLength - len(line)).replace('0', ' ')
-		line += " // " + "Unused byte."
-		print(line)
+		if self.type == "spr":
+			line = "0"
+			line += "".zfill(minimumLineLength - len(line)).replace('0', ' ')
+			line += " // " + "Unused byte."
+			print(line)
 
-		sys.stdout.write("\t}")
+			sys.stdout.write("\t}")
 
 	def GetPreviewStringFromRow(self, row):
 		previewString = ""

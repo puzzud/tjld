@@ -7,45 +7,31 @@
 
 #include <c/tilemap.c>
 
-extern const byte CharacterSet[NUMBER_OF_CHARACTERS][CHARACTER_HEIGHT];
+extern const byte CharacterSet[NUMBER_OF_CHARACTERS][CHARACTER_HEIGHT][CHARACTER_WIDTH];
 
 void DrawCharacter(unsigned int x, unsigned int y, byte shapeCode, byte colorCode)
 {
-	const byte* characterOffset = &CharacterSet[shapeCode];
+	const byte* characterOffset = (const byte*)&CharacterSet[shapeCode]; // NOTE: This only okay because it's a byte array?
 	byte FAR* videoBufferOffset = &DoubleBuffer[(y * SCREEN_WIDTH) + x];
 
-	int yCounter = TILE_HEIGHT;
-	int xCounter;
-	byte rowPixels;
+	unsigned int xIndex, yIndex;
+	byte characterColorCode;
 
-	do
+	for (yIndex = 0; yIndex < CHARACTER_HEIGHT; ++yIndex)
 	{
-		xCounter = TILE_WIDTH;
-
-		rowPixels = *characterOffset;
-		if (rowPixels != 0)
+		for (xIndex = 0; xIndex < CHARACTER_WIDTH; ++xIndex)
 		{
-			do
+			// TODO: Actually determine colorCode.
+			characterColorCode = *characterOffset;
+			if (characterColorCode != 0)
 			{
-				if ((rowPixels & 0x80) != 0)
-				{
-					*videoBufferOffset = colorCode;
-				}
-
-				++videoBufferOffset;
-
-				rowPixels <<= 1;
+				*videoBufferOffset = colorCode;
 			}
-			while (--xCounter != 0);
-
-			videoBufferOffset += SCREEN_WIDTH - TILE_WIDTH;
-		}
-		else
-		{
-			videoBufferOffset += SCREEN_WIDTH;
+			
+			++videoBufferOffset;
+			++characterOffset;
 		}
 
-		++characterOffset;
+		videoBufferOffset += SCREEN_WIDTH - TILE_WIDTH;
 	}
-	while (--yCounter != 0);
 }

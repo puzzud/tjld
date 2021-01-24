@@ -26,7 +26,7 @@ typedef struct
 
 extern SDL_Renderer* Renderer;
 
-extern const byte CharacterSet[NUMBER_OF_CHARACTERS][CHARACTER_HEIGHT];
+extern const byte CharacterSet[NUMBER_OF_CHARACTERS][CHARACTER_HEIGHT][CHARACTER_WIDTH];
 extern const byte SpriteSet[NUMBER_OF_SPRITE_FRAMES][SPRITE_WIDTH][SPRITE_WIDTH];
 
 SDL_Surface* CreateSurface(unsigned int width, unsigned int height);

@@ -12,7 +12,7 @@ def PrintAllCharacters(inputFile):
 			print(",")
 
 def PrintNextCharacter(bytes):
-	print "\t{"
+	print("\t{")
 
 	numberOfBytes = len(bytes)
 
@@ -36,7 +36,7 @@ def PrintNextCharacter(bytes):
 	sys.stdout.write("\t}")
 
 if len(sys.argv) != 2:
-	print "Only supply a single parameter with path to a charset binary file."
+	print("Only supply a single parameter with path to a charset binary file.")
 	sys.exit(1)
 
 inputFileName = str(sys.argv[1])
@@ -47,12 +47,12 @@ inputFile = None
 try:
 	inputFile = open(inputFileName, 'rb')
 except IOError:
-	print "Input file does not exist or cannot be opened."
+	print("Input file does not exist or cannot be opened.")
 	sys.exit(2)
 
 if inputFile:
-	print "{"
+	print("{")
 	PrintAllCharacters(inputFile)
-	print "\n};"
+	print("\n};")
 
 	inputFile.close()

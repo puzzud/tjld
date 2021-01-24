@@ -3,6 +3,7 @@
 
 #include <puzl.h>
 
+#define CHARACTER_WIDTH 8
 #define CHARACTER_HEIGHT 8
 #define NUMBER_OF_CHARACTERS 256
 

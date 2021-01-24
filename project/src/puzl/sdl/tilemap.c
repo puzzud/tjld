@@ -79,9 +79,8 @@ void PopulateCharacterSetSurfaceFromCharacterSet(SDL_Surface* characterSetSurfac
 
 void PopulateCharacterSurfaceFromCharacter(SDL_Surface* characterSurface, unsigned int characterIndex)
 {
-	const byte* characterBytes = &CharacterSet[characterIndex][0];
-	unsigned int byteIndex, bitIndex;
-	byte characterByte;
+	unsigned int x, y;
+	byte colorCode;
 	unsigned int* pixels;
 
 	if (SDL_MUSTLOCK(characterSurface))
@@ -91,13 +90,14 @@ void PopulateCharacterSurfaceFromCharacter(SDL_Surface* characterSurface, unsign
 
 	pixels = (unsigned int*)characterSurface->pixels;
 
-	for (byteIndex = 0; byteIndex < CHARACTER_HEIGHT; ++byteIndex)
+	for (y = 0; y < CHARACTER_HEIGHT; ++y)
 	{
-		characterByte = *(characterBytes + byteIndex);
-
-		for (bitIndex = 0; bitIndex < 8; ++bitIndex)
+		for (x = 0; x < CHARACTER_WIDTH; ++x)
 		{
-			*((unsigned int*)pixels) = ((characterByte >> (7 - bitIndex)) & 1) != 0 ?
+			colorCode = CharacterSet[characterIndex][y][x];
+
+			// TODO: Actually, check color code.
+			*((unsigned int*)pixels) = colorCode != 0 ?
 				SDL_MapRGBA(characterSurface->format, 255, 255, 255, 255) :
 				SDL_MapRGBA(characterSurface->format, 0, 0, 0, 0);
 			

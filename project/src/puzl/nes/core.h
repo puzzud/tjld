@@ -1,5 +1,5 @@
-#ifndef PUZL_C64_CORE_H
-#define PUZL_C64_CORE_H
+#ifndef PUZL_NES_CORE_H
+#define PUZL_NES_CORE_H
 
 #include <core.h>
 
@@ -10,6 +10,7 @@ extern byte Running;
 extern byte SpeedBitPatternByteTimer;
 extern byte SpeedBitFlag;
 
+// TODO: Probably don't need.
 extern byte NthBitFlags[8];
 extern byte InverseNthBitFlags[8];
 

@@ -5,6 +5,7 @@ import sys
 import xpm
 import xpm2c_base
 import xpm2c_c64
+import xpm2c_nes
 
 def PrintAllFrames(xpmData, xpm2CFacility):
 	sheetFrameWidth = int(xpmData.headerData.width / (xpm2CFacility.frameWidth + 1)) # 1 for grid.
@@ -48,6 +49,8 @@ if inputFile:
 		xpm2CFacility = xpm2c_base.Xpm2CFacility(type)
 	elif target == "c64":
 		xpm2CFacility = xpm2c_c64.Xpm2CFacility(type)
+	elif target == "nes":
+		xpm2CFacility = xpm2c_nes.Xpm2CFacility(type)
 	
 	if xpm2CFacility == None:
 		print("Did not supply a valid target: " + target)

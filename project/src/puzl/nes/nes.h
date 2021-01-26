@@ -125,11 +125,11 @@ typedef enum
 	COLOR_GREY_3      = 0x10
 } ColorCode;
 
-// TODO: Figure out what should go here.
-#define SCREEN_CHAR_SIZE              0x400
-
 #define SCREEN_CHAR_WIDTH       32
 #define SCREEN_CHAR_HEIGHT      30
+
+// TODO: Figure out what should go here.
+#define SCREEN_CHAR_SIZE (SCREEN_CHAR_WIDTH * SCREEN_CHAR_HEIGHT)
 
 #define NUMBER_OF_HARDWARE_SPRITES   64
 #define HARDWARE_SPRITE_WIDTH        8

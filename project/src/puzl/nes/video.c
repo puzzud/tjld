@@ -40,7 +40,7 @@ void ClearTileMapCollisionCodes(void)
 
 	for (index = 0; index < SCREEN_CHAR_SIZE; ++index)
 	{
-		//TileMapCollisionCodes[index] = 0;
+		TileMapCollisionCodes[index] = 0;
 	}
 }
 

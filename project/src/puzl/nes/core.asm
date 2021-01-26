@@ -1,4 +1,4 @@
-.import _InitializeVideo
+.import InitializeVideo
 .import InitializeInput
 .import InitializeAudio
 
@@ -75,6 +75,7 @@ Reset:
   cld ; Disable decimal mode.
     
   lda #0
+  tax
 @clearMemory:
   sta $00,x ;7
   sta $0100,x ;28
@@ -89,40 +90,6 @@ Reset:
   
   dex ; x = 0xff
   txs ; Set up CPU stack.
-  
-  inx ; x = 0
-    
-@waitSync1:
-  bit PPU_STATUS
-@waitSync1Loop:
-  bit PPU_STATUS
-  bpl @waitSync1Loop
-
-@clearPalette:
-  ldy #$3f
-  sty PPU_VRAM_ADDR2
-  stx PPU_VRAM_ADDR2
-  
-  lda #$0f
-  ldx #32
-@clearPaletteLoop:
-  sta PPU_VRAM_IO
-  dex
-  bne @clearPaletteLoop
-
-@clearVram:
-  txa
-  ldy #$20
-  sty PPU_VRAM_ADDR2
-  sta PPU_VRAM_ADDR2
-  
-  ldy #16
-@clearVramLoop:
-  sta PPU_VRAM_IO
-  inx
-  bne @clearVramLoop
-  dey
-  bne @clearVramLoop
 
   ; Set parameter stack pointer.
   lda #<(__RAM_START__+__RAM_SIZE__)
@@ -130,28 +97,19 @@ Reset:
   lda #>(__RAM_START__+__RAM_SIZE__)
   sta sp+1
 
-@waitSync2:
-  bit PPU_STATUS
-@waitSync2Loop:
-  bit PPU_STATUS
-  bpl @waitSync2Loop
-
-  lda #0
-  sta PPU_VRAM_ADDR1
-  sta PPU_VRAM_ADDR1
-
   jsr InitializeSequencer
 
+  jsr InitializeVideo
   jsr InitializeInput
   jsr InitializeAudio
 
   jsr _InitializeNodeTree
   
-  ; Enable NMI.
+  ; Enable NMI and various video system values.
   lda #%10010000
   sta PPU_CTRL1
 
-  lda #$1e
+  lda #%00011110
   sta PPU_CTRL2
 
   ;cli

@@ -139,15 +139,20 @@ Reset:
   lda #0
   sta PPU_VRAM_ADDR1
   sta PPU_VRAM_ADDR1
-  
-  jsr _InitializeInput
-  jsr InitializeAudio
+
+  ;jsr _InitializeInput
+  ;jsr InitializeAudio
 
   jsr _InitializeNodeTree
   
   ; Enable NMI.
-  lda #%10000000
+  lda #%10010000
   sta PPU_CTRL1
+
+  lda #$1e
+  sta PPU_CTRL2
+
+  ;cli
   
 @mainLoop:
   lda NmiStatus
@@ -156,8 +161,11 @@ Reset:
   lda #0
   sta NmiStatus
   
-  jsr _UpdateInput
+  ;jsr _UpdateInput
   jsr _Process
+
+  lda #1
+  sta _UpdatePaletteFlag
   
   ;lda #%00000000
   ;sta PPU_CTRL1

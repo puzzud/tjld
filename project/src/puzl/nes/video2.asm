@@ -2,10 +2,12 @@
 
 .export _InitializeVideo
 
-.export ScreenLineOffsetTableLo
-.export ScreenLineOffsetTableHi
-.export ScreenColorLineOffsetTableLo
-.export ScreenColorLineOffsetTableHi
+.export _SetBackgroundColor
+
+;.export ScreenLineOffsetTableLo
+;.export ScreenLineOffsetTableHi
+;.export ScreenColorLineOffsetTableLo
+;.export ScreenColorLineOffsetTableHi
 .export TileMapCollisionOffsetTableLo
 .export TileMapCollisionOffsetTableHi
 .export _TileMapCollisionCodes
@@ -15,6 +17,10 @@
 .importzp sp, sreg, regsave, regbank
 .importzp tmp1, tmp2, tmp3, tmp4, ptr1, ptr2, ptr3, ptr4
 .macpack longbranch
+
+.importzp _UpdatePaletteFlag
+.import _CharacterPalette
+.import _SpritePalette
 
 .import _ClearTileMapCollisionCodes
 
@@ -27,14 +33,16 @@ SCREEN_CHAR = $2000
 SCREEN_COLOR = $2000
 
 .segment "BSS"
-  
+
 ; TODO: This should probably be moved elsewhere,
 ; particularly if it is made of 2x2 character blocks.
 _TileMapCollisionCodes:
 ; TODO: Figure out what should go here.
 ;  .res (256 * 224 / 8)
 ;  .res SCREEN_CHAR_SIZE
+;  .res SCREEN_CHAR_WIDTH * SCREEN_CHAR_HEIGHT
   .res 1
+  .res SCREEN_CHAR_SIZE
 
 .segment "ZEROPAGE"
 
@@ -46,7 +54,18 @@ _InitializeVideo:
   ;jsr InitializeSprites
 
   rts
-  
+
+;------------------------------------------------------------------
+_SetBackgroundColor:
+  ; First entry of first sprite palette is apparently good enough to
+  ; set background color.
+  sta _SpritePalette
+
+  lda #1
+  sta _UpdatePaletteFlag
+
+  rts
+
 ;------------------------------------------------------------------
 .macro sloTable baseAddress, loOrHi, n
   .local lineNumber
@@ -72,21 +91,21 @@ _InitializeVideo:
   .endif
 .endmacro
 
-;------------------------------------------------------------------
-; Preprocessed table of video RAM addresses for each start of a line.
-ScreenLineOffsetTableLo:
-  sloTable SCREEN_CHAR, 0
+; ;------------------------------------------------------------------
+; ; Preprocessed table of video RAM addresses for each start of a line.
+; ScreenLineOffsetTableLo:
+;   sloTable SCREEN_CHAR, 0
 
-ScreenLineOffsetTableHi:
-  sloTable SCREEN_CHAR, 1
+; ScreenLineOffsetTableHi:
+;   sloTable SCREEN_CHAR, 1
 
-;------------------------------------------------------------------
-; Preprocessed table of video color RAM addresses for each start of a line.
-ScreenColorLineOffsetTableLo:
-  sloTable SCREEN_COLOR, 0
+; ;------------------------------------------------------------------
+; ; Preprocessed table of video color RAM addresses for each start of a line.
+; ScreenColorLineOffsetTableLo:
+;   sloTable SCREEN_COLOR, 0
 
-ScreenColorLineOffsetTableHi:
-  sloTable SCREEN_COLOR, 1
+; ScreenColorLineOffsetTableHi:
+;   sloTable SCREEN_COLOR, 1
 
 ;------------------------------------------------------------------
 ; Preprocessed table of collision map addresses for each start of a line.

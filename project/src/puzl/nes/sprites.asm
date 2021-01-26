@@ -6,6 +6,10 @@
 .export _SetSpriteSeconaryColor
 .export _SetSpriteTertiaryColor
 
+.importzp _UpdatePaletteFlag
+.import _SpritePalette
+.import _CharacterPalette
+
 .autoimport on
   
 .importzp sp, sreg, regsave, regbank
@@ -70,16 +74,43 @@ SetSpriteFrameIndex:
 ;  - colorCode: a, color code.
 ;  - spriteIndex: _CurrentSpriteIndex, which sprite to assign color.
 _SetSpriteColor:
+  ldx #2
+  
+  sta _SpritePalette+(4*0),x
+  sta _SpritePalette+(4*1),x
+  sta _SpritePalette+(4*2),x
+  sta _SpritePalette+(4*3),x
+
+  stx _UpdatePaletteFlag ; NOTE: Just needs to be nonzero.
+
   rts
 
 ;------------------------------------------------------------------
 ; inputs:
 ;  - colorCode: a, color code.
 _SetSpriteSeconaryColor:
+  ldx #1
+  
+  sta _SpritePalette+(4*0),x
+  sta _SpritePalette+(4*1),x
+  sta _SpritePalette+(4*2),x
+  sta _SpritePalette+(4*3),x
+
+  stx _UpdatePaletteFlag
+
   rts
 
 ;------------------------------------------------------------------
 ; inputs:
 ;  - colorCode: a, color code.
 _SetSpriteTertiaryColor:
+  ldx #3
+  
+  sta _SpritePalette+(4*0),x
+  sta _SpritePalette+(4*1),x
+  sta _SpritePalette+(4*2),x
+  sta _SpritePalette+(4*3),x
+
+  stx _UpdatePaletteFlag ; NOTE: Just needs to be nonzero.
+  
   rts

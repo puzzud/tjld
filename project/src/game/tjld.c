@@ -45,6 +45,7 @@ void InitializeNodeTree(void)
 	InitalizeSpeed();
 
 	LoadLevel();
+	//SetBackgroundColor(COLOR_BLUE);
 	
 	Score = 0;
 	SpriteClimbing = 0;
@@ -66,20 +67,23 @@ void InitializeNodeTree(void)
 		(TARGET_SCREEN_TILE_OFFSET_X * TILE_WIDTH) + (TILE_WIDTH * 2),
 		TARGET_SCREEN_TILE_OFFSET_Y + TARGET_SCREEN_HEIGHT - (TILE_HEIGHT * 2) - SPRITE_HEIGHT
 	);
-	SetSpriteFrameIndex(1);
+	//SetSpriteFrameIndex(1);
 	SetSpriteColor(COLOR_RED);
-	SetSpriteAnimationSet(DwarfAnimationSet);
+	//SetSpriteAnimationSet(DwarfAnimationSet);
 
 	SpriteCollisionMasks[CurrentSpriteIndex] = COLLISION_FLAG_OBSTACLE | COLLISION_FLAG_LADDER;
 
-	CheckSpriteTile();
+	//CheckSpriteTile();
 
-	PlayAudioPattern(0, Voice1Start, 1);
-	PlayAudioPattern(2, Voice2Start, 1);
+	//PlayAudioPattern(0, Voice1Start, 1);
+	//PlayAudioPattern(2, Voice2Start, 1);
 }
 
 void Process(void)
 {
+	static byte colorCode = COLOR_GREEN;
+	SetBackgroundColor(colorCode++ / 32);
+	/*
 	UpdateIntendedDirection();
 
 	CurrentSpriteIndex = PLAYER_SPRITE_INDEX;
@@ -91,14 +95,14 @@ void Process(void)
 		{
 			if (IsMoving(SpriteSpeedPatternIndex) != 0)
 			{
-				CheckSpriteClimbing();
+				//CheckSpriteClimbing();
 
 				SpriteVelocitiesX[CurrentSpriteIndex] = IntendedDirection.x;
 				SpriteVelocitiesY[CurrentSpriteIndex] = IntendedDirection.y;
 
-				MoveSprite();
+				//MoveSprite();
 
-				CheckSpriteTile();
+				//CheckSpriteTile();
 			}
 		}
 
@@ -106,7 +110,8 @@ void Process(void)
 	}
 	while (--LoopIndex != 0);
 
-	UpdateSpriteAnimation();
+	//UpdateSpriteAnimation();
+	*/
 }
 
 void UpdateIntendedDirection(void)

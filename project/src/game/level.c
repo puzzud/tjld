@@ -34,22 +34,22 @@ void FASTCALL GenerateBlock(byte x, byte y, byte shape, byte color, byte collisi
 
 	SetTileMapCellShape(blockX, blockY, shape);
 	SetTileMapCellColor(blockX, blockY, color);
-	SetTileMapCellCollisionCode(blockX, blockY, collision);
+	//SetTileMapCellCollisionCode(blockX, blockY, collision);
 
 	++blockX;
 	SetTileMapCellShape(blockX, blockY, shape);
 	SetTileMapCellColor(blockX, blockY, color);
-	SetTileMapCellCollisionCode(blockX, blockY, collision);
+	//SetTileMapCellCollisionCode(blockX, blockY, collision);
 
 	++blockY;
 	SetTileMapCellShape(blockX, blockY, shape);
 	SetTileMapCellColor(blockX, blockY, color);
-	SetTileMapCellCollisionCode(blockX, blockY, collision);
+	//SetTileMapCellCollisionCode(blockX, blockY, collision);
 
 	--blockX;
 	SetTileMapCellShape(blockX, blockY, shape);
 	SetTileMapCellColor(blockX, blockY, color);
-	SetTileMapCellCollisionCode(blockX, blockY, collision);
+	//SetTileMapCellCollisionCode(blockX, blockY, collision);
 }
 
 void FASTCALL GeneratePlatformBlock(byte x, byte y)

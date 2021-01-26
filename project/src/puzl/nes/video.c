@@ -28,20 +28,6 @@ byte VideoIndex;
 
 void FASTCALL UpdatePalette(byte id);
 
-void FASTCALL SetBackgroundColor(byte color)
-{
-  // Write to sprite cache palette entry 0
-  // (should act as background).
-  SpritePalette[0] =
-  CharacterPalette[0 * NUMBER_OF_COLORS_PER_PALETTE_ENTRY] =
-  CharacterPalette[1 * NUMBER_OF_COLORS_PER_PALETTE_ENTRY] =
-  CharacterPalette[2 * NUMBER_OF_COLORS_PER_PALETTE_ENTRY] =
-  CharacterPalette[3 * NUMBER_OF_COLORS_PER_PALETTE_ENTRY] = color;
-  
-  // Flag video engine to update palette.
-  UpdatePaletteFlag = 1;
-}
-
 void SetSpritePosition(signed short x, signed short y)
 {
 	SetSpritePositionX(x);
@@ -121,7 +107,7 @@ void FASTCALL UpdatePalette(byte updateMode)
   SET_MEMORY_BYTE(PPU_VRAM_ADDR2, 0);
   SET_MEMORY_BYTE(PPU_VRAM_ADDR2, 0);
   
-  UpdatePaletteFlag = 0;
+  //UpdatePaletteFlag = 0;
 }
 
 void FASTCALL SetCharacterColor(byte index, byte color)

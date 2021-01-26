@@ -123,8 +123,7 @@ Reset:
   
   jsr UpdateInput
   jsr _Process
-
-  lda #1
+  
   sta _UpdatePaletteFlag
   
   ;lda #%00000000

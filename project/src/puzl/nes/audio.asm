@@ -65,11 +65,8 @@ InitializeVoices:
   ; 50% duty, envelope and length counter off. No volume.
   lda #%11110000
   sta APU_PULSE1CTRL
-  sta VoiceControlCaches+0
-  
-  ; 50% duty, envelope and length counter off. No volume.
-  lda #%11110000
   sta APU_PULSE2CTRL
+  sta VoiceControlCaches+0
   sta VoiceControlCaches+1
   
   ; Length counter and linear control off. No sound.

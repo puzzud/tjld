@@ -142,7 +142,7 @@ Reset:
 
   jsr InitializeSequencer
 
-  ;jsr _InitializeInput
+  jsr _InitializeInput
   jsr InitializeAudio
 
   jsr _InitializeNodeTree
@@ -163,7 +163,7 @@ Reset:
   lda #0
   sta NmiStatus
   
-  ;jsr _UpdateInput
+  jsr _UpdateInput
   jsr _Process
 
   lda #1

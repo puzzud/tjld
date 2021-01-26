@@ -83,7 +83,7 @@ void Process(void)
 {
 	static byte colorCode = COLOR_GREEN;
 	SetBackgroundColor(colorCode++ / 32);
-	/*
+	
 	UpdateIntendedDirection();
 
 	CurrentSpriteIndex = PLAYER_SPRITE_INDEX;
@@ -111,7 +111,6 @@ void Process(void)
 	while (--LoopIndex != 0);
 
 	//UpdateSpriteAnimation();
-	*/
 }
 
 void UpdateIntendedDirection(void)

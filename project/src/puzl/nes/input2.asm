@@ -31,8 +31,52 @@ _ControllerButtonState:
 
 ;------------------------------------------------------------------
 _UpdateInput:
-  jsr UpdateControllerStates
+  ldx #1
+  stx APU_PAD1
+  dex
+  stx APU_PAD1
 
-;------------------------------------------------------------------
-UpdateControllerStates:
+  stx _ControllerButtonState ; x = 0
+  stx _ControllerAxisXState
+  stx _ControllerAxisYState
+
+  ; Get 8 button states.
+  ldx #8
+@gamepadButtonLoop:
+  lda APU_PAD1
+  lsr
+  ror _ControllerButtonState
+  dex
+  bne @gamepadButtonLoop
+  
+  ; Cache all button states in x.
+  lda _ControllerButtonState
+  tax
+
+  ; Shift out top nibble to store axis states.
+@processAxes:
+
+@processRight:
+  rol
+  bcc @processLeft
+  inc _ControllerAxisXState
+@processLeft:
+  rol
+  bcc @processDown
+  dec _ControllerAxisXState
+@processDown:
+  rol
+  bcc @processUp
+  inc _ControllerAxisYState
+@processUp:
+  rol
+  bcc @afterProcessAxes
+  dec _ControllerAxisYState
+@afterProcessAxes:
+
+  ; Restore from x and save 4 lower controller button states.
+  txa
+  and #%00001111
+  sta _ControllerButtonState
+
   rts

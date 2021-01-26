@@ -7,6 +7,4 @@
 #pragma zpsym ("ControllerAxisYState");
 #pragma zpsym ("ControllerButtonState");
 
-void FASTCALL InitializeInput(void);
-
 #endif

@@ -1,8 +1,8 @@
 .import _InitializeVideo
-.import _InitializeInput
+.import InitializeInput
 .import InitializeAudio
 
-.import _UpdateInput
+.import UpdateInput
 
 .import _UpdatePalette
 
@@ -142,7 +142,7 @@ Reset:
 
   jsr InitializeSequencer
 
-  jsr _InitializeInput
+  jsr InitializeInput
   jsr InitializeAudio
 
   jsr _InitializeNodeTree
@@ -163,7 +163,7 @@ Reset:
   lda #0
   sta NmiStatus
   
-  jsr _UpdateInput
+  jsr UpdateInput
   jsr _Process
 
   lda #1

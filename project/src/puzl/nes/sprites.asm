@@ -8,7 +8,6 @@
 
 .importzp _UpdatePaletteFlag
 .import _SpritePalette
-.import _CharacterPalette
 
 .autoimport on
   
@@ -43,7 +42,7 @@ _EnableSprite:
   rts
 
 ;------------------------------------------------------------------
-; Update C64 sprite register with the value in SpritePositionsXLo/Hi.
+; Update nes sprite registers with the value in SpritePositionsXLo/Hi.
 ;
 ; inputs:
 ;  - spriteIndex: a, which sprite to update position x.
@@ -53,7 +52,7 @@ UpdateSpritePositionX:
   rts
 
 ;------------------------------------------------------------------
-; Update C64 sprite register with the value in SpritePositionsYLo.
+; Update nes sprite registers with the value in SpritePositionsYLo.
 ;
 ; inputs:
 ;  - spriteIndex: a, which sprite to update position y.

@@ -1,6 +1,7 @@
 ; nes input2.asm
 
-.export _UpdateInput
+.export InitializeInput
+.export UpdateInput
 
 .export _ControllerAxisXState
 .export _ControllerAxisYState
@@ -30,7 +31,16 @@ _ControllerButtonState:
 .segment "CODE"
 
 ;------------------------------------------------------------------
-_UpdateInput:
+InitializeInput:
+  lda #0
+  sta _ControllerButtonState
+  sta _ControllerAxisXState
+  sta _ControllerAxisYState
+
+  rts
+
+;------------------------------------------------------------------
+UpdateInput:
   ldx #1
   stx APU_PAD1
   dex

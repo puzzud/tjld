@@ -1,4 +1,4 @@
-; nes video.asm
+; nes video2.asm
 
 .export _InitializeVideo
 
@@ -38,10 +38,8 @@ SCREEN_COLOR = $2000
 ; particularly if it is made of 2x2 character blocks.
 _TileMapCollisionCodes:
 ; TODO: Figure out what should go here.
-;  .res (256 * 224 / 8)
-;  .res SCREEN_CHAR_SIZE
 ;  .res SCREEN_CHAR_WIDTH * SCREEN_CHAR_HEIGHT
-  .res 1
+;  .res 1
   .res SCREEN_CHAR_SIZE
 
 .segment "ZEROPAGE"

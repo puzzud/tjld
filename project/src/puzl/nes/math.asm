@@ -1,3 +1,3 @@
-; c64 math.asm
+; nes math.asm
 
 .include "../6502/math.asm"

@@ -8,7 +8,7 @@
 #include <nes/nes.h>
 
 #define SCREEN_WIDTH 256
-#define SCREEN_HEIGHT 224
+#define SCREEN_HEIGHT 240
 
 #define TILE_WIDTH 8
 #define TILE_HEIGHT 8

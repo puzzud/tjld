@@ -21,6 +21,7 @@
 .import __BSS_START__, __BSS_LAST__, __BSS_SIZE__
 .import __STACKSIZE__
 .import __RAM_START__,__RAM_SIZE__
+.import __WRAM_START__,__WRAM_SIZE__
 
 .export Reset
 
@@ -92,9 +93,9 @@ Reset:
   txs ; Set up CPU stack.
 
   ; Set parameter stack pointer.
-  lda #<(__RAM_START__+__RAM_SIZE__)
+  lda #<(__WRAM_START__+__WRAM_SIZE__)
   sta sp
-  lda #>(__RAM_START__+__RAM_SIZE__)
+  lda #>(__WRAM_START__+__WRAM_SIZE__)
   sta sp+1
 
   jsr InitializeSequencer

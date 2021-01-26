@@ -2,8 +2,10 @@
 
 .autoimport on
 
-;.importzp VoiceControlCache
-;.import VoiceRegisterSidOffset
+.importzp VoiceControlCaches
+
+.import VoiceApuControlRegisterOffset
+.import VoiceApuLoFrequencyRegisterOffset
 
 .include "nes.asm"
 
@@ -90,6 +92,29 @@ NOTE_FREQ_6_B  = 55   ; B-6
 ; notes:
 ;  - Squashes a, y.
 .macro SetVoiceFrequency
+	.local @afterOctaveShift
+	cpx #2 ; Is voice the triangle voice?
+	bne @afterOctaveShift
+
+	; Triangle voice needs to have its octave shifted up one.
+	clc
+	adc #12
+@afterOctaveShift:
+
+	tay
+
+  txa ; Cache x on stack.
+  pha
+
+	lda VoiceApuLoFrequencyRegisterOffset,x
+	tax
+	lda MusicEngineNoteFreqTableLo1C,y
+	sta APU_PULSE1CTRL,x ; NOTE: Using offsets from base APU address.
+	lda MusicEngineNoteFreqTableHi1C,y
+	sta APU_PULSE1CTRL+1,x ; NOTE: Hi register is one after Lo.
+
+	pla ; Restore x.
+  tax
 .endmacro
 
 ;------------------------------------------------------------------
@@ -98,6 +123,29 @@ NOTE_FREQ_6_B  = 55   ; B-6
 ; notes:
 ;  - squashes a, y.
 .macro DisableVoice
+	.local @disablePulseVoice
+	.local @disableTriangleVoice
+	.local @done
+	cpx #2 ; Is voice the triangle voice?
+	bne @disablePulseVoice
+
+@disableTriangleVoice:
+	lda VoiceControlCaches,x
+  and #%10000000
+  sta APU_TRICTRL1
+
+	jmp @done
+
+@disablePulseVoice:
+	lda VoiceApuControlRegisterOffset,x
+	tay
+
+	lda VoiceControlCaches,x
+  and #%11110000
+  sta APU_PULSE1CTRL,y ; NOTE: Using offsets from base APU address.
+
+@done:
+	sta VoiceControlCaches,x
 .endmacro
 
 ;------------------------------------------------------------------
@@ -106,6 +154,29 @@ NOTE_FREQ_6_B  = 55   ; B-6
 ; notes:
 ;  - squashes a, y.
 .macro EnableVoice
+	.local @enablePulseVoice
+	.local @enableTriangleVoice
+	.local @done
+	cpx #2 ; Is voice the triangle voice?
+	bne @enablePulseVoice
+
+@enableTriangleVoice:
+	lda VoiceControlCaches,x
+  ora #%10000001
+  sta APU_TRICTRL1
+
+	bne @done ; NOTE: Assume not zero from ora above.
+
+@enablePulseVoice:
+	lda VoiceApuControlRegisterOffset,x
+	tay
+
+	lda VoiceControlCaches,x
+  ora #%00001111
+  sta APU_PULSE1CTRL,y ; NOTE: Using offsets from base APU address.
+
+@done:
+	sta VoiceControlCaches,x
 .endmacro
 
 .include "../6502/music_engine.asm"

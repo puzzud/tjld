@@ -140,8 +140,10 @@ Reset:
   sta PPU_VRAM_ADDR1
   sta PPU_VRAM_ADDR1
 
+  jsr InitializeSequencer
+
   ;jsr _InitializeInput
-  ;jsr InitializeAudio
+  jsr InitializeAudio
 
   jsr _InitializeNodeTree
   

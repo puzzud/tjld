@@ -126,7 +126,7 @@ typedef enum
 } ColorCode;
 
 #define SCREEN_CHAR_WIDTH       32
-#define SCREEN_CHAR_HEIGHT      30
+#define SCREEN_CHAR_HEIGHT      28 // 30-2 to account for nonvisible rows.
 
 // TODO: Figure out what should go here.
 #define SCREEN_CHAR_SIZE (SCREEN_CHAR_WIDTH * SCREEN_CHAR_HEIGHT)

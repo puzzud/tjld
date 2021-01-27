@@ -115,7 +115,7 @@ COLOR_LIGHT_BLUE  = $22
 COLOR_GREY_3      = $10
 
 SCREEN_CHAR_WIDTH     = 32
-SCREEN_CHAR_HEIGHT    = 30
+SCREEN_CHAR_HEIGHT    = 28 ; 30-2 to account for nonvisible rows.
 
 ; TODO: Figure out what should go here.
 SCREEN_CHAR_SIZE = (SCREEN_CHAR_WIDTH * SCREEN_CHAR_HEIGHT)

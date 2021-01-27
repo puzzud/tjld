@@ -146,15 +146,21 @@ DefaultInterrupt:
   tya
   pha
 
-  ; Update video.
+  jsr ProcessSequences
+
+  ; DMA sprite shadow RAM into OAM.
+  lda #$00
+  sta PPU_SPR_ADDR
+  lda #$02
+  sta APU_SPR_DMA
+
+  ; Check if sprite data needs to be copied.
   lda _UpdatePaletteFlag
   beq @afterUpdatePalette
   
   lda #0
   jsr _UpdatePalette
 @afterUpdatePalette:
-
-  jsr ProcessSequences
 
   lda #1
   sta NmiStatus

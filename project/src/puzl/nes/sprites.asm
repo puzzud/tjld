@@ -18,6 +18,8 @@
 .import _NthBitFlags
 .import _InverseNthBitFlags
 
+.import __SPRAM_START__
+
 .include "nes.asm"
 
 SPRITE_WIDTH = 16
@@ -25,6 +27,13 @@ SPRITE_HEIGHT = 16
 
 ; TODO: Need to figure how to get this number from puzl/video.h.
 NUMBER_OF_SPRITES = 8
+
+SpriteY          = __SPRAM_START__+0
+SpriteTileId     = __SPRAM_START__+1
+SpriteAttributes = __SPRAM_START__+2
+SpriteX          = __SPRAM_START__+3
+
+OAM_ENTRY_SIZE = 4
 
 .include "../6502/sprites.asm"
 .include "../6502/sprites_physics.asm"
@@ -39,6 +48,9 @@ InitializeSprites:
 ; inputs:
 ;  - enable: a, enable or disable sprite.
 _EnableSprite:
+  ; TODO: Implement some scheme where an enabled sprite
+  ; has its UpdateSpritePositionY routine is affected
+  ; to where it is shown on screen.
   rts
 
 ;------------------------------------------------------------------
@@ -49,6 +61,20 @@ _EnableSprite:
 ; notes:
 ;  - Squashes a, x, y.
 UpdateSpritePositionX:
+  tay
+
+  asl
+  asl
+  asl
+  tax
+
+  lda SpritePositionsXLo,y
+  sta SpriteX,x
+  sta SpriteX+(OAM_ENTRY_SIZE*NUMBER_OF_SPRITES)+OAM_ENTRY_SIZE,x
+  adc #8
+  sta SpriteX+OAM_ENTRY_SIZE,x
+  sta SpriteX+(OAM_ENTRY_SIZE*NUMBER_OF_SPRITES),x
+
   rts
 
 ;------------------------------------------------------------------
@@ -57,6 +83,22 @@ UpdateSpritePositionX:
 ; inputs:
 ;  - spriteIndex: a, which sprite to update position y.
 UpdateSpritePositionY:
+  tay
+
+  asl
+  asl
+  asl
+  tax
+
+  lda SpritePositionsYLo,y
+  clc
+  adc #28
+  sta SpriteY,x
+  sta SpriteY+OAM_ENTRY_SIZE,x
+  adc #8
+  sta SpriteY+(OAM_ENTRY_SIZE*NUMBER_OF_SPRITES),x
+  sta SpriteY+(OAM_ENTRY_SIZE*NUMBER_OF_SPRITES)+OAM_ENTRY_SIZE,x
+
   rts
 
 ;------------------------------------------------------------------
@@ -66,6 +108,21 @@ UpdateSpritePositionY:
 ; notes:
 ;  - Intended call from assembly.
 SetSpriteFrameIndex:
+  stx tmp1
+
+  asl
+  asl
+  asl
+  tax
+
+  lda #219 ; Tile ID
+  sta SpriteTileId,x
+  sta SpriteTileId+OAM_ENTRY_SIZE,x
+  sta SpriteTileId+(OAM_ENTRY_SIZE*NUMBER_OF_SPRITES),x
+  sta SpriteTileId+(OAM_ENTRY_SIZE*NUMBER_OF_SPRITES)+OAM_ENTRY_SIZE,x
+
+  ldx tmp1
+
   rts
 
 ;------------------------------------------------------------------

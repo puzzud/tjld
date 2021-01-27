@@ -45,7 +45,6 @@ void InitializeNodeTree(void)
 	InitalizeSpeed();
 
 	LoadLevel();
-	//SetBackgroundColor(COLOR_BLUE);
 	
 	Score = 0;
 	SpriteClimbing = 0;
@@ -73,7 +72,7 @@ void InitializeNodeTree(void)
 
 	SpriteCollisionMasks[CurrentSpriteIndex] = COLLISION_FLAG_OBSTACLE | COLLISION_FLAG_LADDER;
 
-	//CheckSpriteTile();
+	CheckSpriteTile();
 
 	PlayAudioPattern(0, Voice1Start, 1);
 	PlayAudioPattern(2, Voice2Start, 1);
@@ -81,9 +80,6 @@ void InitializeNodeTree(void)
 
 void Process(void)
 {
-	static byte colorCode = COLOR_GREEN;
-	SetBackgroundColor(colorCode++ / 32);
-	
 	UpdateIntendedDirection();
 
 	CurrentSpriteIndex = PLAYER_SPRITE_INDEX;
@@ -95,14 +91,14 @@ void Process(void)
 		{
 			if (IsMoving(SpriteSpeedPatternIndex) != 0)
 			{
-				//CheckSpriteClimbing();
+				CheckSpriteClimbing();
 
 				SpriteVelocitiesX[CurrentSpriteIndex] = IntendedDirection.x;
 				SpriteVelocitiesY[CurrentSpriteIndex] = IntendedDirection.y;
 
-				//MoveSprite();
+				MoveSprite();
 
-				//CheckSpriteTile();
+				CheckSpriteTile();
 			}
 		}
 
@@ -110,7 +106,7 @@ void Process(void)
 	}
 	while (--LoopIndex != 0);
 
-	//UpdateSpriteAnimation();
+	UpdateSpriteAnimation();
 }
 
 void UpdateIntendedDirection(void)

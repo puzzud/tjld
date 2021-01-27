@@ -35,6 +35,11 @@ SpriteX          = __SPRAM_START__+3
 
 OAM_ENTRY_SIZE = 4
 
+SPRITE_OAM_ENTRY_OFFSET_TL = 0
+SPRITE_OAM_ENTRY_OFFSET_TR = OAM_ENTRY_SIZE
+SPRITE_OAM_ENTRY_OFFSET_BL = OAM_ENTRY_SIZE * NUMBER_OF_SPRITES
+SPRITE_OAM_ENTRY_OFFSET_BR = (OAM_ENTRY_SIZE * NUMBER_OF_SPRITES) + OAM_ENTRY_SIZE
+
 .include "../6502/sprites.asm"
 .include "../6502/sprites_physics.asm"
 .include "../6502/sprites_animation.asm"
@@ -69,11 +74,11 @@ UpdateSpritePositionX:
   tax
 
   lda SpritePositionsXLo,y
-  sta SpriteX,x
-  sta SpriteX+(OAM_ENTRY_SIZE*NUMBER_OF_SPRITES)+OAM_ENTRY_SIZE,x
+  sta SpriteX+SPRITE_OAM_ENTRY_OFFSET_TL,x
+  sta SpriteX+SPRITE_OAM_ENTRY_OFFSET_BR,x
   adc #8
-  sta SpriteX+OAM_ENTRY_SIZE,x
-  sta SpriteX+(OAM_ENTRY_SIZE*NUMBER_OF_SPRITES),x
+  sta SpriteX+SPRITE_OAM_ENTRY_OFFSET_TR,x
+  sta SpriteX+SPRITE_OAM_ENTRY_OFFSET_BL,x
 
   rts
 
@@ -98,11 +103,11 @@ UpdateSpritePositionY:
   clc
   adc #((8*2)-1)
 
-  sta SpriteY,x
-  sta SpriteY+OAM_ENTRY_SIZE,x
+  sta SpriteY+SPRITE_OAM_ENTRY_OFFSET_TL,x
+  sta SpriteY+SPRITE_OAM_ENTRY_OFFSET_TR,x
   adc #8
-  sta SpriteY+(OAM_ENTRY_SIZE*NUMBER_OF_SPRITES),x
-  sta SpriteY+(OAM_ENTRY_SIZE*NUMBER_OF_SPRITES)+OAM_ENTRY_SIZE,x
+  sta SpriteY+SPRITE_OAM_ENTRY_OFFSET_BL,x
+  sta SpriteY+SPRITE_OAM_ENTRY_OFFSET_BR,x
 
   rts
 
@@ -121,10 +126,10 @@ SetSpriteFrameIndex:
   tax
 
   lda #219 ; Tile ID
-  sta SpriteTileId,x
-  sta SpriteTileId+OAM_ENTRY_SIZE,x
-  sta SpriteTileId+(OAM_ENTRY_SIZE*NUMBER_OF_SPRITES),x
-  sta SpriteTileId+(OAM_ENTRY_SIZE*NUMBER_OF_SPRITES)+OAM_ENTRY_SIZE,x
+  sta SpriteTileId+SPRITE_OAM_ENTRY_OFFSET_TL,x
+  sta SpriteTileId+SPRITE_OAM_ENTRY_OFFSET_TR,x
+  sta SpriteTileId+SPRITE_OAM_ENTRY_OFFSET_BL,x
+  sta SpriteTileId+SPRITE_OAM_ENTRY_OFFSET_BR,x
 
   ldx tmp1
 

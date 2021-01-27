@@ -91,8 +91,12 @@ UpdateSpritePositionY:
   tax
 
   lda SpritePositionsYLo,y
+  
+  ; Offset by 8 to account for row above screen (in NTSC).
+  ; Minus 1 because sprites present 1 line lower than they should.
   clc
-  adc #28
+  adc #(8-1)
+
   sta SpriteY,x
   sta SpriteY+OAM_ENTRY_SIZE,x
   adc #8

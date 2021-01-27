@@ -340,8 +340,9 @@ _ClearScreen:
     lineNumber = 0
   .endif
   
+  ; 2 * SCREEN_CHAR_WIDTH to account for hidden row above screen.
   .local address
-  address = (PPU_NAME_TABLE_0 + SCREEN_CHAR_WIDTH + (lineNumber * SCREEN_CHAR_WIDTH))
+  address = (PPU_NAME_TABLE_0 + (2*SCREEN_CHAR_WIDTH) + (lineNumber * SCREEN_CHAR_WIDTH))
 
   .if loOrHi = 0
     .byte <(address)

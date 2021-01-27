@@ -93,9 +93,10 @@ UpdateSpritePositionY:
   lda SpritePositionsYLo,y
   
   ; Offset by 8 to account for row above screen (in NTSC).
+  ; Offset by another 8 to account for offset made to tilemap offset table to account for row above screen.
   ; Minus 1 because sprites present 1 line lower than they should.
   clc
-  adc #(8-1)
+  adc #((8*2)-1)
 
   sta SpriteY,x
   sta SpriteY+OAM_ENTRY_SIZE,x

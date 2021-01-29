@@ -15,7 +15,7 @@ def PrintAllFrames(xpmData, xpm2CFacility):
 
 	for y in range(sheetFrameHeight):
 		for x in range(sheetFrameWidth):
-			frames.append(xpm2CFacility.GenerateFrameRowsFromXpm(xpmData, x, y))
+			frames += xpm2CFacility.GenerateFramesFromXpmAtPoint(xpmData, x, y)
 	
 	for i in range(0, len(frames)):
 		xpm2CFacility.PrintNextFrame(frames[i])

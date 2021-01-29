@@ -13,13 +13,28 @@ class Xpm2CFacility:
 			self.frameWidth = 16
 			self.frameHeight = 16
 
-	def GenerateFrameRowsFromXpm(self, xpmData, x, y):
+	def GenerateFramesFromXpmAtPoint(self, xpmData, x, y):
 		pixelX = (x * self.frameWidth) + x + 1
 		pixelY = (y * self.frameHeight) + y + 1
 
+		frames = []
+
+		if self.type == "chr":
+			frames = [self.GenerateFrameFromXpmAtPoint(xpmData, pixelX, pixelY)]
+		elif self.type == "spr":
+			frames = [
+				self.GenerateFrameFromXpmAtPoint(xpmData, pixelX, pixelY),
+				self.GenerateFrameFromXpmAtPoint(xpmData, pixelX + 8, pixelY),
+				self.GenerateFrameFromXpmAtPoint(xpmData, pixelX, pixelY + 8),
+				self.GenerateFrameFromXpmAtPoint(xpmData, pixelX + 8, pixelY + 8)
+			]
+
+		return frames
+
+	def GenerateFrameFromXpmAtPoint(self, xpmData, x, y):
 		frameRows = []
 		for rowIndex in range(0, self.frameHeight):
-			rowString = xpmData.imageData.rows[pixelY + rowIndex][pixelX:pixelX + self.frameWidth]
+			rowString = xpmData.imageData.rows[y + rowIndex][x:x + self.frameWidth]
 			row = self.GenerateRowFromRowString(rowString, xpmData.headerData.palette)
 			frameRows.append(row)
 		
@@ -69,7 +84,7 @@ class Xpm2CFacility:
 		
 		print("\t{")
 
-		numberOfRows = self.frameHeight
+		numberOfRows = 8 # NOTE: Always 8 for nes.
 
 		for i in range(0, numberOfRows):
 			row = frame[i]

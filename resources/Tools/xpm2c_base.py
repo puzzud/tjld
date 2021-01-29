@@ -13,7 +13,7 @@ class Xpm2CFacility:
 			self.frameWidth = 16
 			self.frameHeight = 16
 
-	def GenerateFrameRowsFromXpm(self, xpmData, x, y):
+	def GenerateFramesFromXpmAtPoint(self, xpmData, x, y):
 		pixelX = (x * self.frameWidth) + x + 1
 		pixelY = (y * self.frameHeight) + y + 1
 
@@ -22,7 +22,7 @@ class Xpm2CFacility:
 			rowString = xpmData.imageData.rows[pixelY + rowIndex][pixelX:pixelX + self.frameWidth]
 			frameRows.append(self.GenerateRowFromRowString(rowString, xpmData.headerData.palette))
 
-		return frameRows
+		return [frameRows]
 
 	def GenerateRowFromRowString(self, rowString, xpmPalette):
 		row = []

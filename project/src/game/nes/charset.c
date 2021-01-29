@@ -1,7 +1,7 @@
 #include <puzl.h>
 #include <video.h>
 
-#pragma rodata-name ("CHARS")
+#pragma rodata-name ("CHARS1")
 
 const byte CharacterSet[NUMBER_OF_CHARACTERS][CHARACTER_HEIGHT * 2] =
 {

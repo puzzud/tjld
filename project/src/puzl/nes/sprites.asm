@@ -35,10 +35,10 @@ SpriteX          = __SPRAM_START__+3
 
 OAM_ENTRY_SIZE = 4
 
-SPRITE_OAM_ENTRY_OFFSET_TL = 0
-SPRITE_OAM_ENTRY_OFFSET_TR = OAM_ENTRY_SIZE
-SPRITE_OAM_ENTRY_OFFSET_BL = OAM_ENTRY_SIZE * NUMBER_OF_SPRITES
-SPRITE_OAM_ENTRY_OFFSET_BR = (OAM_ENTRY_SIZE * NUMBER_OF_SPRITES) + OAM_ENTRY_SIZE
+SPRITE_OAM_ENTRY_OFFSET_TL = OAM_ENTRY_SIZE*0
+SPRITE_OAM_ENTRY_OFFSET_TR = OAM_ENTRY_SIZE*1
+SPRITE_OAM_ENTRY_OFFSET_BL = OAM_ENTRY_SIZE*2
+SPRITE_OAM_ENTRY_OFFSET_BR = OAM_ENTRY_SIZE*3
 
 .include "../6502/sprites.asm"
 .include "../6502/sprites_physics.asm"
@@ -47,6 +47,7 @@ SPRITE_OAM_ENTRY_OFFSET_BR = (OAM_ENTRY_SIZE * NUMBER_OF_SPRITES) + OAM_ENTRY_SI
 .segment "CODE"
 
 InitializeSprites:
+  jsr InitializeSpritesAnimation
   rts
 
 ;------------------------------------------------------------------
@@ -75,10 +76,11 @@ UpdateSpritePositionX:
 
   lda SpritePositionsXLo,y
   sta SpriteX+SPRITE_OAM_ENTRY_OFFSET_TL,x
-  sta SpriteX+SPRITE_OAM_ENTRY_OFFSET_BR,x
+  sta SpriteX+SPRITE_OAM_ENTRY_OFFSET_BL,x
+  clc ; NOTE: Technically, clc not required because of asl above assumed on value <= 8.
   adc #8
   sta SpriteX+SPRITE_OAM_ENTRY_OFFSET_TR,x
-  sta SpriteX+SPRITE_OAM_ENTRY_OFFSET_BL,x
+  sta SpriteX+SPRITE_OAM_ENTRY_OFFSET_BR,x
 
   rts
 
@@ -87,6 +89,8 @@ UpdateSpritePositionX:
 ;
 ; inputs:
 ;  - spriteIndex: a, which sprite to update position y.
+; notes:
+;  - Squashes a, x, y.
 UpdateSpritePositionY:
   tay
 
@@ -100,7 +104,7 @@ UpdateSpritePositionY:
   ; Offset by 8 to account for row above screen (in NTSC).
   ; Offset by another 8 to account for offset made to tilemap offset table to account for row above screen.
   ; Minus 1 because sprites present 1 line lower than they should.
-  clc
+  clc ; NOTE: Technically, clc not required because of asl above assumed on value <= 8.
   adc #((8*2)-1)
 
   sta SpriteY+SPRITE_OAM_ENTRY_OFFSET_TL,x
@@ -118,17 +122,29 @@ UpdateSpritePositionY:
 ; notes:
 ;  - Intended call from assembly.
 SetSpriteFrameIndex:
+  pha
+
   stx tmp1
 
+  txa
   asl
   asl
   asl
   tax
 
-  lda #219 ; Tile ID
+  pla
+  asl
+  asl
   sta SpriteTileId+SPRITE_OAM_ENTRY_OFFSET_TL,x
+  
+  clc
+  adc #1
   sta SpriteTileId+SPRITE_OAM_ENTRY_OFFSET_TR,x
+
+  adc #1
   sta SpriteTileId+SPRITE_OAM_ENTRY_OFFSET_BL,x
+
+  adc #1
   sta SpriteTileId+SPRITE_OAM_ENTRY_OFFSET_BR,x
 
   ldx tmp1

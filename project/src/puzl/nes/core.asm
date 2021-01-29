@@ -146,8 +146,6 @@ DefaultInterrupt:
   tya
   pha
 
-  jsr ProcessSequences
-
   ; DMA sprite shadow RAM into OAM.
   lda #$00
   sta PPU_SPR_ADDR
@@ -161,6 +159,15 @@ DefaultInterrupt:
   lda #0
   jsr _UpdatePalette
 @afterUpdatePalette:
+
+  ; NOTE: Music processing should occur at the end,
+  ; but sprite animation should occur before OAM DMA,
+  ; to ensure no frame delay between animation frame
+  ; change and the DMA that updates hardware sprites.
+  ; TODO: Probably need to create an alternative
+  ; ProcessSequences that will process music and sprite
+  ; animation separately.
+  jsr ProcessSequences
 
   lda #1
   sta NmiStatus

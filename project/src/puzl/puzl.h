@@ -66,9 +66,17 @@ typedef unsigned short word;
 #include <nes/video.h>
 #include <nes/input.h>
 #include <audio.h>
-#endif
+#else
 
-#endif
+#ifdef __MSX__
+#define HAS_KEYBOARD
+
+#include <null/core.h>
+#include <null/video.h>
+#include <null/color.h>
+#include <null/input.h>
+#include <null/audio.h>
+#else
 
 #ifdef __WATCOMC__
 #define HAS_KEYBOARD
@@ -93,4 +101,8 @@ typedef unsigned short word;
 #endif
 #endif
 #endif
+#endif
+#endif
+#endif
+
 #endif

@@ -1,5 +1,5 @@
-#ifndef PUZL_NULL_AUDIO_H
-#define PUZL_NULL_AUDIO_H
+#ifndef PUZL_MSX_AUDIO_H
+#define PUZL_MSX_AUDIO_H
 
 #include <puzl.h>
 

@@ -206,6 +206,32 @@ EXECUTE := $(EMU) $(LABEL_FILE) $(EXECUTABLE)
 endif
 
 #---------------------------------------
+# MSX
+#---------------------------------------
+ifeq ($(TARGET),msx)
+CC := z88dk.zcc
+AS := z88dk.z88dk-z80asm
+LD := z88dk.z88dk-z80asm
+
+CC_FAMILY := z88dk
+
+PLATFORM := msx
+PLATFORM_UC := $(shell echo '$(PLATFORM)' | tr '[:lower:]' '[:upper:]')
+
+CPU := 6502
+EMU := openmsx
+
+CFLAGS := -I$(PUZLDIR) -I$(GAMEDIR)
+CFLAGS := $(CFLAGS) -D__$(PLATFORM_UC)__
+AFLAGS := -L/snap/z88dk/current/share/z88dk/lib/
+LFLAGS :=
+
+EXECUTABLE := $(BTDIR)/$(PROJECT_NAME)_$(TARGET)
+
+EXECUTE := $(EXECUTABLE)
+endif
+
+#---------------------------------------
 # NDS
 #---------------------------------------
 ifeq ($(TARGET),nds)
@@ -328,6 +354,26 @@ play_real: | transfer
 	# Assumes presence of command.
 	# https://github.com/markusC64/1541ultimate2/releases/tag/tools-v1.2.1
 	1541u2 $(ULTIMATE_HOSTNAME) -c run:$(EXECUTABLE)
+
+#---------------------------------------
+# z88dk
+#---------------------------------------
+else ifeq ($(CC_FAMILY),z88dk)
+$(EXECUTABLE): $(OBJS)
+	@mkdir -p $(@D)
+	$(LD) -o $@ $^ $(LFLAGS)
+
+$(BTDIR)/%.o: $(SDIR)/%.asm
+	@mkdir -p $(@D)
+	$(AS) -o$@ $(AFLAGS) $<
+
+$(BTDIR)/%.o: $(BTDIR)/%_c.asm
+	@mkdir -p $(@D)
+	$(AS) -o$@ $(AFLAGS) $<
+
+$(BTDIR)/%_c.asm: $(SDIR)/%.c
+	@mkdir -p $(@D)
+	$(CC) +msx -a -o $@ $(CFLAGS) $<
 
 #---------------------------------------
 # watcom

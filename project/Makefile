@@ -216,6 +216,25 @@ EXECUTABLE := $(BTDIR)/$(PROJECT_NAME).nds
 EXECUTE := desmume $(EXECUTABLE)
 endif
 
+#---------------------------------------
+# Null - Empty. Copy for new targets.
+#---------------------------------------
+ifeq ($(TARGET),null)
+CC := g++
+CC_FAMILY := $(CC)
+
+PLATFORM := null
+PLATFORM_UC := $(shell echo '$(PLATFORM)' | tr '[:lower:]' '[:upper:]')
+
+CFLAGS := -I $(PUZLDIR) -I $(GAMEDIR)
+CFLAGS := -g $(CFLAGS) -D__$(PLATFORM_UC)__
+LFLAGS :=
+
+EXECUTABLE := $(BTDIR)/$(PROJECT_NAME)_$(TARGET)
+
+EXECUTE := $(EXECUTABLE)
+endif
+
 ########################################
 # Platform Dependent Settings
 ########################################

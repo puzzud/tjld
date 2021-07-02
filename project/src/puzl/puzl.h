@@ -26,6 +26,16 @@
 typedef unsigned char byte;
 typedef unsigned short word;
 
+#if defined(__NULL__)
+#define HAS_KEYBOARD
+
+#include <null/core.h>
+#include <null/video.h>
+#include <null/color.h>
+#include <null/input.h>
+#include <null/audio.h>
+#else
+
 #if defined(__linux__) || defined(_WIN32) | defined(__EMSCRIPTEN__)
 #define HAS_KEYBOARD
 
@@ -34,7 +44,7 @@ typedef unsigned short word;
 #include <sdl/color.h>
 #include <sdl/input.h>
 #include <sdl/audio.h>
-#endif
+#else
 
 #ifdef __CC65__
 #define HAS_KEYBOARD
@@ -45,7 +55,7 @@ typedef unsigned short word;
 #include <c64/video.h>
 #include <c64/input.h>
 #include <audio.h>
-#endif
+#else
 
 #ifdef __WATCOMC__
 #define HAS_KEYBOARD
@@ -55,7 +65,7 @@ typedef unsigned short word;
 #include <msdos/color.h>
 #include <msdos/input.h>
 #include <msdos/audio.h>
-#endif
+#else
 
 #ifdef __NDS__
 #include <nds/core.h>
@@ -63,6 +73,11 @@ typedef unsigned short word;
 #include <nds/color.h>
 #include <nds/input.h>
 #include <nds/audio.h>
-#endif
+#else
 
+#endif
+#endif
+#endif
+#endif
+#endif
 #endif

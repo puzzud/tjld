@@ -5,6 +5,7 @@ import sys
 import xpm
 import xpm2c_base
 import xpm2c_c64
+import xpm2c_nes
 
 def PrintAllFrames(xpmData, xpm2CFacility):
 	sheetFrameWidth = int(xpmData.headerData.width / (xpm2CFacility.frameWidth + 1)) # 1 for grid.
@@ -14,7 +15,7 @@ def PrintAllFrames(xpmData, xpm2CFacility):
 
 	for y in range(sheetFrameHeight):
 		for x in range(sheetFrameWidth):
-			frames.append(xpm2CFacility.GenerateFrameRowsFromXpm(xpmData, x, y))
+			frames += xpm2CFacility.GenerateFramesFromXpmAtPoint(xpmData, x, y)
 	
 	for i in range(0, len(frames)):
 		xpm2CFacility.PrintNextFrame(frames[i])
@@ -48,6 +49,8 @@ if inputFile:
 		xpm2CFacility = xpm2c_base.Xpm2CFacility(type)
 	elif target == "c64":
 		xpm2CFacility = xpm2c_c64.Xpm2CFacility(type)
+	elif target == "nes":
+		xpm2CFacility = xpm2c_nes.Xpm2CFacility(type)
 	
 	if xpm2CFacility == None:
 		print("Did not supply a valid target: " + target)

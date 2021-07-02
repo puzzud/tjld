@@ -153,10 +153,6 @@ _SetTileMapCellColor:
 ; Prints text string to an X,Y coordinate on the screen.
 ;
 ; inputs:
-;  - text: (sp[2],sp[1]), Pointer to text string.
-;  - x: sp[0], X position to write string.
-;  - y: a, Y position to write string.
-
 ;  - text: (x,a), Pointer to text string.
 ;  - x: PrintX, X position to write string.
 ;  - y: PrintY, Y position to write string.

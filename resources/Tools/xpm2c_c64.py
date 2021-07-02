@@ -15,7 +15,7 @@ class Xpm2CFacility:
 			self.frameHeight = 16
 			self.bytesPerRow = 3
 
-	def GenerateFrameRowsFromXpm(self, xpmData, x, y):
+	def GenerateFramesFromXpmAtPoint(self, xpmData, x, y):
 		pixelX = (x * self.frameWidth) + x + 1
 		pixelY = (y * self.frameHeight) + y + 1
 
@@ -33,7 +33,7 @@ class Xpm2CFacility:
 				
 			frameRows.append([0]) # Last unused byte.
 		
-		return frameRows
+		return [frameRows]
 
 	def GenerateRowFromRowString(self, rowString, xpmPalette):
 		row = []

@@ -174,6 +174,38 @@ EXECUTE := $(EMU) -moncommands $(LABEL_FILE) $(EXECUTABLE)
 endif
 
 #---------------------------------------
+# NES
+#---------------------------------------
+ifeq ($(TARGET),nes)
+CC := cc65
+AS := ca65
+LD := ld65
+
+CC_FAMILY := $(CC)
+
+PLATFORM := nes
+PLATFORM_UC := $(shell echo '$(PLATFORM)' | tr '[:lower:]' '[:upper:]')
+
+CPU := 6502
+LDCONFIG := nes_nrom.cfg
+BIN_EXT := nes
+EMU := fceux
+LABEL_FILE := $(BTDIR)/vice.lbl
+PROGRAM := $(PROJECT_NAME).$(BIN_EXT)
+
+#CA65_LIB # Environment variable should be set to directory that contains nes.lib.
+
+CFLAGS := -I $(PUZLDIR) -I $(GAMEDIR)
+CFLAGS := --cpu $(CPU) -O -I $(SDIR) $(CFLAGS) -D__$(PLATFORM_UC)__
+AFLAGS := --cpu $(CPU) -I $(SDIR) -I $(SDIR)/$(PLATFORM)
+LFLAGS := -C $(PUZLDIR)/$(PLATFORM)/$(LDCONFIG) $(CA65_LIB)/$(PLATFORM).lib -Ln $(LABEL_FILE)
+
+EXECUTABLE := $(BTDIR)/$(PROJECT_NAME).$(BIN_EXT)
+
+EXECUTE := $(EMU) $(LABEL_FILE) $(EXECUTABLE)
+endif
+
+#---------------------------------------
 # NDS
 #---------------------------------------
 ifeq ($(TARGET),nds)

@@ -47,6 +47,8 @@ typedef unsigned short word;
 #else
 
 #ifdef __CC65__
+
+#ifdef __C64__
 #define HAS_KEYBOARD
 
 #pragma rodata-name ("RODATA")
@@ -56,6 +58,17 @@ typedef unsigned short word;
 #include <c64/input.h>
 #include <audio.h>
 #else
+
+#ifdef __NES__
+
+#pragma rodata-name ("RODATA")
+#include <nes/core.h>
+#include <nes/video.h>
+#include <nes/input.h>
+#include <audio.h>
+#endif
+
+#endif
 
 #ifdef __WATCOMC__
 #define HAS_KEYBOARD

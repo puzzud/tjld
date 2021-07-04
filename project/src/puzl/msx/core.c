@@ -1,8 +1,8 @@
 #include <msx/core.h>
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+//#include <stdlib.h>
+//#include <stdio.h>
+//#include <string.h>
 
 //#include <msx.h>
 
@@ -17,13 +17,20 @@ void Initialize(void);
 void Shutdown(void);
 void MainLoop(void);
 
-int main(void)
+void main(void)
 {
 	Initialize();
-	MainLoop();
-	Shutdown();
 
-	return 0;
+	Running = 1;
+
+	while (Running != 0)
+	{
+		ProcessInput();
+		Process();
+		ProcessSequences();
+	}
+
+	Shutdown();
 }
 
 void Initialize(void)
@@ -42,18 +49,4 @@ void Shutdown(void)
 	ShutdownAudio();
 	ShutdownVideo();
 	ShutdownInput();
-}
-
-inline void MainLoop(void)
-{
-	Running = 1;
-
-	while (Running != 0)
-	{
-		ProcessInput();
-
-		Process();
-
-		ProcessSequences();
-	}
 }

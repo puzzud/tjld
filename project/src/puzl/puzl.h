@@ -17,6 +17,13 @@
 #define FAR
 #endif
 
+// z88dk does not recognize inline.
+#ifdef __SCCZ80
+#define INLINE
+#else
+#define INLINE inline
+#endif
+
 #define SetBits(x,bits)   (x | bits)
 #define ClearBits(x,bits) (x & ~bits)
 
@@ -46,7 +53,7 @@ typedef unsigned short word;
 #include <sdl/audio.h>
 #else
 
-#ifdef __CC65__
+//#ifdef __CC65__
 
 #ifdef __C64__
 #define HAS_KEYBOARD
@@ -66,16 +73,17 @@ typedef unsigned short word;
 #include <nes/video.h>
 #include <nes/input.h>
 #include <audio.h>
+
 #else
 
 #ifdef __MSX__
 #define HAS_KEYBOARD
 
-#include <null/core.h>
-#include <null/video.h>
-#include <null/color.h>
-#include <null/input.h>
-#include <null/audio.h>
+#include <msx/core.h>
+#include <msx/video.h>
+#include <msx/color.h>
+#include <msx/input.h>
+#include <msx/audio.h>
 #else
 
 #ifdef __WATCOMC__
@@ -96,7 +104,6 @@ typedef unsigned short word;
 #include <nds/audio.h>
 #else
 
-#endif
 #endif
 #endif
 #endif

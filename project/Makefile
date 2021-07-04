@@ -209,26 +209,42 @@ endif
 # MSX
 #---------------------------------------
 ifeq ($(TARGET),msx)
-CC := z88dk.zcc
-AS := z88dk.z88dk-z80asm
-LD := z88dk.z88dk-z80asm
+#Z88DK_HOME should be set with what includes include, lib, etc. 
+#Z88DK_ZCC should be set to zcc. 
+#Z88DK_Z80ASM should be set to z88dk-z80asm. 
+#Z88DK_APPMAKE should be set to z88dk-appmake.
+
+CC := $(Z88DK_ZCC)
+AS := $(Z88DK_Z80ASM)
+LD := $(Z88DK_Z80ASM)
+AM := $(Z88DK_APPMAKE)
 
 CC_FAMILY := z88dk
 
 PLATFORM := msx
 PLATFORM_UC := $(shell echo '$(PLATFORM)' | tr '[:lower:]' '[:upper:]')
 
-CPU := 6502
+CPU := z80
+EXE_EXT := rom
 EMU := openmsx
 
-CFLAGS := -I$(PUZLDIR) -I$(GAMEDIR)
-CFLAGS := $(CFLAGS) -D__$(PLATFORM_UC)__
-AFLAGS := -L/snap/z88dk/current/share/z88dk/lib/
-LFLAGS :=
+CRT_BASE := $(PLATFORM)_crt0
+SOURCE_CRT_ASM := $(Z88DK_HOME)/lib/target/msx/classic/$(CRT_BASE).asm
+DEST_CRT_ASM := $(BTDIR)/$(CRT_BASE).asm
+DEST_CRT_OBJ := $(BTDIR)/$(CRT_BASE).o
 
-EXECUTABLE := $(BTDIR)/$(PROJECT_NAME)_$(TARGET)
+CFLAGS := -I$(PUZLDIR) -I$(GAMEDIR) -D__$(PLATFORM_UC)__
+CCFLAGS := +$(PLATFORM) -a $(CFLAGS)
+ASFLAGS := +$(PLATFORM) -c $(CFLAGS)
+CRT_ASFLAGS := +$(PLATFORM) -c -create-app -subtype=rom
+LDFLAGS := -b -L$(Z88DK_HOME)/lib/clibs -lndos -lmsx_clib -lz80_crt0
+AMFLAGS := +msxrom -c $(CRT_BASE)
 
-EXECUTE := $(EXECUTABLE)
+EXECUTABLE_BASE := $(PROJECT_NAME)
+EXECUTABLE_BIN := $(BTDIR)/$(EXECUTABLE_BASE).bin
+EXECUTABLE := $(BTDIR)/$(EXECUTABLE_BASE).$(EXE_EXT)
+
+EXECUTE := $(EMU) $(EXECUTABLE)
 endif
 
 #---------------------------------------
@@ -359,21 +375,32 @@ play_real: | transfer
 # z88dk
 #---------------------------------------
 else ifeq ($(CC_FAMILY),z88dk)
+OBJS += $(DEST_CRT_OBJ)
+
 $(EXECUTABLE): $(OBJS)
 	@mkdir -p $(@D)
-	$(LD) -o $@ $^ $(LFLAGS)
+	$(LD) $(LDFLAGS) -o$(EXECUTABLE_BIN) $^
+	$(AM) $(AMFLAGS) -o$@ -b $(EXECUTABLE_BIN)
+
+$(DEST_CRT_OBJ): $(DEST_CRT_ASM)
+	@mkdir -p $(@D)
+	$(CC) $(CRT_ASFLAGS) -o$@ $<
+
+$(DEST_CRT_ASM):
+	@mkdir -p $(@D)
+	cat $(SOURCE_CRT_ASM) > $@
 
 $(BTDIR)/%.o: $(SDIR)/%.asm
 	@mkdir -p $(@D)
-	$(AS) -o$@ $(AFLAGS) $<
+	$(CC) $(ASFLAGS) -o$@ $<
 
 $(BTDIR)/%.o: $(BTDIR)/%_c.asm
 	@mkdir -p $(@D)
-	$(AS) -o$@ $(AFLAGS) $<
+	$(CC) $(ASFLAGS) -o$@ $<
 
 $(BTDIR)/%_c.asm: $(SDIR)/%.c
 	@mkdir -p $(@D)
-	$(CC) +msx -a -o $@ $(CFLAGS) $<
+	$(CC) $(CCFLAGS) -o$@ $<
 
 #---------------------------------------
 # watcom

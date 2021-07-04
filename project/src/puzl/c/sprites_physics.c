@@ -44,7 +44,7 @@ void MoveSprite(void)
 	SetSpritePosition(tempSpritePosition.x, tempSpritePosition.y);
 }
 
-inline void CalculateSpriteTileCorners(ScreenPoint* spritePosition, Vector2d* upperLeftSpriteTile, Vector2d* lowerRightSpriteTile)
+INLINE void CalculateSpriteTileCorners(ScreenPoint* spritePosition, Vector2d* upperLeftSpriteTile, Vector2d* lowerRightSpriteTile)
 {
 	upperLeftSpriteTile->x = spritePosition->x / TILE_WIDTH;
 	upperLeftSpriteTile->y = spritePosition->y / TILE_HEIGHT;

@@ -375,7 +375,8 @@ play_real: | transfer
 # z88dk
 #---------------------------------------
 else ifeq ($(CC_FAMILY),z88dk)
-OBJS += $(DEST_CRT_OBJ)
+# NOTE: CRT object file needs to be listed first for linker.
+OBJS := $(DEST_CRT_OBJ) $(OBJS)
 
 $(EXECUTABLE): $(OBJS)
 	@mkdir -p $(@D)
@@ -401,6 +402,8 @@ $(BTDIR)/%.o: $(BTDIR)/%_c.asm
 $(BTDIR)/%_c.asm: $(SDIR)/%.c
 	@mkdir -p $(@D)
 	$(CC) $(CCFLAGS) -o$@ $<
+
+#.PRECIOUS: $(BTDIR)/%_c.asm
 
 #---------------------------------------
 # watcom

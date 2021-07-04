@@ -20,7 +20,7 @@ void BaseInitializeSpritesAnimation(void)
 		// NOTE: Hacky way to indicate initial unset
 		// values for animation IDs, but it's fairly efficient
 		// for 8 bit platform implementations.
-		Sprites[index].animationId = -1;
+		Sprites[index].animationId = 255; // -1 (set to 255 because z88k complains).
 	}
 }
 

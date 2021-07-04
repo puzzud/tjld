@@ -85,7 +85,7 @@ void PlaySequence(byte sequenceIndex, const byte* sequenceStart, byte looping)
 	// Disable all sequence processing.
 	SequenceSegmentDurationCounter[sequenceIndex] = 0;
 
-	SequenceStatus[sequenceIndex] = -1; // 0xff
+	SequenceStatus[sequenceIndex] = 0xff; // 0xff
 
 	SequenceLooping[sequenceIndex] = looping;
 }

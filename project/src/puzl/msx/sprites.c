@@ -16,11 +16,6 @@ void InitializeSpriteGraphics(void);
 
 void SetSpritePaletteColumnColorCodes(unsigned int columnIndex, byte colorCode);
 
-void InitializeSprites(void)
-{
-	
-}
-
 void InitializeSpriteGraphics(void)
 {
 	

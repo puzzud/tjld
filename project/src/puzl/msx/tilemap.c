@@ -19,11 +19,6 @@ byte PrintX;
 byte PrintY;
 byte PrintColor;
 
-void InitializeTilemap(void)
-{
-	memset(TileMapCollisionCodes, 0, sizeof(TileMapCollisionCodes));
-}
-
 byte GetTileMapShapeCode(byte x, byte y)
 {
 	return 0;
@@ -37,11 +32,6 @@ byte GetTileMapColorCode(byte x, byte y)
 byte GetTileMapCellCollisionCode(byte x, byte y)
 {
 	return TileMapCollisionCodes[(y * TILEMAP_WIDTH) + x];
-}
-
-void SetTileMapCellShape(byte x, byte y, byte shapeCode)
-{
-	
 }
 
 void SetTileMapCellColor(byte x, byte y, byte colorCode)

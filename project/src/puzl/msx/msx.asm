@@ -14,6 +14,11 @@ defc BAKCLR = $f3eA ; Background color
 defc BDRCLR = $f3eB ; Border color
 
 ; ---------------------------------------------------------------------------
+; MSX VDP port numbers.
+defc VdpDataPort = $98
+defc VdpCommandPort = $99
+
+; ---------------------------------------------------------------------------
 ; MSX BIOS routine addresses
 ; TODO: Incomplete.
 defc CHGMOD = $005f

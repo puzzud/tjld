@@ -9,9 +9,14 @@
 
 // ---------------------------------------------------------------------------
 // MSX system variables
-#define FORCLR = 0xf3e9 // Foreground color
-#define BAKCLR = 0xf3eA // Background color
-#define BDRCLR = 0xf3eB // Border color
+#define FORCLR 0xf3e9 // Foreground color
+#define BAKCLR 0xf3eA // Background color
+#define BDRCLR 0xf3eB // Border color
+
+// ---------------------------------------------------------------------------
+// MSX VDP port numbers.
+#define VdpDataPort 0x98
+#define VdpCommandPort 0x99
 
 // ---------------------------------------------------------------------------
 // MSX BIOS routine addresses

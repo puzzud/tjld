@@ -18,6 +18,7 @@ defc BDRCLR = $f3eB ; Border color
 ; TODO: Incomplete.
 defc CHGMOD = $005f
 defc CHGCLR = $0062
+defc INIT32 = $006f
 defc SETTXT = $0078
 defc SETGRP = $007e
 defc CALPAT = $0084

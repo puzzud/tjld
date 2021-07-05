@@ -18,6 +18,7 @@
 // TODO: Incomplete.
 #define CHGMOD 0x005f
 #define CHGCLR 0x0062
+#define INIT32 0x006f
 #define SETTXT 0x0078
 #define SETGRP 0x007e
 #define CALPAT 0x0084

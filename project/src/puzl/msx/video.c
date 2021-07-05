@@ -12,22 +12,9 @@
 
 byte BackgroundColorCode;
 
-void Draw(void);
-
-void InitializeVideo(void)
-{
-	InitializeTilemap();
-	InitializeSprites();
-}
-
 void ShutdownVideo(void)
 {
 	ShutdownSprites();
-}
-
-void Draw(void)
-{
-	
 }
 
 void SetBackgroundColor(byte colorCode)

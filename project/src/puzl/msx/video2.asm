@@ -52,7 +52,7 @@
 	ld h,c
 	xor a
 	
-	srl b
+	srl h
 	rr a
 	srl h
 	rr a

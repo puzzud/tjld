@@ -9,6 +9,16 @@
 #define FASTCALL
 #endif
 
+// z88dk specific function signature decorators to affect
+// the way parameters are passed into implementation.
+// TODO: Trap on z88dk instead of __MSX__.
+#ifdef __MSX__
+//#define FASTCALL_DECORATOR __z88dk_sdccdecl
+#define FASTCALL_DECORATOR
+#else
+#define FASTCALL_DECORATOR
+#endif
+
 // NOTE: Bad hack to get VS Code to shut up about far
 // keyword (not ISO?).
 #ifdef __WATCOM__

@@ -59,29 +59,29 @@ extern signed char SpriteVelocitiesY[NUMBER_OF_SPRITES];
 extern byte SpriteCollisionMasks[NUMBER_OF_SPRITES];
 extern byte SpriteCollisions[NUMBER_OF_SPRITES];
 
-void FASTCALL SetBackgroundColor(byte colorCode);
+void FASTCALL SetBackgroundColor(byte colorCode) FASTCALL_DECORATOR;
 
-byte FASTCALL GetTileMapShapeCode(byte x, byte y);
-byte FASTCALL GetTileMapColorCode(byte x, byte y);
-byte FASTCALL GetTileMapCellCollisionCode(byte x, byte y);
+byte FASTCALL GetTileMapShapeCode(byte x, byte y) FASTCALL_DECORATOR;
+byte FASTCALL GetTileMapColorCode(byte x, byte y) FASTCALL_DECORATOR;
+byte FASTCALL GetTileMapCellCollisionCode(byte x, byte y) FASTCALL_DECORATOR;
 
-void FASTCALL SetTileMapCellShape(byte x, byte y, byte shapeCode);
-void FASTCALL SetTileMapCellColor(byte x, byte y, byte colorCode);
-void FASTCALL SetTileMapCellCollisionCode(byte x, byte y, byte collisionCode);
+void FASTCALL SetTileMapCellShape(byte x, byte y, byte shapeCode) FASTCALL_DECORATOR;
+void FASTCALL SetTileMapCellColor(byte x, byte y, byte colorCode) FASTCALL_DECORATOR;
+void FASTCALL SetTileMapCellCollisionCode(byte x, byte y, byte collisionCode) FASTCALL_DECORATOR;
 
-extern void FASTCALL PrintText(const char* text);
+extern void FASTCALL PrintText(const char* text) FASTCALL_DECORATOR;
 
-void FASTCALL EnableSprite(byte enable);
+void FASTCALL EnableSprite(byte enable) FASTCALL_DECORATOR;
 signed short FASTCALL GetSpritePositionX(void);
 signed short FASTCALL GetSpritePositionY(void);
-void FASTCALL SetSpritePosition(signed short x, signed short y);
+void FASTCALL SetSpritePosition(signed short x, signed short y) FASTCALL_DECORATOR;
 void FASTCALL MoveSprite(void);
-void FASTCALL SetSpriteFrameIndex(byte frameIndex);
-void FASTCALL SetSpriteColor(byte colorCode);
-void FASTCALL SetSpriteSeconaryColor(byte colorCode);
-void FASTCALL SetSpriteTertiaryColor(byte colorCode);
-void FASTCALL SetSpriteAnimationSet(const byte** animationSet);
-void FASTCALL PlaySpriteAnimation(byte animationId, byte looping);
+void FASTCALL SetSpriteFrameIndex(byte frameIndex) FASTCALL_DECORATOR;
+void FASTCALL SetSpriteColor(byte colorCode) FASTCALL_DECORATOR;
+void FASTCALL SetSpriteSeconaryColor(byte colorCode) FASTCALL_DECORATOR;
+void FASTCALL SetSpriteTertiaryColor(byte colorCode) FASTCALL_DECORATOR;
+void FASTCALL SetSpriteAnimationSet(const byte** animationSet) FASTCALL_DECORATOR;
+void FASTCALL PlaySpriteAnimation(byte animationId, byte looping) FASTCALL_DECORATOR;
 void FASTCALL StopSpriteAnimation(void);
 
 #endif

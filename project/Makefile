@@ -403,7 +403,7 @@ $(BTDIR)/%_c.asm: $(SDIR)/%.c
 	@mkdir -p $(@D)
 	$(CC) $(CCFLAGS) -o$@ $<
 
-#.PRECIOUS: $(BTDIR)/%_c.asm
+.PRECIOUS: $(BTDIR)/%_c.asm
 
 #---------------------------------------
 # watcom

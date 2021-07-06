@@ -8,6 +8,8 @@
 	include "msx.asm"
 
 	section data_user
+.temp1
+	defs 2
 
 	section bss_user
 
@@ -58,25 +60,69 @@
 
 	ret
 
+; Inputs:
+;  - b: x position.
+;  - c: y position.
+;  - a: character shape code.
 .PrintCharacter
 	; Put character on screen.
 	call GetVdpScreenPosition
 	call VdpSetWriteAddress
 	
 	; TODO: Make 128 a parameter.
-	ld a,128
+	; TODO: e to a not necessary?
+	ld a,e
 	out (c),a
 
 	ret
 
 ;void SetTileMapCellShape(byte x, byte y, byte shapeCode)
+; Inputs:
+;  - sp[6]: x position.
+;  - sp[4]: y position.
+;  - sp[2]: shapeCode.
 ._SetTileMapCellShape
-	; TODO: Figure out parameters and stack management.
-	ld bc,$0808 ; b holds x, c holds y.
+	; TODO: Redo this with __z88dk_sdccdecl or preserve stack entries
+	; (in case of optimization requiring stack to be preserved for other operations).
+	;ld ix,0
+	;and a ; Reset carry.
+	;add ix,sp
+
+	;ld a,(ix+0) ; a has a byte of return address from call into this subroutine.
+	;ld a,(ix+1) ; a has other byte of return address from call into this subroutine.
+	
+	;ld a,(ix+2) ; a has shapeCode.
+	;ld e,a
+
+	;ld a,(ix+4) ; a has y?
+	;ld b,a
+	
+	;ld a,(ix+6) ; a has x?
+	;ld c,a
+
+	; Cache return address from stack.
+	pop hl
+	ld (temp1),hl
+
+	pop hl
+	;ld e,l
+
+	pop hl
+	ld c,l
+
+	pop hl
+	ld b,l
+
+	; b holds x.
+	; c holds y.
+	ld e,128 ; TODO: Change to parameter after full character set is implemented.
 	call PrintCharacter
-	
-	;pop hl
-	;pop hl
-	;pop hl
-	
+
+	; Restore cached return address on stack, replace popped entries in stack (not really though).
+	ld hl,(temp1)
+	push hl
+	push hl
+	push hl
+	push hl
+
 	ret

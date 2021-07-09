@@ -8,8 +8,6 @@
 	include "msx.asm"
 
 	section data_user
-.temp1
-	defs 2
 
 	section bss_user
 
@@ -82,47 +80,24 @@
 ;  - sp[4]: y position.
 ;  - sp[2]: shapeCode.
 ._SetTileMapCellShape
-	; TODO: Redo this with __z88dk_sdccdecl or preserve stack entries
+	; TODO: Redo this with __z88dk_sdccdecl.
 	; (in case of optimization requiring stack to be preserved for other operations).
-	;ld ix,0
-	;and a ; Reset carry.
-	;add ix,sp
-
-	;ld a,(ix+0) ; a has a byte of return address from call into this subroutine.
-	;ld a,(ix+1) ; a has other byte of return address from call into this subroutine.
+	ld ix,0
+	and a ; Reset carry.
+	add ix,sp
 	
 	;ld a,(ix+2) ; a has shapeCode.
 	;ld e,a
 
-	;ld a,(ix+4) ; a has y?
-	;ld b,a
+	ld a,(ix+4) ; a has y.
+	ld c,a
 	
-	;ld a,(ix+6) ; a has x?
-	;ld c,a
-
-	; Cache return address from stack.
-	pop hl
-	ld (temp1),hl
-
-	pop hl
-	;ld e,l
-
-	pop hl
-	ld c,l
-
-	pop hl
-	ld b,l
+	ld a,(ix+6) ; a has x.
+	ld b,a
 
 	; b holds x.
 	; c holds y.
 	ld e,128 ; TODO: Change to parameter after full character set is implemented.
 	call PrintCharacter
-
-	; Restore cached return address on stack, replace popped entries in stack (not really though).
-	ld hl,(temp1)
-	push hl
-	push hl
-	push hl
-	push hl
 
 	ret

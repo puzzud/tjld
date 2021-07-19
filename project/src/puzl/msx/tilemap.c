@@ -43,8 +43,9 @@ void SetTileMapCellCollisionCode(byte x, byte y, byte collisionCode)
 {
 	
 }
-
+/*
 void PrintText(const char* text)
 {
 	
 }
+*/

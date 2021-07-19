@@ -2,6 +2,8 @@
 
 	public _InitializeVideo
 	public VdpSetWriteAddress
+	public CopyToVdp
+	public FillVdp
 	public GetVdpScreenPosition
 	extern _InitializeTilemap
 	extern _InitializeSprites
@@ -71,7 +73,10 @@
 ; Inputs:
 ;  - hl: address.
 ; Outputs:
-;  - c: port number to use.
+;  - none
+; Notes:
+;  - Next call to VdpDataPort gives the correct port
+;  - to use for this address.
 .VdpSetWriteAddress
 	ld a,l
 	out (VdpCommandPort),a
@@ -80,6 +85,33 @@
 	or %01000000
 	out (VdpCommandPort),a
 	
+	ret
+
+; Inputs:
+;  - hl: start address of data.
+;  - bc: length of data.
+.CopyToVdp
+	push bc
+		ld c,VdpDataPort
+		outi
+	pop bc
+	dec bc
+	ld a,b
+	or c
+	jr nz,CopyToVdp
+
+	ret
+
+; Inputs:
+;  - l: Value to fill.
+;  - de: Amount to fill.
+.FillVdp
 	ld c,VdpDataPort
-	
+.fillVpdLoop
+	out (c),l
+	dec de
+	ld d,a
+	or e
+	jr nz,fillVpdLoop
+
 	ret

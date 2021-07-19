@@ -9,6 +9,12 @@ defc SCREEN_HEIGHT = 192
 
 ; ---------------------------------------------------------------------------
 ; MSX system variables
+defc T32NAM = $f3bd ; Address of pattern name table
+defc T32COL = $f3bf ; Address of colors table
+defc T32CGP = $f3c1 ; Address of pattern generator table
+defc T32ATR = $f3c3 ; Address of sprite attribute table
+defc T32PAT = $f3c5 ; Address of sprite generator table
+
 defc FORCLR = $f3e9 ; Foreground color
 defc BAKCLR = $f3eA ; Background color
 defc BDRCLR = $f3eB ; Border color
@@ -21,6 +27,8 @@ defc VdpCommandPort = $99
 ; ---------------------------------------------------------------------------
 ; MSX BIOS routine addresses
 ; TODO: Incomplete.
+defc FILVRM = $0056
+defc LDIRVM = $005c
 defc CHGMOD = $005f
 defc CHGCLR = $0062
 defc INIT32 = $006f
@@ -38,3 +46,4 @@ defc CLS = $00c3
 defc POSIT = $00c6
 defc GTSTCK = $00d5
 defc GTTRIG = $00d8
+defc INIPLT = $0141

@@ -2,7 +2,6 @@
 
 	public _InitializeSprites
 	extern VdpSetWriteAddress
-	extern CopyToVdp
 	
 	include "msx.asm"
 
@@ -28,12 +27,10 @@
 ._InitializeSprites
 	; Populate hardware sprite shape.
 	; TODO: Get base address from system for cross platform.
-	ld hl,$3800+0*8
-	call VdpSetWriteAddress
-
+	ld de,$3800+0*8
 	ld hl,SpriteData
 	ld bc,SpriteDataEnd-SpriteData
-	call CopyToVdp
+	call LDIRVM
 
 	; Set hardware sprite 0 attributes.
 	ld hl,$1b00+0*4

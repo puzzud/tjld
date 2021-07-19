@@ -6,14 +6,11 @@
 	extern VdpSetWriteAddress
 	extern GetVdpScreenPosition
 	extern CopyToVdp
-	extern FillVdp
 	extern _PrintX
 	extern _PrintY
 	extern _CharacterSet
 
 	include "msx.asm"
-
-	defc CHARACTER_CODE = 'A'
 
 	section data_user
 
@@ -21,76 +18,31 @@
 
 	section rodata_user
 
-.CharacterColorData
-	db $f0
-	db $f0
-	db $f0
-	db $f0
-	db $f0
-	db $f0
-	db $f0
-	db $f0
-
 	section code_user
 
 ._InitializeTilemap
-	; Populate character shape.
 	call CopyCharacterPatternsToVdp
-	
-	; Populate character colors.
-	;call CopyCharacterColorPatternsToVdp
+	call CopyCharacterColorPatternsToVdp
 
-	ld hl,$2000+CHARACTER_CODE*8
-	call VdpSetWriteAddress
-	
-	ld c,VdpDataPort
-	ld hl,CharacterColorData
-	ld b,8
-	otir
-	
 	; TODO: Initialize TileMapCollisionCodes.
 
 	ret
 
 .CopyCharacterPatternsToVdp
-	ld c,0
-.copyCharactersLoop
-	push bc
-	call CopyCharacterPatternToVdp
-	pop bc
-	dec c
-	ret z
-	jp copyCharactersLoop
+	; TODO: Get base address from system for cross platform.
+	ld de,$0000
+	ld hl,_CharacterSet
+	ld bc,256*8
+	call LDIRVM
 
-.CopyCharacterPatternToVdp
-	ld h,0
-	ld l,c
-	and a
-	add hl,hl
-	add hl,hl
-	add hl,hl ; x8
-	push hl
-
-	add hl,$0000
-	call VdpSetWriteAddress
-	
-	ld c,VdpDataPort
-	and a
-	pop hl
-	add hl,_CharacterSet
-	ld b,8
-	otir
-	
 	ret
 
 .CopyCharacterColorPatternsToVdp
 	; TODO: Get base address from system for cross platform.
 	ld hl,$2000
-	call VdpSetWriteAddress
-
-	ld l,$f0
-	ld de,256*8
-	call FillVdp
+	ld bc,256*8
+	ld a,$f0
+	call FILVRM
 
 	ret
 
@@ -131,7 +83,6 @@
 
 	; b holds x.
 	; c holds y.
-	ld e,CHARACTER_CODE ; TODO: Change to parameter after full character set is implemented.
 	call PrintCharacter
 
 	ret

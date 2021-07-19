@@ -8,6 +8,25 @@
 #define SCREEN_HEIGHT 192
 
 // ---------------------------------------------------------------------------
+// MSX colors
+#define MSX_COLOR_TRANSPARENT 0
+#define MSX_COLOR_BLACK 1
+#define MSX_COLOR_GREEN 2
+#define MSX_COLOR_LIGHT_GREEN 3
+#define MSX_COLOR_DARK_BLUE 4
+#define MSX_COLOR_LIGHT_BLUE 5
+#define MSX_COLOR_DARK_RED 6
+#define MSX_COLOR_SKY_BLUE 7
+#define MSX_COLOR_RED 8
+#define MSX_COLOR_BRIGHT_RED 9
+#define MSX_COLOR_YELLOW 10
+#define MSX_COLOR_LIGHT_YELLOW 11
+#define MSX_COLOR_DARK_GREEN 12
+#define MSX_COLOR_PURPLE 13
+#define MSX_COLOR_GREY 14
+#define MSX_COLOR_WHITE 15
+
+// ---------------------------------------------------------------------------
 // MSX system variables
 #define FORCLR 0xf3e9 // Foreground color
 #define BAKCLR 0xf3eA // Background color

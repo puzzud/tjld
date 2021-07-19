@@ -8,6 +8,25 @@ defc SCREEN_WIDTH  = 256
 defc SCREEN_HEIGHT = 192
 
 ; ---------------------------------------------------------------------------
+; MSX colors
+defc MSX_COLOR_TRANSPARENT = 0
+defc MSX_COLOR_BLACK = 1
+defc MSX_COLOR_GREEN = 2
+defc MSX_COLOR_LIGHT_GREEN = 3
+defc MSX_COLOR_DARK_BLUE = 4
+defc MSX_COLOR_LIGHT_BLUE = 5
+defc MSX_COLOR_DARK_RED = 6
+defc MSX_COLOR_SKY_BLUE = 7
+defc MSX_COLOR_RED = 8
+defc MSX_COLOR_BRIGHT_RED = 9
+defc MSX_COLOR_YELLOW = 10
+defc MSX_COLOR_LIGHT_YELLOW = 11
+defc MSX_COLOR_DARK_GREEN = 12
+defc MSX_COLOR_PURPLE = 13
+defc MSX_COLOR_GREY = 14
+defc MSX_COLOR_WHITE = 15
+
+; ---------------------------------------------------------------------------
 ; MSX system variables
 defc T32NAM = $f3bd ; Address of pattern name table
 defc T32COL = $f3bf ; Address of colors table

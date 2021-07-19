@@ -92,10 +92,10 @@
 ;  - sp[2]: text address.
 ._PrintText
 	; b: x position.
-	ld hl,(_PrintX)
+	ld hl,_PrintX
 	ld b,(hl)
 	; c: y position.
-	ld hl,(_PrintY)
+	ld hl,_PrintY
 	ld c,(hl)
 	call GetVdpScreenPosition
 	call VdpSetWriteAddress

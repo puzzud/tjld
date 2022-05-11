@@ -142,7 +142,7 @@ PlaySequence:
   pla
   jsr StartSequence
 
-  jmp incsp3
+  rts
 
 ;---------------------------------------
 ; inputs:

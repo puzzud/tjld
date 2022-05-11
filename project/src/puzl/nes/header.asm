@@ -16,6 +16,7 @@ iNesHeader:
   .byte <(__CHR_NUM__)  ; N X  8KB CHR-ROM
   
   ; Set mapper and mirroring, etc.
+  ; TODO: Need to figure out how to better specify WRAM as non battery backed RAM (iNes 2.0?).
   .byte <(__MAPPER_NUM__ & $0f) | <(__MIRRORING__) | <(__HAS_SRAM__ << 1)
   .byte <(__MAPPER_NUM__ << 4)
   

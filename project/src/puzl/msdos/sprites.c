@@ -10,7 +10,7 @@
 
 extern const byte SpriteSet[NUMBER_OF_SPRITE_FRAMES][SPRITE_WIDTH][SPRITE_HEIGHT];
 
-void DrawSprite(Sprite* sprite);
+void DrawSprite(int spriteIndex);
 
 void InitializeSprites(void)
 {
@@ -21,25 +21,25 @@ void InitializeSprites(void)
 
 void DrawSprites(void)
 {
-	Sprite* sprite;
 	int spriteIndex = NUMBER_OF_SPRITES - 1;
 
 	do
 	{
-		sprite = &Sprites[spriteIndex];
-
-		if (sprite->enabled != 0)
+		if (SpriteEnabledFlags[spriteIndex] != 0)
 		{
-			DrawSprite(sprite);
+			DrawSprite(spriteIndex);
 		}
 	}
 	while (--spriteIndex > -1);
 }
 
-inline void DrawSprite(Sprite* sprite)
+// NOTE: Had to make this function non-inline,
+// because spriteIndex was resolving differently (irratically) than when it was a Sprite pointer.
+void DrawSprite(int spriteIndex)
 {
-	const byte* spriteFrameOffset = SpriteSet[sprite->frameIndex];
-	byte FAR* videoBufferOffset = &DoubleBuffer[(sprite->position.y * SCREEN_WIDTH) + sprite->position.x];
+	const byte* spriteFrameOffset = SpriteSet[SpriteFrameIndices[spriteIndex]];
+	ScreenPoint* spritePosition = &SpritePositions[spriteIndex];
+	byte FAR* videoBufferOffset = &DoubleBuffer[(spritePosition->y * SCREEN_WIDTH) + spritePosition->x];
 
 	byte colorCode;
 	int yCounter = SPRITE_HEIGHT;
@@ -58,7 +58,7 @@ inline void DrawSprite(Sprite* sprite)
 				{
 					case 2:
 					{
-						colorCode = sprite->colorCode;
+						colorCode = SpriteColorCodes[spriteIndex];
 
 						break;
 					}
@@ -93,24 +93,24 @@ inline void DrawSprite(Sprite* sprite)
 
 void EnableSprite(byte enable)
 {
-	Sprites[CurrentSpriteIndex].enabled = enable;
+	SpriteEnabledFlags[CurrentSpriteIndex] = enable;
 }
 
 void SetSpritePosition(signed short x, signed short y)
 {
-	ScreenPoint* position = &Sprites[CurrentSpriteIndex].position;
+	ScreenPoint* position = &SpritePositions[CurrentSpriteIndex];
 	position->x = x;
 	position->y = y;
 }
 
 void SetSpriteFrameIndex(byte frameIndex)
 {
-	Sprites[CurrentSpriteIndex].frameIndex = frameIndex;
+	SpriteFrameIndices[CurrentSpriteIndex] = frameIndex;
 }
 
 void SetSpriteColor(byte colorCode)
 {
-	Sprites[CurrentSpriteIndex].colorCode = colorCode;
+	SpriteColorCodes[CurrentSpriteIndex] = colorCode;
 }
 
 void SetSpriteSeconaryColor(byte colorCode)

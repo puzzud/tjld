@@ -14,17 +14,6 @@
 #define TILEMAP_WIDTH (SCREEN_WIDTH / TILE_WIDTH)
 #define TILEMAP_HEIGHT (SCREEN_HEIGHT / TILE_HEIGHT)
 
-typedef struct
-{
-	byte enabled;
-	ScreenPoint position;
-	byte frameIndex;
-	u16* spriteGraphicsOffset; // NOTE: NDS specific.
-	const byte** animationSet;
-	byte animationId;
-	byte colorCode;
-} Sprite;
-
 void InitializeVideo(void);
 void ShutdownVideo(void);
 

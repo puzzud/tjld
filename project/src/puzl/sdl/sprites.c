@@ -20,7 +20,7 @@ void InitializeSpriteTextures(void);
 void PopulateSpriteSetSurfaceFromSpriteSet(SDL_Surface* spriteSetSurface, byte focusColorCode);
 void PopulateSpriteSurfaceFromSprite(SDL_Surface* spriteSurface, unsigned int spriteFrameIndex, byte focusColorCode);
 
-void DrawSprite(Sprite* sprite);
+void DrawSprite(int spriteIndex);
 
 void InitializeSprites(void)
 {
@@ -140,39 +140,38 @@ void PopulateSpriteSurfaceFromSprite(SDL_Surface* spriteSurface, unsigned int sp
 
 void DrawSprites(void)
 {
-	Sprite* sprite;
 	int spriteIndex = NUMBER_OF_SPRITES - 1;
 
 	do
 	{
-		sprite = &Sprites[spriteIndex];
-
-		if (sprite->enabled != 0)
+		if (SpriteEnabledFlags[spriteIndex] != 0)
 		{
-			DrawSprite(sprite);
+			DrawSprite(spriteIndex);
 		}
 	}
 	while (--spriteIndex > -1);
 }
 
-inline void DrawSprite(Sprite* sprite)
+inline void DrawSprite(int spriteIndex)
 {
 	SDL_Color* color;
 
 	SDL_Rect sourceRect;
 	SDL_Rect destinationRect;
 
+	ScreenPoint* spritePosition = &SpritePositions[CurrentSpriteIndex];
+
 	sourceRect.x = 0;
-	sourceRect.y = sprite->frameIndex * SPRITE_HEIGHT;
+	sourceRect.y = SpriteFrameIndices[spriteIndex] * SPRITE_HEIGHT;
 	sourceRect.w = SPRITE_WIDTH;
 	sourceRect.h = SPRITE_HEIGHT;
 
-	destinationRect.x = sprite->position.x;
-	destinationRect.y = sprite->position.y;
+	destinationRect.x = spritePosition->x;
+	destinationRect.y = spritePosition->y;
 	destinationRect.w = SPRITE_WIDTH;
 	destinationRect.h = SPRITE_HEIGHT;
 
-	color = &Colors[sprite->colorCode];
+	color = &Colors[SpriteColorCodes[spriteIndex]];
 	SDL_SetTextureColorMod(SpriteSetTextures[1], color->r, color->g, color->b);
 	SDL_RenderCopy(Renderer, SpriteSetTextures[1], &sourceRect, &destinationRect);
 
@@ -187,24 +186,24 @@ inline void DrawSprite(Sprite* sprite)
 
 void EnableSprite(byte enable)
 {
-	Sprites[CurrentSpriteIndex].enabled = enable;
+	SpriteEnabledFlags[CurrentSpriteIndex] = enable;
 }
 
 void SetSpritePosition(signed short x, signed short y)
 {
-	ScreenPoint* position = &Sprites[CurrentSpriteIndex].position;
+	ScreenPoint* position = &SpritePositions[CurrentSpriteIndex];
 	position->x = x;
 	position->y = y;
 }
 
 void SetSpriteFrameIndex(byte frameIndex)
 {
-	Sprites[CurrentSpriteIndex].frameIndex = frameIndex;
+	SpriteFrameIndices[CurrentSpriteIndex] = frameIndex;
 }
 
 void SetSpriteColor(byte colorCode)
 {
-	Sprites[CurrentSpriteIndex].colorCode = colorCode;
+	SpriteColorCodes[CurrentSpriteIndex] = colorCode;
 }
 
 void SetSpriteSeconaryColor(byte colorCode)

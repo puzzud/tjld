@@ -27,8 +27,7 @@ void BaseInitializeSpritesPhysics(void)
 
 void MoveSprite(void)
 {
-	Sprite* sprite = &Sprites[CurrentSpriteIndex];
-	ScreenPoint* spritePosition = &sprite->position;
+	ScreenPoint* spritePosition = &SpritePositions[CurrentSpriteIndex];
 
 	ScreenPoint tempSpritePosition;
 
@@ -60,8 +59,7 @@ inline void CalculateSpriteTileCorners(ScreenPoint* spritePosition, Vector2d* up
 // Assumes sprite dimensions of 16x16.
 void CheckSpriteCollision(ScreenPoint* tempSpritePosition)
 {
-	Sprite* sprite = &Sprites[CurrentSpriteIndex];
-	ScreenPoint* spritePosition = &sprite->position;
+	ScreenPoint* spritePosition = &SpritePositions[CurrentSpriteIndex];
 	Vector2d spriteVelocity;
 
 	int x, y;

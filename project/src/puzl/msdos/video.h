@@ -20,17 +20,6 @@
 #define TILEMAP_WIDTH (SCREEN_WIDTH / TILE_WIDTH)
 #define TILEMAP_HEIGHT (SCREEN_HEIGHT / TILE_HEIGHT)
 
-typedef struct
-{
-	byte enabled;
-	ScreenPoint position;
-	byte frameIndex;
-	const byte** animationSet;
-	byte animationId;
-	byte colorCode;
-	Vector2d velocity;
-} Sprite;
-
 extern byte FAR* DoubleBuffer;
 
 void InitializeVideo(void);

@@ -12,6 +12,8 @@
 
 #define SPRITE_GRAPHICS_FRAME_LENGTH (SPRITE_WIDTH * SPRITE_HEIGHT * 2) // Not sure why 2 instead of 4.
 
+u16* SpriteGraphicsOffsets[NUMBER_OF_SPRITES];
+
 extern const byte SpriteSet[NUMBER_OF_SPRITE_FRAMES][SPRITE_WIDTH][SPRITE_HEIGHT];
 
 u16* SpriteGraphics;
@@ -40,7 +42,7 @@ void InitializeSprites(void)
 
 	for (spriteIndex = 0; spriteIndex < NUMBER_OF_SPRITES; ++spriteIndex)
 	{
-		Sprites[spriteIndex].spriteGraphicsOffset = SpriteGraphics;
+		SpriteGraphicsOffsets[spriteIndex] = SpriteGraphics;
 
 		UpdateOam(spriteIndex);
 	}
@@ -111,8 +113,7 @@ void ShutdownSprites(void)
 
 void UpdateOam(unsigned int spriteIndex)
 {
-	Sprite* sprite = &Sprites[spriteIndex];
-	ScreenPoint* spritePosition = &sprite->position;
+	ScreenPoint* spritePosition = &SpritePositions[spriteIndex];
 
 	oamSet
 	(
@@ -125,10 +126,10 @@ void UpdateOam(unsigned int spriteIndex)
 		spriteIndex,               // Palette index (or alpha value for BMP).
 		SpriteSize_16x16,          // Sprite size.
 		SpriteColorFormat_16Color, // Color format.
-		sprite->spriteGraphicsOffset, // Pointer to graphics.
+		SpriteGraphicsOffsets[spriteIndex], // Pointer to graphics.
 		-1,                        // Affine index (for rotating).
 		0,                         // Double size during rotation.
-		sprite->enabled == 0 ? 1 : 0, // Hide sprite.
+		SpriteEnabledFlags[spriteIndex] == 0 ? 1 : 0, // Hide sprite.
 		0,                         // Vertical flip sprite.
 		0,                         // Horizontal flip sprite.
 		0	                         // Mosaic sprite.
@@ -137,7 +138,7 @@ void UpdateOam(unsigned int spriteIndex)
 
 void EnableSprite(byte enable)
 {
-	Sprites[CurrentSpriteIndex].enabled = enable;
+	SpriteEnabledFlags[CurrentSpriteIndex] = enable;
 	
 	// NOTE: oamSetHidden doesn't seem to work well,
 	// so it seems full UpdateOam is needed.
@@ -148,7 +149,7 @@ void EnableSprite(byte enable)
 
 void SetSpritePosition(signed short x, signed short y)
 {
-	ScreenPoint* position = &Sprites[CurrentSpriteIndex].position;
+	ScreenPoint* position = &SpritePositions[CurrentSpriteIndex];
 	position->x = x;
 	position->y = y;
 
@@ -159,16 +160,16 @@ void SetSpritePosition(signed short x, signed short y)
 
 void SetSpriteFrameIndex(byte frameIndex)
 {
-	Sprites[CurrentSpriteIndex].frameIndex = frameIndex;
+	SpriteFrameIndices[CurrentSpriteIndex] = frameIndex;
 
-	Sprites[CurrentSpriteIndex].spriteGraphicsOffset = &SpriteGraphics[SPRITE_GRAPHICS_FRAME_LENGTH * frameIndex];
+	SpriteGraphicsOffsets[CurrentSpriteIndex] = &SpriteGraphics[SPRITE_GRAPHICS_FRAME_LENGTH * frameIndex];
 
 	UpdateOam(CurrentSpriteIndex);
 }
 
 void SetSpriteColor(byte colorCode)
 {
-	Sprites[CurrentSpriteIndex].colorCode = colorCode;
+	SpriteColorCodes[CurrentSpriteIndex] = colorCode;
 	
 	SPRITE_PALETTE[(CurrentSpriteIndex * 16) + 2] = Colors[colorCode];
 }

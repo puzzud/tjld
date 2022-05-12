@@ -14,16 +14,6 @@
 #define TILEMAP_WIDTH (SCREEN_WIDTH / TILE_WIDTH)
 #define TILEMAP_HEIGHT (SCREEN_HEIGHT / TILE_HEIGHT)
 
-typedef struct
-{
-	byte enabled;
-	ScreenPoint position;
-	byte frameIndex;
-	const byte** animationSet;
-	byte animationId;
-	byte colorCode;
-} Sprite;
-
 extern SDL_Renderer* Renderer;
 
 extern const byte CharacterSet[NUMBER_OF_CHARACTERS][CHARACTER_HEIGHT][CHARACTER_WIDTH];

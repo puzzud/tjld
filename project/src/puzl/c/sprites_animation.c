@@ -20,27 +20,27 @@ void BaseInitializeSpritesAnimation(void)
 		// NOTE: Hacky way to indicate initial unset
 		// values for animation IDs, but it's fairly efficient
 		// for 8 bit platform implementations.
-		Sprites[index].animationId = -1;
+		SpriteAnimationIds[index] = -1;
 	}
 }
 
 void SetSpriteAnimationSet(const byte** animationSet)
 {
-	Sprites[CurrentSpriteIndex].animationSet = animationSet;
+	SpriteAnimationSets[CurrentSpriteIndex] = animationSet;
 }
 
 void PlaySpriteAnimation(byte animationId, byte looping)
 {
 	const byte* animationStart;
 
-	if (Sprites[CurrentSpriteIndex].animationId == animationId)
+	if (SpriteAnimationIds[CurrentSpriteIndex] == animationId)
 	{
 		return;
 	}
 
-	Sprites[CurrentSpriteIndex].animationId = animationId;
+	SpriteAnimationIds[CurrentSpriteIndex] = animationId;
 
-	animationStart = Sprites[CurrentSpriteIndex].animationSet[animationId];
+	animationStart = SpriteAnimationSets[CurrentSpriteIndex][animationId];
 
 	// TODO: Properly determine sequence from sprite index.
 	PlaySequence(CurrentSpriteIndex + 3, animationStart, looping);

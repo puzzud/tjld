@@ -259,14 +259,18 @@ void CheckSpriteClimbing(void)
 	{
 		// Pressing down.
 
-		byte belowTileCollision = GetTileMapCellCollisionCode(SpriteTilePosition.x, SpriteTilePosition.y + 1);
-		if ((belowTileCollision & COLLISION_FLAG_OBSTACLE) != 0)
+		byte belowTileCollisionBelowLeft = GetTileMapCellCollisionCode(SpriteTilePositionBelowLeft.x, SpriteTilePositionBelowLeft.y);
+		byte belowTileCollisionBelowRight = GetTileMapCellCollisionCode(SpriteTilePositionBelowRight.x, SpriteTilePositionBelowRight.y);
+		
+		if (((belowTileCollisionBelowLeft & COLLISION_FLAG_OBSTACLE) != 0) &&
+		    ((belowTileCollisionBelowRight & COLLISION_FLAG_OBSTACLE) != 0))
 		{
 			// Pressing down into a platform.
 			SpriteClimbing = 0;
 			SpriteDirection.y = 0;
 		}
-		else if ((belowTileCollision & COLLISION_FLAG_LADDER) != 0)
+		else if (((belowTileCollisionBelowLeft & COLLISION_FLAG_LADDER) != 0) ||
+		         ((belowTileCollisionBelowRight & COLLISION_FLAG_LADDER) != 0))
 		{
 			// Pressing down with ladder below.
 			SpriteClimbingAlignLadderAbove();

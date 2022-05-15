@@ -14,12 +14,17 @@
 #pragma bss-name (push,"ZEROPAGE")
 byte LoopIndex;
 
-Vector2d IntendedDirection;
-
 byte SpriteSpeedPatternIndex;
+
+Vector2d IntendedDirection;
+Vector2d SpriteDirection;
+
 Vector2d SpriteTilePosition;
+Vector2d SpriteTilePositionBelowLeft;
+Vector2d SpriteTilePositionBelowRight;
 
 byte SpriteClimbing;
+byte SpriteFalling;
 #pragma bss-name (pop)
 
 int Score;
@@ -32,9 +37,9 @@ extern const byte PickupSound[];
 
 void UpdateIntendedDirection(void);
 void UpdateSpriteAnimation(void);
-byte GetSpriteTilePositionX(void);
-byte GetSpriteTilePositionY(void);
-void CheckSpriteTile(void);
+void CheckSpriteTiles(void);
+
+void CheckSpriteFalling(void);
 
 void CheckSpriteClimbing(void);
 void SpriteClimbingAlignLadderTouching(void);
@@ -48,6 +53,7 @@ void InitializeNodeTree(void)
 	
 	Score = 0;
 	SpriteClimbing = 0;
+	SpriteFalling = 0;
 
 	SpriteSpeedPatternIndex = 8;
 
@@ -72,7 +78,7 @@ void InitializeNodeTree(void)
 
 	SpriteCollisionMasks[CurrentSpriteIndex] = COLLISION_FLAG_OBSTACLE | COLLISION_FLAG_LADDER;
 
-	CheckSpriteTile();
+	CheckSpriteTiles();
 
 	PlayAudioPattern(0, Voice1Start, 1);
 	PlayAudioPattern(2, Voice2Start, 1);
@@ -87,19 +93,42 @@ void Process(void)
 	LoopIndex = 2;
 	do
 	{
-		if ((IntendedDirection.x | IntendedDirection.y) != 0)
+		if (CanMove(SpriteSpeedPatternIndex) != 0)
 		{
-			if (IsMoving(SpriteSpeedPatternIndex) != 0)
+			CheckSpriteClimbing();
+			if (SpriteClimbing != 0)
 			{
-				CheckSpriteClimbing();
+				SpriteVelocitiesX[CurrentSpriteIndex] = SpriteDirection.x;
+				SpriteVelocitiesY[CurrentSpriteIndex] = SpriteDirection.y;
+			}
+			else
+			{
+				CheckSpriteFalling();
+				if (SpriteFalling != 0)
+				{
+					SpriteVelocitiesX[CurrentSpriteIndex] = SpriteDirection.x = 0;
+					SpriteVelocitiesY[CurrentSpriteIndex] = SpriteDirection.y = 1;
+				}
+				else
+				{
+					SpriteVelocitiesX[CurrentSpriteIndex] = SpriteDirection.x = IntendedDirection.x;
+					SpriteVelocitiesY[CurrentSpriteIndex] = SpriteDirection.y = 0;	
+				}
+			}
 
-				SpriteVelocitiesX[CurrentSpriteIndex] = IntendedDirection.x;
-				SpriteVelocitiesY[CurrentSpriteIndex] = IntendedDirection.y;
+			if ((SpriteVelocitiesX[CurrentSpriteIndex] | SpriteVelocitiesY[CurrentSpriteIndex]) != 0)
+			{
+				if (SpriteFalling != 0)
+				{
+					SpriteCollisionMasks[CurrentSpriteIndex] = 0;
+				}
 
 				MoveSprite();
-
-				CheckSpriteTile();
+				
+				SpriteCollisionMasks[CurrentSpriteIndex] = COLLISION_FLAG_OBSTACLE | COLLISION_FLAG_LADDER;
 			}
+
+			CheckSpriteTiles();
 		}
 
 		CycleSpeedBit();
@@ -138,45 +167,45 @@ void UpdateIntendedDirection(void)
 
 void UpdateSpriteAnimation(void)
 {
-	signed char intendedDirectionX = IntendedDirection.x;
-	signed char intendedDirectionY = IntendedDirection.y;
+	signed char spriteDirectionX = SpriteDirection.x;
+	signed char spriteDirectionY = SpriteDirection.y;
 
-	if (intendedDirectionX != 0)
+	if (SpriteFalling != 0)
 	{
-		if (intendedDirectionX < 0)
-		{
-			PlaySpriteAnimation(DWARF_ANIMATION_ID_LEFT_WALK, 1);
-		}
-		else if (intendedDirectionX > 0)
-		{
-			PlaySpriteAnimation(DWARF_ANIMATION_ID_RIGHT_WALK, 1);
-		}
+		PlaySpriteAnimation(DWARF_ANIMATION_ID_FRONT_JUMP, 1);
+		return;
 	}
-	else
+
+	if ((spriteDirectionX | spriteDirectionY) == 0)
 	{
-		if (SpriteClimbing != 0)
-		{
-			if (intendedDirectionY != 0)
-			{
-				PlaySpriteAnimation(DWARF_ANIMATION_ID_BACK_CLIMB, 1);
-			}
-			else
-			{
-				//StopSpriteAnimation();
-			}
-		}
-		else
-		{
-			PlaySpriteAnimation(DWARF_ANIMATION_ID_FRONT_IDLE, 1);
-		}
+		PlaySpriteAnimation(DWARF_ANIMATION_ID_FRONT_IDLE, 1);
+	}
+	else if (SpriteClimbing != 0)
+	{
+		PlaySpriteAnimation(DWARF_ANIMATION_ID_BACK_CLIMB, 1);
+	}
+	else if (spriteDirectionX < 0)
+	{
+		PlaySpriteAnimation(DWARF_ANIMATION_ID_LEFT_WALK, 1);
+	}
+	else if (spriteDirectionX > 0)
+	{
+		PlaySpriteAnimation(DWARF_ANIMATION_ID_RIGHT_WALK, 1);
 	}
 }
 
-void CheckSpriteTile(void)
+void CheckSpriteTiles(void)
 {
-	SpriteTilePosition.x = GetSpriteTilePositionX();
-	SpriteTilePosition.y = GetSpriteTilePositionY();
+	signed short spritePositionX = GetSpritePositionX();
+	signed short spritePositionY = GetSpritePositionY();
 
+	SpriteTilePosition.x = (spritePositionX + 7) / TILE_WIDTH;
+	SpriteTilePosition.y = (spritePositionY + TILE_HEIGHT) / TILE_HEIGHT;
+
+	SpriteTilePositionBelowLeft.x = spritePositionX / TILE_WIDTH;
+	SpriteTilePositionBelowRight.y = SpriteTilePositionBelowLeft.y = (spritePositionY + (TILE_HEIGHT * 2)) / TILE_HEIGHT;
+	SpriteTilePositionBelowRight.x = (spritePositionX + (TILE_WIDTH * 2) - 1) / TILE_WIDTH;
+	
 	if (GetTileMapShapeCode(SpriteTilePosition.x, SpriteTilePosition.y) != 0)
 	{
 		switch (GetTileMapColorCode(SpriteTilePosition.x, SpriteTilePosition.y))
@@ -195,31 +224,22 @@ void CheckSpriteTile(void)
 	}
 }
 
-byte GetSpriteTilePositionX(void)
+void CheckSpriteFalling(void)
 {
-	byte SpriteTilePositionX = (GetSpritePositionX() + 7) / TILE_WIDTH;
-	if (SpriteTilePositionX >= TILEMAP_WIDTH)
+	if (((GetTileMapCellCollisionCode(SpriteTilePositionBelowLeft.x, SpriteTilePositionBelowLeft.y) & (COLLISION_FLAG_OBSTACLE | COLLISION_FLAG_LADDER)) != 0) ||
+	    ((GetTileMapCellCollisionCode(SpriteTilePositionBelowRight.x, SpriteTilePositionBelowRight.y) & (COLLISION_FLAG_OBSTACLE | COLLISION_FLAG_LADDER)) != 0))
 	{
-		SpriteTilePositionX = TILEMAP_WIDTH;
+		SpriteFalling = 0;
+		return;
 	}
 
-	return SpriteTilePositionX;
-}
-
-byte GetSpriteTilePositionY(void)
-{
-	byte SpriteTilePositionY = (GetSpritePositionY() + TILE_HEIGHT + (TILE_HEIGHT * 3 / 4)) / TILE_HEIGHT;
-	if (SpriteTilePositionY >= TILEMAP_HEIGHT)
-	{
-		SpriteTilePositionY = TILEMAP_HEIGHT;
-	}
-
-	return SpriteTilePositionY;
+	SpriteFalling = 1;
+	SpriteDirection.y = 1;
 }
 
 void CheckSpriteClimbing(void)
 {
-	if (IntendedDirection.y < 0)
+	if ((SpriteClimbing != 0 && SpriteDirection.y < 0) || (IntendedDirection.y < 0))
 	{
 		// Pressing up.
 
@@ -227,19 +247,15 @@ void CheckSpriteClimbing(void)
 		if ((SpriteCollisions[CurrentSpriteIndex] & COLLISION_FLAG_LADDER) != 0)
 		{
 			// Touching a ladder.
-
-			SpriteClimbing = 1;
-			//IntendedDirection.x = 0;
-
 			SpriteClimbingAlignLadderTouching();
 		}
 		else
 		{
 			SpriteClimbing = 0;
-			IntendedDirection.y = 0;
+			//SpriteDirection.y = 0;
 		}
 	}
-	else if (IntendedDirection.y > 0)
+	else if ((SpriteClimbing != 0 && SpriteDirection.y > 0) || (IntendedDirection.y > 0))
 	{
 		// Pressing down.
 
@@ -248,23 +264,17 @@ void CheckSpriteClimbing(void)
 		{
 			// Pressing down into a platform.
 			SpriteClimbing = 0;
+			SpriteDirection.y = 0;
 		}
 		else if ((belowTileCollision & COLLISION_FLAG_LADDER) != 0)
 		{
 			// Pressing down with ladder below.
-
-			SpriteClimbing = 1;
 			SpriteClimbingAlignLadderAbove();
-		}
-		else
-		{
-			SpriteClimbing = 0;
-			IntendedDirection.y = 0;
 		}
 	}
 	else if (SpriteClimbing != 0)
 	{
-		IntendedDirection.x = 0;
+		SpriteDirection.x = 0;
 	}
 }
 
@@ -289,17 +299,20 @@ void SpriteClimbingAlignLadderTouching(void)
 
 		if ((GetTileMapCellCollisionCode(spriteX / 8, spriteY / 8) & COLLISION_FLAG_LADDER) != 0)
 		{
-			IntendedDirection.x = -1;
+			SpriteDirection.x = -1;
 		}
 		else
 		{
-			IntendedDirection.x = 1;
+			SpriteDirection.x = 1;
 		}
 	}
 	else
 	{
-		IntendedDirection.x = 0;
+		SpriteDirection.x = 0;
 	}
+
+	SpriteClimbing = 1;
+	SpriteDirection.y = -1;
 }
 
 void SpriteClimbingAlignLadderAbove(void)
@@ -310,15 +323,18 @@ void SpriteClimbingAlignLadderAbove(void)
 	{
 		if ((GetTileMapCellCollisionCode(spriteX / 8, SpriteTilePosition.y + 1) & COLLISION_FLAG_LADDER) != 0)
 		{
-			IntendedDirection.x = -1;
+			SpriteDirection.x = -1;
 		}
 		else
 		{
-			IntendedDirection.x = 1;
+			SpriteDirection.x = 1;
 		}
 	}
 	else
 	{
-		IntendedDirection.x = 0;
+		SpriteDirection.x = 0;
 	}
+
+	SpriteClimbing = 1;
+	SpriteDirection.y = 1;
 }

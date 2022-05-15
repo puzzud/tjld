@@ -42,7 +42,7 @@ void FASTCALL CycleSpeedBit(void)
 		}
 }
 
-byte FASTCALL IsMoving(byte speedPatternIndex)
+byte FASTCALL CanMove(byte speedPatternIndex)
 {
 	return ((SpeedBitPatterns[speedPatternIndex][SpeedBitPatternByteTimer] & SpeedBitFlag) == 0) ? 0 : 1;
 }

@@ -3,6 +3,6 @@
 
 extern void FASTCALL InitalizeSpeed(void);
 extern void FASTCALL CycleSpeedBit(void);
-extern byte FASTCALL IsMoving(byte speedPatternIndex);
+extern byte FASTCALL CanMove(byte speedPatternIndex);
 
 #endif
